@@ -1,0 +1,37 @@
+{
+  "name": "filter-ai",
+  "main": "build/scripts.js",
+  "scripts": {
+    "build": "wp-scripts build && wp-scripts plugin-zip",
+    "start": "wp-scripts start"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.23.0",
+    "@types/react": "^19.0.12",
+    "@types/react-dom": "^19.0.4",
+    "@types/wordpress__block-editor": "^11.5.16",
+    "@wordpress/scripts": "^30.13.0",
+    "eslint": "^9.23.0",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-prettier": "^5.2.5",
+    "globals": "^16.0.0",
+    "prettier": "^3.5.3",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.28.0"
+  },
+  "files": [
+    "filter-ai.php",
+    "build"
+  ],
+  "dependencies": {
+    "@wordpress/block-editor": "^14.15.0",
+    "@wordpress/components": "^29.6.0",
+    "@wordpress/data": "^10.20.0",
+    "@wordpress/element": "^6.20.0",
+    "@wordpress/hooks": "^4.20.0",
+    "@wordpress/i18n": "^5.20.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}
