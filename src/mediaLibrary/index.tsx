@@ -1,8 +1,8 @@
 import { DropdownMenu } from '@/components/dropdownMenu';
 import { ai, hideLoadingMessage, showLoadingMessage, showNotice, t } from '@/utils';
 
-// @ts-expect-error can't find Backbone
-const Events = _?.extend({}, window?.Backbone?.Events);
+// @ts-expect-error can't find Underscore or Backbone
+const Events = window?._?.extend({}, window?.Backbone?.Events);
 
 (function () {
   const AttachmentDetails =
