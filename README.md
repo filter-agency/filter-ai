@@ -10,6 +10,8 @@ Once AI Services has been installed navigate to `Settings > AI Services` and con
 
 ## Development
 
+You can either add this repository directly into the plugin directory `wp-content/plugins` of your local WordPress site or work on changes within a standalone directory and then build and update the plugin manually using the generated zip file.
+
 Install dependencies.
 
 `npm install`
@@ -18,8 +20,6 @@ Serve the plugin so any changes are automatically built.
 
 `npm run start`
 
-## Build
-
-Build the plugin and create a zip file.
+Typecheck, build the plugin and create a zip file. This command is also run automatically prior to committing.
 
 `npm run build`

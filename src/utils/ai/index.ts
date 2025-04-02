@@ -1,8 +1,7 @@
-// @ts-expect-error Property 'aiServices' does not exist on type 'Window & typeof globalThis'.
-const { enums, store, helpers } = window.aiServices.ai;
+import { prompts } from './prompts';
+import { getAltTextFromUrl } from './getAltTextFromUrl';
 
 export const ai = {
-  enums,
-  store,
-  helpers,
+  prompts,
+  getAltTextFromUrl,
 };

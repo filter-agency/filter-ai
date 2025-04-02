@@ -59,16 +59,25 @@
       return;
     }
 
-    $script = plugin_dir_url(__FILE__) . 'build/scripts.js';
+    $script = plugin_dir_url(__FILE__) . 'build/index.js';
+    $script_metadata = require plugin_dir_path( __FILE__ ) . 'build/index.asset.php';
+		$script_metadata['dependencies'][] = 'ais-ai-store';
 
     wp_enqueue_script(
       'filter-ai-script',
       $script,
-      array('ais-ai-store'),
+      $script_metadata['dependencies'],
       get_plugin_data(__FILE__)['Version'],
       ['strategy' => 'defer']
     );
+
+    wp_enqueue_style(
+      'filter-ai-styles',
+      plugin_dir_url(__FILE__) . 'build/index.css',
+      array(),
+      get_plugin_data(__FILE__)['Version']
+    );
   }
   
-  add_action('admin_enqueue_scripts', 'filter_ai_enqueue_scripts');
+  add_action('admin_enqueue_scripts', 'filter_ai_enqueue_scripts', -1);
 ?>

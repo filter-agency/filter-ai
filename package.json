@@ -2,7 +2,7 @@
   "name": "filter-ai",
   "main": "build/scripts.js",
   "scripts": {
-    "build": "wp-scripts build && wp-scripts plugin-zip",
+    "build": "tsc && wp-scripts build && wp-scripts plugin-zip",
     "start": "wp-scripts start"
   },
   "devDependencies": {
@@ -15,6 +15,7 @@
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.2.5",
     "globals": "^16.0.0",
+    "husky": "^9.1.7",
     "prettier": "^3.5.3",
     "ts-loader": "^9.5.2",
     "typescript": "^5.8.2",

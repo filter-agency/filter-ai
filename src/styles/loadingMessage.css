@@ -1,0 +1,29 @@
+.filter-ai-loading-message {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000000;
+  background-color: #fff;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  & p {
+    font-size: 1rem;
+    margin-top: 0;
+    margin-bottom: 1em;
+  }
+}
+
+.filter-ai-loading-message-overlay {
+  background: #00000059;
+  position: fixed;
+  z-index: 999999;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}

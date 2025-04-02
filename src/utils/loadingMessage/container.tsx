@@ -1,0 +1,29 @@
+import { useLoadingMessage } from '@/utils';
+import { Modal, Spinner } from '@wordpress/components';
+
+const { render } = window.wp.element;
+
+const container = document.createElement('div');
+container.id = 'filter-ai-loading-message-container';
+
+document.body.appendChild(container);
+
+const LoadingMessage = () => {
+  const loadingMessage = useLoadingMessage();
+
+  if (!loadingMessage) {
+    return null;
+  }
+
+  return (
+    <>
+      <div className="filter-ai-loading-message-overlay" />
+      <div className="filter-ai-loading-message">
+        <p>{loadingMessage}</p>
+        <Spinner />
+      </div>
+    </>
+  );
+};
+
+render(<LoadingMessage />, container);
