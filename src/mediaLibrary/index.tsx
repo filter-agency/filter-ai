@@ -1,8 +1,10 @@
 import { DropdownMenu } from '@/components/dropdownMenu';
+import { useSettings } from '@/settings';
 import { ai, hideLoadingMessage, showLoadingMessage, showNotice, t } from '@/utils';
+import { useMemo } from '@wordpress/element';
+import _ from 'underscore';
 
-// @ts-expect-error can't find Underscore or Backbone
-const Events = window?._?.extend({}, window?.Backbone?.Events);
+const Events = _.extend({}, window?.Backbone?.Events);
 
 (function () {
   const AttachmentDetails =
@@ -18,19 +20,22 @@ const Events = window?._?.extend({}, window?.Backbone?.Events);
 
       this.listenTo(Events, 'filter-ai:generateAltText', this.generateAltText);
     },
-    async generateAltText(event: Event) {
-      event?.preventDefault();
-
+    async generateAltText(customPrompt?: string) {
       showLoadingMessage(t('Generating alt text'));
 
       try {
-        const altText = await ai.getAltTextFromUrl(this.model.get('url'));
+        const altText = await ai.getAltTextFromUrl(this.model.get('url'), customPrompt);
+
         if (!altText) {
           throw new Error(t('Sorry, there has been an issue while generating your alt text 0.'));
         }
+
         this.model.set('alt', altText);
+
         this.model.save();
+
         this.render();
+
         showNotice(t('Alt text has been updated.'));
       } catch (error) {
         console.error(error);
@@ -57,7 +62,28 @@ const Events = window?._?.extend({}, window?.Backbone?.Events);
     return;
   }
 
-  const { render } = window.wp.element;
+  const { createRoot } = window.wp.element;
+
+  const ModalButton = () => {
+    const { settings } = useSettings();
+
+    const controls = useMemo(() => {
+      const options = [];
+
+      if (settings?.image_alt_text_enabled) {
+        options.push({
+          title: t('Generate Alt Text'),
+          onClick: () => {
+            Events.trigger('filter-ai:generateAltText', settings?.image_alt_text_prompt);
+          },
+        });
+      }
+
+      return options;
+    }, [settings]);
+
+    return <DropdownMenu controls={controls} />;
+  };
 
   const OverrideModal = Modal.extend({
     render: function () {
@@ -68,23 +94,13 @@ const Events = window?._?.extend({}, window?.Backbone?.Events);
       const container = document.createElement('div');
       container.id = 'filter-ai-media-modal-container';
 
+      const root = createRoot(container);
+
       this.$el.find('.edit-media-header').addClass('filter-ai-edit-media-header');
 
       this.$el.find('.media-modal-close').before(container);
 
-      render(
-        <DropdownMenu
-          controls={[
-            {
-              title: t('Generate Alt Text'),
-              onClick: () => {
-                Events.trigger('filter-ai:generateAltText');
-              },
-            },
-          ]}
-        />,
-        container
-      );
+      root.render(<ModalButton />);
     },
   });
 

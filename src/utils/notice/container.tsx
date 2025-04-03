@@ -17,7 +17,7 @@ const NoticeContainer = () => {
 
   return (
     <div className="filter-ai-notice">
-      <Animate type="appear" options={{ origin: 'bottom right' }}>
+      <Animate type="appear">
         {({ className }) => (
           <Snackbar className={className} onDismiss={() => hideNotice()}>
             {notice}

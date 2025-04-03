@@ -16,10 +16,33 @@
 
 <?php
   function filter_ai_settings_init() {
-    register_setting('filterAI', 'filter_ai_settings');
-  }
+    $default = array(
+      'image_alt_text_enabled' => true,
+      'image_alt_text_prompt' => ''
+    );
+    
+    $schema = array(
+      'type' => 'object',
+      'properties' => array(
+        'image_alt_text_enabled' => array('type' => 'boolean'),
+        'image_alt_text_prompt' => array('type' => 'string')
+      )
+    );
 
-  add_action('admin_init', 'filter_ai_settings_init');
+    register_setting(
+      'options', 
+      'filter_ai_settings', 
+      array(
+        'type' => 'object',
+        'default' => $default,
+        'show_in_rest' => array(
+          'schema' => $schema
+        )
+      )
+    );
+  }
+  
+  add_action('init', 'filter_ai_settings_init');
 ?>
 
 <?php
@@ -36,10 +59,26 @@
 
 <?php
   function filter_ai_options_page() {
+    if (!current_user_can('manage_options')) {
+      return;
+    }
+
+    try {
+      ai_services()->get_available_service();
+    } catch (InvalidArgumentException $e) {
+      add_settings_error(
+        'filter_ai_messages',
+        'filter_ai_message_missing_plugin',
+        __('Please activate an AI within the <a href="options-general.php?page=ais_services">AI Services</a> plugin.', 'filter_ai'),
+        'warning'
+      );
+    }
+
+    settings_errors('filter_ai_messages');
 ?>
-  <div>
+  <div class="wrap">
     <h1>Filter AI Settings</h1>
-    <p>Version: <?php echo get_plugin_data(__FILE__)['Version']; ?></p>
+    <div id="filter-ai-settings-container"></div>
   </div>
 <?php
   }
@@ -61,7 +100,7 @@
 
     $script = plugin_dir_url(__FILE__) . 'build/index.js';
     $script_metadata = require plugin_dir_path( __FILE__ ) . 'build/index.asset.php';
-		$script_metadata['dependencies'][] = 'ais-ai-store';
+		array_push($script_metadata['dependencies'], 'ais-ai-store', 'underscore');
 
     wp_enqueue_script(
       'filter-ai-script',
@@ -70,6 +109,9 @@
       get_plugin_data(__FILE__)['Version'],
       ['strategy' => 'defer']
     );
+
+    wp_enqueue_style('wp-components');
+    wp_enqueue_style('wp-preferences');
 
     wp_enqueue_style(
       'filter-ai-styles',

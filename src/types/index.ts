@@ -8,5 +8,6 @@ declare global {
   interface Window {
     wp: any;
     aiServices: any;
+    Backbone: any;
   }
 }

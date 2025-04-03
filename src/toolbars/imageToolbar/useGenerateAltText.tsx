@@ -1,3 +1,4 @@
+import { useSettings } from '@/settings';
 import { BlockEditProps } from '@/types';
 import { t, showNotice, ai, hideLoadingMessage, showLoadingMessage } from '@/utils';
 
@@ -7,11 +8,13 @@ type Props = {
 };
 
 export const useGenerateAltText = ({ attributes, setAttributes }: Props) => {
+  const { settings } = useSettings();
+
   const generateAltText = async () => {
     showLoadingMessage(t('Generating alt text'));
 
     try {
-      const altText = await ai.getAltTextFromUrl(attributes.url);
+      const altText = await ai.getAltTextFromUrl(attributes.url, settings?.image_alt_text_prompt);
 
       if (!altText) {
         throw new Error(t('Sorry, there has been an issue while generating your alt text.'));
@@ -29,6 +32,10 @@ export const useGenerateAltText = ({ attributes, setAttributes }: Props) => {
       hideLoadingMessage();
     }
   };
+
+  if (!settings?.image_alt_text_enabled) {
+    return;
+  }
 
   return {
     title: t('Generate Alt Text'),

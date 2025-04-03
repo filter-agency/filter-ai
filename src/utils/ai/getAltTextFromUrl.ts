@@ -8,7 +8,7 @@ const { enums, helpers } = window.aiServices.ai;
 
 const capabilities = [enums.AiCapability.MULTIMODAL_INPUT, enums.AiCapability.TEXT_GENERATION];
 
-export const getAltTextFromUrl = async (url: string) => {
+export const getAltTextFromUrl = async (url: string, customPrompt?: string) => {
   const service = await getService(capabilities);
 
   if (!service || !url) {
@@ -28,7 +28,7 @@ export const getAltTextFromUrl = async (url: string) => {
 
     const base64Image = await getBase64Image(url);
 
-    let prompt = prompts.image.altText;
+    let prompt = customPrompt || prompts.image.altText;
 
     const candidates = await service.generateText(
       {
@@ -53,5 +53,6 @@ export const getAltTextFromUrl = async (url: string) => {
 
     return getTextFromContents(helpers.getCandidateContents(candidates));
   } finally {
+    // empty finally as the catch is handled by parent
   }
 };

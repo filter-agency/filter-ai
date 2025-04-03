@@ -1,6 +1,6 @@
 import { ComponentType } from 'react';
 import { addFilter } from '@wordpress/hooks';
-import { ImageToolbar } from './image';
+import { ImageToolbar } from './imageToolbar';
 import { BlockEditProps } from '@/types';
 
 const addBlockToolbar = (BlockEdit: ComponentType<BlockEditProps>) =>
