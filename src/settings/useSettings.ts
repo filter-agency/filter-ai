@@ -3,6 +3,9 @@ import { useDispatch } from '@wordpress/data';
 export type FilterAISettings = {
   image_alt_text_enabled?: boolean;
   image_alt_text_prompt?: string;
+
+  post_excerpt_enabled?: boolean;
+  post_excerpt_prompt?: string;
 };
 
 const settingsKey = 'filter_ai_settings';

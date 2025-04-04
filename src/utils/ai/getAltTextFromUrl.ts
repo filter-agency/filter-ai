@@ -28,7 +28,7 @@ export const getAltTextFromUrl = async (url: string, customPrompt?: string) => {
 
     const base64Image = await getBase64Image(url);
 
-    let prompt = customPrompt || prompts.image.altText;
+    const prompt = customPrompt || prompts.image.altText;
 
     const candidates = await service.generateText(
       {

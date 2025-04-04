@@ -8,7 +8,7 @@ const Events = _.extend({}, window?.Backbone?.Events);
 
 (function () {
   const AttachmentDetails =
-    window.wp.media?.view?.Attachment?.Details?.TwoColumn || window.wp?.media?.view?.Attachment?.Details;
+    window.wp.media?.view?.Attachment?.Details?.TwoColumn || window.wp.media?.view?.Attachment?.Details;
 
   if (!AttachmentDetails) {
     return;

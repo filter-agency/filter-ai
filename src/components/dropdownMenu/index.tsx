@@ -2,11 +2,9 @@ import { ComponentProps } from 'react';
 import { filterLogo } from '@/assets/filter-logo';
 import { DropdownMenu as WP_DropdownMenu } from '@wordpress/components';
 
-type Props = {
-  controls: ComponentProps<typeof WP_DropdownMenu>['controls'];
-};
+type Props = Partial<ComponentProps<typeof WP_DropdownMenu>>;
 
-export const DropdownMenu = ({ controls = [] }: Props) => {
+export const DropdownMenu = (props: Props) => {
   return (
     <WP_DropdownMenu
       icon={<img src={filterLogo} alt="Filter AI" />}
@@ -15,7 +13,7 @@ export const DropdownMenu = ({ controls = [] }: Props) => {
       popoverProps={{
         className: 'filter-ai-components-popover',
       }}
-      controls={controls}
+      {...props}
     />
   );
 };

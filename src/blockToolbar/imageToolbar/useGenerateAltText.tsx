@@ -26,7 +26,7 @@ export const useGenerateAltText = ({ attributes, setAttributes }: Props) => {
     } catch (error) {
       console.error(error);
 
-      // @ts-expect-error
+      // @ts-expect-error Property 'message' does not exist on type '{}'
       showNotice(error?.message || error);
     } finally {
       hideLoadingMessage();

@@ -1,7 +1,9 @@
 import './styles/index.css';
-import './toolbars';
-import './mediaLibrary';
+
 import './settings';
+import './blockToolbar';
+import './mediaLibrary';
+import './postToolbar';
 
 import './utils/notice/container';
 import './utils/loadingMessage/container';

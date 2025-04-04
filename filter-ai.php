@@ -2,7 +2,7 @@
   /**
    * Plugin Name: Filter AI
    * Description: Meet your digital sidekick: Filter AI, a plugin that tackles your to-do list faster than you can say 'procrastination'!
-   * Version: 0.1.0
+   * Version: 0.1.1
    * Author: Filter
    * Author URI: https://filter.agency
    * Text Domain: filter-ai
@@ -15,17 +15,14 @@
 ?>
 
 <?php
-  function filter_ai_settings_init() {
-    $default = array(
-      'image_alt_text_enabled' => true,
-      'image_alt_text_prompt' => ''
-    );
-    
+  function filter_ai_settings_init() {   
     $schema = array(
       'type' => 'object',
       'properties' => array(
         'image_alt_text_enabled' => array('type' => 'boolean'),
-        'image_alt_text_prompt' => array('type' => 'string')
+        'image_alt_text_prompt' => array('type' => 'string'),
+        'post_excerpt_enabled' => array('type' => 'boolean'),
+        'post_excerpt_propmpt' => array('type' => 'string'),
       )
     );
 
@@ -34,7 +31,6 @@
       'filter_ai_settings', 
       array(
         'type' => 'object',
-        'default' => $default,
         'show_in_rest' => array(
           'schema' => $schema
         )

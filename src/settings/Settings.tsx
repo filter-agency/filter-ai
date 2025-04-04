@@ -1,5 +1,14 @@
 import { ai, showNotice, t } from '@/utils';
-import { ToggleControl, Panel, PanelRow, PanelBody, TextareaControl, Button } from '@wordpress/components';
+import {
+  ToggleControl,
+  Panel,
+  PanelRow,
+  PanelBody,
+  TextareaControl,
+  Button,
+  Flex,
+  FlexItem,
+} from '@wordpress/components';
 import { createRoot, useState, useEffect, useMemo } from '@wordpress/element';
 import { FilterAISettings, useSettings } from './useSettings';
 import _ from 'underscore';
@@ -59,8 +68,8 @@ const Settings = () => {
   }
 
   return (
-    <>
-      <Panel header="Image alt text" className="filter-ai-settings">
+    <Flex direction="column" gap="6" className="filter-ai-settings">
+      <Panel header="Image alt text">
         <PanelBody>
           <PanelRow>
             {t('Generate descriptive text about the selected image for use as the alternative text.')}
@@ -91,10 +100,43 @@ const Settings = () => {
           </PanelRow>
         </PanelBody>
       </Panel>
-      <Button onClick={saveChanges} variant="primary">
-        {t('Save Changes')}
-      </Button>
-    </>
+
+      <Panel header="Post Excerpt">
+        <PanelBody>
+          <PanelRow>{t('Generate an excerpt based on post content.')}</PanelRow>
+          <PanelRow>
+            <ToggleControl
+              __nextHasNoMarginBottom
+              label={t('Enable feature')}
+              onChange={(newValue) => {
+                onChange('post_excerpt_enabled', newValue);
+              }}
+              checked={formData?.post_excerpt_enabled}
+            />
+          </PanelRow>
+          <PanelRow>
+            <div style={{ flex: 1 }}>
+              <TextareaControl
+                __nextHasNoMarginBottom
+                label={t('Custom Prompt')}
+                value={formData?.post_excerpt_prompt || ''}
+                placeholder={ai.prompts.post.excerpt}
+                onChange={(newValue) => {
+                  onChange('post_excerpt_prompt', newValue);
+                }}
+                disabled={!formData?.post_excerpt_enabled}
+              />
+            </div>
+          </PanelRow>
+        </PanelBody>
+      </Panel>
+
+      <FlexItem>
+        <Button onClick={saveChanges} variant="primary">
+          {t('Save Changes')}
+        </Button>
+      </FlexItem>
+    </Flex>
   );
 };
 

@@ -3,7 +3,7 @@ import { addFilter } from '@wordpress/hooks';
 import { ImageToolbar } from './imageToolbar';
 import { BlockEditProps } from '@/types';
 
-const addBlockToolbar = (BlockEdit: ComponentType<BlockEditProps>) =>
+const BlockToolbar = (BlockEdit: ComponentType<BlockEditProps>) =>
   function (props: BlockEditProps) {
     const { name } = props;
 
@@ -15,4 +15,4 @@ const addBlockToolbar = (BlockEdit: ComponentType<BlockEditProps>) =>
     );
   };
 
-addFilter('editor.BlockEdit', 'filter-ai/add-block-toolbar', addBlockToolbar);
+addFilter('editor.BlockEdit', 'filter-ai/block-toolbar', BlockToolbar);
