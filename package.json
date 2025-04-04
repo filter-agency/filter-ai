@@ -3,7 +3,8 @@
   "main": "build/scripts.js",
   "scripts": {
     "build": "tsc && wp-scripts build && wp-scripts plugin-zip",
-    "start": "wp-scripts start"
+    "start": "wp-scripts start",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@eslint/js": "^9.23.0",
