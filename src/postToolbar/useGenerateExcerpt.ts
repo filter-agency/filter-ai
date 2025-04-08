@@ -6,7 +6,7 @@ export const useGenerateExcerpt = () => {
   const { settings } = useSettings();
   const { editPost } = useDispatch('core/editor');
 
-  const { excerptPanelEnabled, content } = useSelect((select) => {
+  const { excerptPanelEnabled, content, oldExcerpt } = useSelect((select) => {
     const { getCurrentPostType, isEditorPanelEnabled, getEditedPostAttribute } = select('core/editor');
 
     // @ts-expect-error Type 'never' has no call signatures.
@@ -21,17 +21,21 @@ export const useGenerateExcerpt = () => {
     // @ts-expect-error Type 'never' has no call signatures.
     const _content = getEditedPostAttribute('content');
 
+    // @ts-expect-error Type 'never' has no call signatures.
+    const _oldExcerpt = getEditedPostAttribute('excerpt');
+
     return {
       excerptPanelEnabled: _excerptPanelEnabled,
       content: _content,
+      oldExcerpt: _oldExcerpt,
     };
   }, []);
 
-  const generateExcerpt = async () => {
+  const onClick = async () => {
     showLoadingMessage(t('Generating excerpt'));
 
     try {
-      const excerpt = await ai.getExcerptFromContent(content, settings?.post_excerpt_prompt);
+      const excerpt = await ai.getExcerptFromContent(content, oldExcerpt, settings?.post_excerpt_prompt);
 
       if (!excerpt) {
         throw new Error(t('Sorry, there has been an issue while generating your excerpt.'));
@@ -56,6 +60,6 @@ export const useGenerateExcerpt = () => {
 
   return {
     title: t('Generate Excerpt'),
-    onClick: generateExcerpt,
+    onClick,
   };
 };

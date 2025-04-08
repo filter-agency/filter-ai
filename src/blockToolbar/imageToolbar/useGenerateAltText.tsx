@@ -8,14 +8,14 @@ type Props = {
   setAttributes: BlockEditProps['setAttributes'];
 };
 
-const altKeys = ['alt', 'mediaAlt'];
+const altTextKeys = ['alt', 'mediaAlt'];
 const urlKeys = ['url', 'mediaUrl'];
 
 export const useGenerateAltText = ({ attributes, setAttributes }: Props) => {
   const { settings } = useSettings();
 
   const isEnabled = useMemo(() => {
-    return settings?.image_alt_text_enabled && altKeys.some((key) => attributes.hasOwnProperty(key));
+    return settings?.image_alt_text_enabled && altTextKeys.some((key) => attributes.hasOwnProperty(key));
   }, [settings, attributes]);
 
   const isDisabled = useMemo(() => {
@@ -45,14 +45,15 @@ export const useGenerateAltText = ({ attributes, setAttributes }: Props) => {
 
     try {
       const url = getAttribute(urlKeys);
+      const oldAltText = getAttribute(altTextKeys);
 
-      const altText = await ai.getAltTextFromUrl(url, settings?.image_alt_text_prompt);
+      const altText = await ai.getAltTextFromUrl(url, oldAltText, settings?.image_alt_text_prompt);
 
       if (!altText) {
         throw new Error(t('Sorry, there has been an issue while generating your alt text.'));
       }
 
-      setAttribute(altText, altKeys);
+      setAttribute(altText, altTextKeys);
 
       showNotice(t('Alt text has been updated.'));
     } catch (error) {

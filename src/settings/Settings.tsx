@@ -101,6 +101,36 @@ const Settings = () => {
         </PanelBody>
       </Panel>
 
+      <Panel header="Post Title">
+        <PanelBody>
+          <PanelRow>{t('Generate a page title based on post content.')}</PanelRow>
+          <PanelRow>
+            <ToggleControl
+              __nextHasNoMarginBottom
+              label={t('Enable feature')}
+              onChange={(newValue) => {
+                onChange('post_title_enabled', newValue);
+              }}
+              checked={formData?.post_title_enabled}
+            />
+          </PanelRow>
+          <PanelRow>
+            <div style={{ flex: 1 }}>
+              <TextareaControl
+                __nextHasNoMarginBottom
+                label={t('Custom Prompt')}
+                value={formData?.post_title_prompt || ''}
+                placeholder={ai.prompts.post.title}
+                onChange={(newValue) => {
+                  onChange('post_title_prompt', newValue);
+                }}
+                disabled={!formData?.post_title_enabled}
+              />
+            </div>
+          </PanelRow>
+        </PanelBody>
+      </Panel>
+
       <Panel header="Post Excerpt">
         <PanelBody>
           <PanelRow>{t('Generate an excerpt based on post content.')}</PanelRow>

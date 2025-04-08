@@ -2,7 +2,7 @@
   /**
    * Plugin Name: Filter AI
    * Description: Meet your digital sidekick: Filter AI, a plugin that tackles your to-do list faster than you can say 'procrastination'!
-   * Version: 0.1.3
+   * Version: 0.1.4
    * Author: Filter
    * Author URI: https://filter.agency
    * Text Domain: filter-ai
@@ -19,6 +19,8 @@
       'properties' => array(
         'image_alt_text_enabled' => array('type' => 'boolean'),
         'image_alt_text_prompt' => array('type' => 'string'),
+        'post_title_enabled' => array('type' => 'boolean'),
+        'post_title_prompt' => array('type' => 'string'),
         'post_excerpt_enabled' => array('type' => 'boolean'),
         'post_excerpt_prompt' => array('type' => 'string'),
       )

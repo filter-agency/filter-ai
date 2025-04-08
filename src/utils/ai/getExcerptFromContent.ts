@@ -1,38 +1,18 @@
-import { getService } from './getService';
-import { getTextFromContents } from './getTextFromContents';
+import { generateText } from './services';
 import { prompts } from './prompts';
+import { t } from '../translate';
 
-const { enums, helpers } = window.aiServices.ai;
-
-const capabilities = [enums.AiCapability.TEXT_GENERATION];
-
-export const getExcerptFromContent = async (content: string, customPrompt?: string) => {
-  const service = await getService(capabilities);
-
-  if (!service || !content) {
-    return null;
+export const getExcerptFromContent = async (content: string, oldExcerpt?: string, customPrompt?: string) => {
+  if (!content) {
+    throw new Error(t('Please add some content first.'));
   }
 
-  try {
-    const prompt = customPrompt || prompts.post.excerpt;
+  const prePrompt = oldExcerpt ? `${t(prompts.common.different)} "${oldExcerpt}".` : '';
 
-    const candidates = await service.generateText(
-      {
-        role: enums.ContentRole.USER,
-        parts: [
-          {
-            text: `${prompt} ${content}`,
-          },
-        ],
-      },
-      {
-        feature: 'filter-ai-post-excerpt',
-        capabilities,
-      }
-    );
+  const prompt = customPrompt || prompts.post.excerpt;
 
-    return getTextFromContents(helpers.getCandidateContents(candidates));
-  } finally {
-    // empty finally as the catch is handled by parent
-  }
+  return generateText({
+    feature: 'filter-ai-post-excerpt',
+    prompt: `${prePrompt} ${t(prompt)} ${content}`,
+  });
 };

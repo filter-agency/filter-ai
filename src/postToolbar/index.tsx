@@ -1,12 +1,16 @@
 import { DropdownMenu } from '@/components/dropdownMenu';
 import { createRoot } from '@wordpress/element';
+import { useGenerateTitle } from './useGenerateTitle';
 import { useGenerateExcerpt } from './useGenerateExcerpt';
 import _ from 'underscore';
 
 const PostToolbar = () => {
+  const generateTitle = useGenerateTitle();
   const generateExcerpt = useGenerateExcerpt();
 
-  return <DropdownMenu controls={_.compact([generateExcerpt])} toggleProps={{ className: 'is-small' }} />;
+  return (
+    <DropdownMenu controls={_.compact([generateTitle, generateExcerpt])} toggleProps={{ className: 'is-small' }} />
+  );
 };
 
 const addToolbar = () => {
