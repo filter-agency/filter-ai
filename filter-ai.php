@@ -2,7 +2,7 @@
   /**
    * Plugin Name: Filter AI
    * Description: Meet your digital sidekick: Filter AI, a plugin that tackles your to-do list faster than you can say 'procrastination'!
-   * Version: 0.1.2
+   * Version: 0.1.3
    * Author: Filter
    * Author URI: https://filter.agency
    * Text Domain: filter-ai
@@ -12,9 +12,7 @@
   if (!defined('ABSPATH')) {
     exit;
   }
-?>
 
-<?php
   function filter_ai_settings_init() {   
     $schema = array(
       'type' => 'object',
@@ -39,9 +37,7 @@
   }
   
   add_action('init', 'filter_ai_settings_init');
-?>
 
-<?php
   function add_action_links($actions) {
     $pluginLinks = array(
       '<a href="' . admin_url('options-general.php?page=filter_ai') . '">Settings</a>'
@@ -51,9 +47,7 @@
   }
 
   add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'add_action_links');
-?>
 
-<?php
   function filter_ai_options_page() {
     if (!current_user_can('manage_options')) {
       return;
@@ -78,17 +72,13 @@
   </div>
 <?php
   }
-?>
 
-<?php
   function filter_ai_add_admin_menu() {
     add_options_page('Filter AI', 'Filter AI', 'manage_options', 'filter_ai', 'filter_ai_options_page');
   }
 
   add_action('admin_menu', 'filter_ai_add_admin_menu');
-?>
 
-<?php
   function filter_ai_enqueue_scripts() {
     if (!function_exists('ai_services')) {
       return;
