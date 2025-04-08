@@ -10,7 +10,7 @@ const BlockToolbar = (BlockEdit: ComponentType<BlockEditProps>) =>
     return (
       <>
         <BlockEdit {...props} />
-        {name === 'core/image' && <ImageToolbar {...props} />}
+        {['core/image', 'core/cover', 'core/media-text'].includes(name) && <ImageToolbar {...props} />}
       </>
     );
   };
