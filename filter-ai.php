@@ -22,7 +22,7 @@
         'image_alt_text_enabled' => array('type' => 'boolean'),
         'image_alt_text_prompt' => array('type' => 'string'),
         'post_excerpt_enabled' => array('type' => 'boolean'),
-        'post_excerpt_propmpt' => array('type' => 'string'),
+        'post_excerpt_prompt' => array('type' => 'string'),
       )
     );
 
