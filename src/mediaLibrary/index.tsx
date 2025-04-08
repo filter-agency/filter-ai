@@ -1,7 +1,7 @@
 import { DropdownMenu } from '@/components/dropdownMenu';
 import { useSettings } from '@/settings';
 import { ai, hideLoadingMessage, showLoadingMessage, showNotice, t } from '@/utils';
-import { useMemo } from '@wordpress/element';
+import { useEffect, useMemo, useState } from '@wordpress/element';
 import _ from 'underscore';
 
 const Events = _.extend({}, window?.Backbone?.Events);
@@ -15,10 +15,19 @@ const Events = _.extend({}, window?.Backbone?.Events);
   }
 
   const OverrideAttachmentDetails = AttachmentDetails.extend({
-    initialize: function () {
+    render: function () {
       AttachmentDetails.prototype.render.apply(this, arguments);
 
       this.listenTo(Events, 'filter-ai:generateAltText', this.generateAltText);
+
+      Events.trigger('filter-ai:generateAltTextEnabled', true);
+    },
+    remove: function () {
+      AttachmentDetails.prototype.remove.apply(this);
+
+      this.stopListening(Events, 'filter-ai:generateAltText', this.generateAltText);
+
+      Events.trigger('filter-ai:generateAltTextEnabled', false);
     },
     async generateAltText(customPrompt?: string) {
       showLoadingMessage(t('Generating alt text'));
@@ -65,6 +74,8 @@ const Events = _.extend({}, window?.Backbone?.Events);
   const { createRoot } = window.wp.element;
 
   const ModalButton = () => {
+    const [generateAltTextEnabled, setGenerateAltTextEnabled] = useState(false);
+
     const { settings } = useSettings();
 
     const controls = useMemo(() => {
@@ -76,11 +87,20 @@ const Events = _.extend({}, window?.Backbone?.Events);
           onClick: () => {
             Events.trigger('filter-ai:generateAltText', settings?.image_alt_text_prompt);
           },
+          isDisabled: !generateAltTextEnabled,
         });
       }
 
       return options;
-    }, [settings]);
+    }, [settings, generateAltTextEnabled]);
+
+    useEffect(() => {
+      Events.listenTo(Events, 'filter-ai:generateAltTextEnabled', setGenerateAltTextEnabled);
+
+      return () => {
+        Events.stopListening(Events, 'filter-ai:generateAltTextEnabled', setGenerateAltTextEnabled);
+      };
+    }, []);
 
     return <DropdownMenu controls={controls} />;
   };
