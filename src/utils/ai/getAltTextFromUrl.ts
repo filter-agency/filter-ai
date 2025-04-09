@@ -1,5 +1,5 @@
-import { getBase64Image, getMimeType, supportedMimeTypes } from '../image';
-import { t } from '../translate';
+import { getBase64Image, getMimeType, supportedMimeTypes } from '@/utils/image';
+import { t } from '@/utils/translate';
 import { generateText, aiCapability } from './services';
 import { prompts } from './prompts';
 

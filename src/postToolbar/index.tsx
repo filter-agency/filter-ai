@@ -3,14 +3,16 @@ import { createRoot } from '@wordpress/element';
 import { useGenerateTitle } from './useGenerateTitle';
 import { useGenerateExcerpt } from './useGenerateExcerpt';
 import _ from 'underscore';
+import { useGenerateTags } from './useGenerateTags';
 
 const PostToolbar = () => {
   const generateTitle = useGenerateTitle();
   const generateExcerpt = useGenerateExcerpt();
+  const generateTags = useGenerateTags();
 
-  return (
-    <DropdownMenu controls={_.compact([generateTitle, generateExcerpt])} toggleProps={{ className: 'is-small' }} />
-  );
+  const controls = _.compact([generateTitle, generateExcerpt, generateTags]);
+
+  return <DropdownMenu controls={controls} toggleProps={{ className: 'is-small' }} />;
 };
 
 const addToolbar = () => {

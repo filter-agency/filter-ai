@@ -1,6 +1,6 @@
 import { generateText } from './services';
 import { prompts } from './prompts';
-import { t } from '../translate';
+import { t } from '@/utils/translate';
 
 export const getTitleFromContent = async (content: string, oldTitle?: string, customPrompt?: string) => {
   if (!content) {

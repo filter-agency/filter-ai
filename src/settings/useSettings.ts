@@ -9,6 +9,9 @@ export type FilterAISettings = {
 
   post_excerpt_enabled?: boolean;
   post_excerpt_prompt?: string;
+
+  post_tags_enabled?: boolean;
+  post_tags_prompt?: string;
 };
 
 const settingsKey = 'filter_ai_settings';

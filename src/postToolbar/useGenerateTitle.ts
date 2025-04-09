@@ -51,6 +51,5 @@ export const useGenerateTitle = () => {
   return {
     title: t('Generate Title'),
     onClick,
-    //isDisabled: !content,
   };
 };

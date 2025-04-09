@@ -103,7 +103,7 @@ const Settings = () => {
 
       <Panel header="Post Title">
         <PanelBody>
-          <PanelRow>{t('Generate a page title based on post content.')}</PanelRow>
+          <PanelRow>{t('Generate a page title based on the post content.')}</PanelRow>
           <PanelRow>
             <ToggleControl
               __nextHasNoMarginBottom
@@ -133,7 +133,7 @@ const Settings = () => {
 
       <Panel header="Post Excerpt">
         <PanelBody>
-          <PanelRow>{t('Generate an excerpt based on post content.')}</PanelRow>
+          <PanelRow>{t('Generate an excerpt based on the post content.')}</PanelRow>
           <PanelRow>
             <ToggleControl
               __nextHasNoMarginBottom
@@ -155,6 +155,36 @@ const Settings = () => {
                   onChange('post_excerpt_prompt', newValue);
                 }}
                 disabled={!formData?.post_excerpt_enabled}
+              />
+            </div>
+          </PanelRow>
+        </PanelBody>
+      </Panel>
+
+      <Panel header="Post Tags">
+        <PanelBody>
+          <PanelRow>{t('Generate tags based on the post content.')}</PanelRow>
+          <PanelRow>
+            <ToggleControl
+              __nextHasNoMarginBottom
+              label={t('Enable feature')}
+              onChange={(newValue) => {
+                onChange('post_tags_enabled', newValue);
+              }}
+              checked={formData?.post_tags_enabled}
+            />
+          </PanelRow>
+          <PanelRow>
+            <div style={{ flex: 1 }}>
+              <TextareaControl
+                __nextHasNoMarginBottom
+                label={t('Custom Prompt')}
+                value={formData?.post_tags_prompt || ''}
+                placeholder={ai.prompts.post.tags}
+                onChange={(newValue) => {
+                  onChange('post_tags_prompt', newValue);
+                }}
+                disabled={!formData?.post_tags_enabled}
               />
             </div>
           </PanelRow>

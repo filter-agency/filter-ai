@@ -10,5 +10,6 @@ export const prompts = {
     title:
       'Please generate an SEO-friendly title for this page that is between 40 and 60 characters based on the following content:',
     excerpt: 'Please generate a summary of no more than 50 words for the following content:',
+    tags: 'Please generate a list of {{number}} words that describe specific details for the following content:',
   },
 };

@@ -1,6 +1,6 @@
 import { generateText } from './services';
 import { prompts } from './prompts';
-import { t } from '../translate';
+import { t } from '@/utils/translate';
 
 export const getExcerptFromContent = async (content: string, oldExcerpt?: string, customPrompt?: string) => {
   if (!content) {
