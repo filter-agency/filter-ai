@@ -14,7 +14,7 @@
   justify-content: center;
   cursor: pointer;
   background-color: transparent;
-  padding: 0;
+  padding: 1px !important;
   text-align: center;
   border: 0;
   transition:
@@ -22,8 +22,9 @@
     background 0.1s ease-in-out;
 
   & img {
-    width: 16px;
-    height: auto;
+    max-width: 15px;
+    width: auto;
+    height: 100%;
   }
 }
 
