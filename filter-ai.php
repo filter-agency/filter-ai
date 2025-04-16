@@ -2,7 +2,7 @@
   /**
    * Plugin Name: Filter AI
    * Description: Meet your digital sidekick: Filter AI, a plugin that tackles your to-do list faster than you can say 'procrastination'!
-   * Version: 0.1.7
+   * Version: 0.1.8
    * Author: Filter
    * Author URI: https://filter.agency
    * Text Domain: filter-ai
@@ -19,12 +19,30 @@
       'properties' => array(
         'image_alt_text_enabled' => array('type' => 'boolean'),
         'image_alt_text_prompt' => array('type' => 'string'),
+
         'post_title_enabled' => array('type' => 'boolean'),
         'post_title_prompt' => array('type' => 'string'),
+
         'post_excerpt_enabled' => array('type' => 'boolean'),
         'post_excerpt_prompt' => array('type' => 'string'),
+
         'post_tags_enabled' => array('type' => 'boolean'),
         'post_tags_prompt' => array('type' => 'string'),
+
+        'customise_text_rewrite_enabled' => array('type' => 'boolean'),
+        'customise_text_rewrite_prompt' => array('type' => 'string'),
+
+        'customise_text_expand_enabled' => array('type' => 'boolean'),
+        'customise_text_expand_prompt' => array('type' => 'string'),
+
+        'customise_text_condense_enabled' => array('type' => 'boolean'),
+        'customise_text_condense_prompt' => array('type' => 'string'),
+        
+        'customise_text_summarise_enabled' => array('type' => 'boolean'),
+        'customise_text_summarise_prompt' => array('type' => 'string'),
+
+        'customise_text_change_tone_enabled' => array('type' => 'boolean'),
+        'customise_text_change_tone_prompt' => array('type' => 'string'),
       )
     );
 
@@ -70,10 +88,7 @@
 
     settings_errors('filter_ai_messages');
 ?>
-  <div class="wrap">
-    <h1>Filter AI Settings</h1>
-    <div id="filter-ai-settings-container"></div>
-  </div>
+  <div class="wrap" id="filter-ai-settings-container"></div>
 <?php
   }
 

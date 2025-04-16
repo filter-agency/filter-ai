@@ -9,7 +9,7 @@ export const getTitleFromContent = async (content: string, oldTitle?: string, cu
 
   const prePrompt = oldTitle ? `${t(prompts.common.different)} "${oldTitle}".` : '';
 
-  const prompt = customPrompt || prompts.post.title;
+  const prompt = customPrompt || prompts.post_title_prompt;
 
   return generateText({
     feature: 'filter-ai-post-title',

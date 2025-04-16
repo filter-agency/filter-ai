@@ -29,7 +29,7 @@ export const getTagsFromContent = async (content: string, oldTags = [], customPr
     ? `${t('Making sure they are different to the following tags:')} "${oldTags.join(', ')}".`
     : '';
 
-  const prompt = customPrompt || prompts.post.tags.replace('{{number}}', number.toString());
+  const prompt = customPrompt || prompts.post_tags_prompt.replace('{{number}}', number.toString());
 
   const response = await generateText({
     feature: 'filter-ai-post-tags',

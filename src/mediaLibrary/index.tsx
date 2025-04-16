@@ -49,7 +49,7 @@ const Events = _.extend({}, window?.Backbone?.Events);
       } catch (error) {
         console.error(error);
 
-        // @ts-expect-error
+        // @ts-expect-error Property 'message' does not exist on type '{}'
         showNotice(error?.message || error);
       } finally {
         hideLoadingMessage();

@@ -4,7 +4,7 @@ import { DropdownMenu as WP_DropdownMenu } from '@wordpress/components';
 
 type Props = Partial<ComponentProps<typeof WP_DropdownMenu>>;
 
-export const DropdownMenu = (props: Props) => {
+export const DropdownMenu = ({ children, ...props }: Props) => {
   return (
     <WP_DropdownMenu
       icon={<img src={filterLogo} alt="Filter AI" />}
@@ -12,8 +12,11 @@ export const DropdownMenu = (props: Props) => {
       className="filter-ai-button"
       popoverProps={{
         className: 'filter-ai-components-popover',
+        expandOnMobile: true,
       }}
       {...props}
-    />
+    >
+      {children}
+    </WP_DropdownMenu>
   );
 };

@@ -23,3 +23,13 @@ Serve the plugin so any changes are automatically built.
 Typecheck, build the plugin and create a zip file. This command is also run automatically prior to committing.
 
 `npm run build`
+
+## Further reading
+
+[WordPress Gutenberg Package Reference Guide](https://developer.wordpress.org/block-editor/reference-guides/packages/)
+
+[WordPress Gutenberg Components Storybook](https://wordpress.github.io/gutenberg/)
+
+[WordPress Gutenberg Packages GitHub](https://github.com/WordPress/gutenberg/tree/trunk/packages)
+
+[AI Services Plugin Documentation](https://github.com/felixarntz/ai-services/blob/main/docs/Accessing-AI-Services-in-JavaScript.md)

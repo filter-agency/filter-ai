@@ -22,7 +22,7 @@ export const getAltTextFromUrl = async (url: string, oldAltText?: string, custom
 
   const prePrompt = oldAltText ? `${t(prompts.common.different)} "${oldAltText}".` : '';
 
-  const prompt = customPrompt || prompts.image.altText;
+  const prompt = customPrompt || prompts.image_alt_text_prompt;
 
   return generateText({
     feature: 'filter-ai-image-alt-text',

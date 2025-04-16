@@ -12,8 +12,25 @@ import {
 import { createRoot, useState, useEffect, useMemo } from '@wordpress/element';
 import { FilterAISettings, useSettings } from './useSettings';
 import _ from 'underscore';
+import { sections } from './sections';
+import { filterLogo } from '@/assets/filter-logo';
+
+type ShowButtonProps = {
+  extraKey: string;
+  extraValue: string;
+  disabled?: boolean;
+};
 
 const Settings = () => {
+  const [showExtra, setShowExtra] = useState<{ [key: string]: string }>(
+    sections.reduce(
+      (previous, current) => ({
+        ...previous,
+        [current.key]: '',
+      }),
+      {}
+    )
+  );
   const [formData, setFormData] = useState<FilterAISettings>({});
 
   const { settings, isLoading, saveSettings } = useSettings();
@@ -37,6 +54,32 @@ const Settings = () => {
       ...prevState,
       [key]: value,
     }));
+  };
+
+  const ShowButton = ({ extraKey, extraValue, disabled }: ShowButtonProps) => {
+    if (showExtra[extraKey] === extraValue) {
+      return (
+        <Button
+          icon="no-alt"
+          iconSize={24}
+          label={t('close extra options')}
+          onClick={() => {
+            setShowExtra((prevState) => ({ ...prevState, [extraKey]: '' }));
+          }}
+        />
+      );
+    }
+
+    return (
+      <Button
+        icon="admin-generic"
+        label={t('show more options')}
+        disabled={disabled}
+        onClick={() => {
+          setShowExtra((prevState) => ({ ...prevState, [extraKey]: extraValue }));
+        }}
+      />
+    );
   };
 
   useEffect(() => {
@@ -69,127 +112,50 @@ const Settings = () => {
 
   return (
     <Flex direction="column" gap="6" className="filter-ai-settings">
-      <Panel header="Image alt text">
-        <PanelBody>
-          <PanelRow>
-            {t('Generate descriptive text about the selected image for use as the alternative text.')}
-          </PanelRow>
-          <PanelRow>
-            <ToggleControl
-              __nextHasNoMarginBottom
-              label={t('Enable feature')}
-              onChange={(newValue) => {
-                onChange('image_alt_text_enabled', newValue);
-              }}
-              checked={formData?.image_alt_text_enabled}
-            />
-          </PanelRow>
-          <PanelRow>
-            <div style={{ flex: 1 }}>
-              <TextareaControl
-                __nextHasNoMarginBottom
-                label={t('Custom Prompt')}
-                value={formData?.image_alt_text_prompt || ''}
-                placeholder={ai.prompts.image.altText}
-                onChange={(newValue) => {
-                  onChange('image_alt_text_prompt', newValue);
-                }}
-                disabled={!formData?.image_alt_text_enabled}
-              />
-            </div>
-          </PanelRow>
-        </PanelBody>
-      </Panel>
-
-      <Panel header="Post Title">
-        <PanelBody>
-          <PanelRow>{t('Generate a page title based on the post content.')}</PanelRow>
-          <PanelRow>
-            <ToggleControl
-              __nextHasNoMarginBottom
-              label={t('Enable feature')}
-              onChange={(newValue) => {
-                onChange('post_title_enabled', newValue);
-              }}
-              checked={formData?.post_title_enabled}
-            />
-          </PanelRow>
-          <PanelRow>
-            <div style={{ flex: 1 }}>
-              <TextareaControl
-                __nextHasNoMarginBottom
-                label={t('Custom Prompt')}
-                value={formData?.post_title_prompt || ''}
-                placeholder={ai.prompts.post.title}
-                onChange={(newValue) => {
-                  onChange('post_title_prompt', newValue);
-                }}
-                disabled={!formData?.post_title_enabled}
-              />
-            </div>
-          </PanelRow>
-        </PanelBody>
-      </Panel>
-
-      <Panel header="Post Excerpt">
-        <PanelBody>
-          <PanelRow>{t('Generate an excerpt based on the post content.')}</PanelRow>
-          <PanelRow>
-            <ToggleControl
-              __nextHasNoMarginBottom
-              label={t('Enable feature')}
-              onChange={(newValue) => {
-                onChange('post_excerpt_enabled', newValue);
-              }}
-              checked={formData?.post_excerpt_enabled}
-            />
-          </PanelRow>
-          <PanelRow>
-            <div style={{ flex: 1 }}>
-              <TextareaControl
-                __nextHasNoMarginBottom
-                label={t('Custom Prompt')}
-                value={formData?.post_excerpt_prompt || ''}
-                placeholder={ai.prompts.post.excerpt}
-                onChange={(newValue) => {
-                  onChange('post_excerpt_prompt', newValue);
-                }}
-                disabled={!formData?.post_excerpt_enabled}
-              />
-            </div>
-          </PanelRow>
-        </PanelBody>
-      </Panel>
-
-      <Panel header="Post Tags">
-        <PanelBody>
-          <PanelRow>{t('Generate tags based on the post content.')}</PanelRow>
-          <PanelRow>
-            <ToggleControl
-              __nextHasNoMarginBottom
-              label={t('Enable feature')}
-              onChange={(newValue) => {
-                onChange('post_tags_enabled', newValue);
-              }}
-              checked={formData?.post_tags_enabled}
-            />
-          </PanelRow>
-          <PanelRow>
-            <div style={{ flex: 1 }}>
-              <TextareaControl
-                __nextHasNoMarginBottom
-                label={t('Custom Prompt')}
-                value={formData?.post_tags_prompt || ''}
-                placeholder={ai.prompts.post.tags}
-                onChange={(newValue) => {
-                  onChange('post_tags_prompt', newValue);
-                }}
-                disabled={!formData?.post_tags_enabled}
-              />
-            </div>
-          </PanelRow>
-        </PanelBody>
-      </Panel>
+      <Flex justify="flex-start">
+        <img src={filterLogo} alt="Filter AI logo" style={{ width: '30px', marginLeft: '8px' }} />
+        <h1 style={{ margin: 0 }}>Filter AI Settings</h1>
+      </Flex>
+      {sections.map((section) => (
+        <Panel header={section.header}>
+          {section.features.map((feature) => (
+            <PanelBody>
+              <PanelRow>
+                <ToggleControl
+                  __nextHasNoMarginBottom
+                  label={feature.toggle.label}
+                  help={feature.toggle.help}
+                  onChange={(newValue) => {
+                    onChange(feature.toggle.key, newValue);
+                  }}
+                  checked={!!formData?.[feature.toggle.key]}
+                />
+                <ShowButton
+                  disabled={!formData?.[feature.toggle.key]}
+                  extraKey={section.key}
+                  extraValue={feature.key}
+                />
+              </PanelRow>
+              {showExtra[section.key] === feature.key && (
+                <PanelRow>
+                  <div style={{ flex: 1 }}>
+                    <TextareaControl
+                      __nextHasNoMarginBottom
+                      label={feature.prompt.label}
+                      value={formData?.[feature.prompt.key]?.toString() || ''}
+                      placeholder={feature.prompt.placeholder}
+                      onChange={(newValue) => {
+                        onChange(feature.prompt.key, newValue);
+                      }}
+                      disabled={!formData?.[feature.toggle.key]}
+                    />
+                  </div>
+                </PanelRow>
+              )}
+            </PanelBody>
+          ))}
+        </Panel>
+      ))}
 
       <FlexItem>
         <Button onClick={saveChanges} variant="primary">
