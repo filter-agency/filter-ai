@@ -67,9 +67,13 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
       const content =
         typeof attributes.content === 'string' ? create({ text: attributes.content }) : attributes.content;
 
-      const text = hasSelection
-        ? toHTMLString({ value: slice(content, selectionStart.offset, selectionEnd.offset) })
-        : content?.toString();
+      if (!content) {
+        throw new Error(t('Please provide some text'));
+      }
+
+      const text = toHTMLString({
+        value: hasSelection ? slice(content, selectionStart.offset, selectionEnd.offset) : content,
+      });
 
       let prompt = settings?.[promptKey] || ai.prompts[promptKey];
 
