@@ -1,2 +1,4 @@
-export * from './Settings';
+import './settings';
+import './batchGeneration';
+
 export * from './useSettings';

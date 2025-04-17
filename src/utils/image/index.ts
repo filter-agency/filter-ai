@@ -1,4 +1,4 @@
-const mimeTypes = new Map<string, string>([
+export const mimeTypes = new Map<string, string>([
   ['png', 'image/png'],
   ['gif', 'image/gif'],
   ['webp', 'image/webp'],
