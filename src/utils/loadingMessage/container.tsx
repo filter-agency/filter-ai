@@ -1,5 +1,5 @@
 import { useLoadingMessage } from '@/utils';
-import { Modal, Spinner } from '@wordpress/components';
+import { Spinner } from '@wordpress/components';
 
 const { render } = window.wp.element;
 
