@@ -43,13 +43,9 @@ const BatchGeneration = () => {
         .then((r) => r.json())
         .catch(() => ({}));
 
-      console.log({ data });
-
       if (!data) {
         throw new Error('no data');
       }
-
-      console.log(JSON.stringify(data.failed_actions, null, 2));
 
       setCount((prevCount) => {
         return {
