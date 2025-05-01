@@ -5,9 +5,6 @@ use Felix_Arntz\AI_Services\Services\API\Enums\Content_Role;
 use Felix_Arntz\AI_Services\Services\API\Types\Content;
 use Felix_Arntz\AI_Services\Services\API\Types\Parts;
 use Felix_Arntz\AI_Services\Services\API\Helpers;
-use Felix_Arntz\AI_Services\OpenAI\OpenAI_AI_Service;
-use Felix_Arntz\AI_Services\Services\Contracts\Authentication;
-use Felix_Arntz\AI_Services_Dependencies\Felix_Arntz\WP_OOP_Plugin_Lib\HTTP\Contracts\Request_Handler;
 
 function filter_ai_mime_types() {
   $post_mime_types = array(
