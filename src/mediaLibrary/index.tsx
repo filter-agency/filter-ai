@@ -97,6 +97,10 @@ const Events = _.extend({}, window?.Backbone?.Events);
     useEffect(() => {
       Events.listenTo(Events, 'filter-ai:generateAltTextEnabled', setGenerateAltTextEnabled);
 
+      if (document.documentElement.querySelector('.attachment-details .alt-text')) {
+        setGenerateAltTextEnabled(true);
+      }
+
       return () => {
         Events.stopListening(Events, 'filter-ai:generateAltTextEnabled', setGenerateAltTextEnabled);
       };
