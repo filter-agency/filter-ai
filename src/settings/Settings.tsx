@@ -1,4 +1,4 @@
-import { ai, showNotice, t } from '@/utils';
+import { showNotice, t } from '@/utils';
 import {
   ToggleControl,
   Panel,
@@ -113,8 +113,8 @@ const Settings = () => {
   return (
     <Flex direction="column" gap="6" className="filter-ai-settings">
       <Flex justify="flex-start">
-        <img src={filterLogo} alt="Filter AI logo" style={{ width: '30px', marginLeft: '8px' }} />
-        <h1 style={{ margin: 0 }}>Filter AI Settings</h1>
+        <img src={filterLogo} alt={t('Filter AI logo')} style={{ width: '30px', marginLeft: '8px' }} />
+        <h1 style={{ margin: 0 }}>{t('Filter AI Settings')}</h1>
       </Flex>
       {sections.map((section) => (
         <Panel header={section.header}>

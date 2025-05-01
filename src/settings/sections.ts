@@ -53,12 +53,12 @@ export const sections: Section[] = [
         key: 'post_title',
         toggle: {
           key: 'post_title_enabled',
-          label: t('Post Title'),
+          label: t('Post title'),
           help: t('Generate a page title based on the post content.'),
         },
         prompt: {
           key: 'post_title_prompt',
-          label: t('Post Title Prompt'),
+          label: t('Post title prompt'),
           placeholder: ai.prompts.post_title_prompt,
         },
       },
@@ -66,12 +66,12 @@ export const sections: Section[] = [
         key: 'post_excerpt',
         toggle: {
           key: 'post_excerpt_enabled',
-          label: t('Post Excerpt'),
+          label: t('Post excerpt'),
           help: t('Generate an excerpt based on the post content.'),
         },
         prompt: {
           key: 'post_excerpt_prompt',
-          label: t('Post Excerpt Prompt'),
+          label: t('Post excerpt prompt'),
           placeholder: ai.prompts.post_excerpt_prompt,
         },
       },
@@ -79,12 +79,12 @@ export const sections: Section[] = [
         key: 'post_tags',
         toggle: {
           key: 'post_tags_enabled',
-          label: t('Post Tags'),
+          label: t('Post tags'),
           help: t('Generate tags based on the post content.'),
         },
         prompt: {
           key: 'post_tags_prompt',
-          label: t('Post Tags Prompt'),
+          label: t('Post tags prompt'),
           placeholder: ai.prompts.post_tags_prompt,
         },
       },
