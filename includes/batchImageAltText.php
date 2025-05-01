@@ -84,7 +84,15 @@ function filter_ai_process_batch_image_alt_text($imageId) {
 
   $parts = new Parts();
 
-  $parts->add_text_part('Please generate a short description no more than 50 words for the following image that can be used as its alternative text. The description should be clear, succinct, and provide a sense of what the image portrays, ensuring that it is accessible to individuals using screen readers.');
+  $prompt = 'Please generate a short description no more than 50 words for the following image that can be used as its alternative text. The description should be clear, succinct, and provide a sense of what the image portrays, ensuring that it is accessible to individuals using screen readers.';
+
+  $settings = get_option('filter_ai_settings');
+
+  if (!empty($settings['image_alt_text_prompt'])) {
+    $prompt = $settings['image_alt_text_prompt'];
+  }
+
+  $parts->add_text_part($prompt);
 
   $imageData = file_get_contents($imageUrl);
   $imageBase64 = 'data:' . $imageMimeType . ';base64,' . base64_encode($imageData);
@@ -273,11 +281,11 @@ function filter_ai_api_get_image_count() {
   if (!empty($failedActionsRaw)) {
     foreach($failedActionsRaw as $actionId => $action) {
       $log = filter_ai_get_last_log_for_action_id($actionId);
-      $message = $log->message;
+      $message = explode(': ', $log->message);
 
       $failedActions[] = array(
         'image_id' => $action->get_args()[0],
-        'message' => end(explode(': ', $message))
+        'message' => end($message)
       );
     }
   }

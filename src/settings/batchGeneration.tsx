@@ -3,6 +3,7 @@ import { Button, Flex, Panel, PanelBody, ProgressBar } from '@wordpress/componen
 import { createRoot, useEffect, useCallback, useState } from '@wordpress/element';
 import { mimeTypes, t } from '@/utils';
 import { useMemo } from 'react';
+import { useSettings } from './useSettings';
 
 const defaultCount = {
   images: 0,
@@ -24,6 +25,8 @@ type FailedAction = {
 const BatchGeneration = () => {
   const [count, setCount] = useState(defaultCount);
   const [failedActions, setFailedActions] = useState<FailedAction[]>([]);
+
+  const { settings } = useSettings();
 
   const types = useMemo(() => [...new Set(mimeTypes.values())], [mimeTypes]);
 
@@ -140,7 +143,11 @@ const BatchGeneration = () => {
 
         {!inProgress && count.imagesWithoutAltText > 0 && (
           <PanelBody>
-            <Button variant="primary" onClick={generateAltText} disabled={inProgress}>
+            <Button
+              variant="primary"
+              onClick={generateAltText}
+              disabled={inProgress || !settings?.image_alt_text_enabled}
+            >
               {t('Generate alt text')}
             </Button>
           </PanelBody>
