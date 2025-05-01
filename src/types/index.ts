@@ -9,5 +9,6 @@ declare global {
     wp: any;
     aiServices: any;
     Backbone: any;
+    filter_ai_api: any;
   }
 }

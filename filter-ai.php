@@ -13,6 +13,10 @@
     exit;
   }
 
+  require_once plugin_dir_path(__FILE__) . '/vendor/woocommerce/action-scheduler/action-scheduler.php';
+
+  require_once plugin_dir_path(__FILE__) . 'includes/batchImageAltText.php';
+
   function filter_ai_settings_init() {   
     $schema = array(
       'type' => 'object',
@@ -60,15 +64,15 @@
   
   add_action('init', 'filter_ai_settings_init');
 
-  function add_action_links($actions) {
+  function filter_ai_add_action_links($actions) {
     $pluginLinks = array(
-      '<a href="' . admin_url('options-general.php?page=filter_ai') . '">Settings</a>'
+      '<a href="' . admin_url('admin.php?page=filter_ai') . '">Settings</a>'
     );
 
     return array_merge($pluginLinks, $actions);
   }
 
-  add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'add_action_links');
+  add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'filter_ai_add_action_links');
 
   function filter_ai_options_page() {
     if (!current_user_can('manage_options')) {
@@ -97,15 +101,12 @@
       return;
     }
 
-    settings_errors('filter_ai_messages');
 ?>
   <div class="wrap" id="filter-ai-batch-container"></div>
 <?php
   }
 
   function filter_ai_add_admin_menu() {
-    // add_options_page('Filter AI', 'Filter AI', 'manage_options', 'filter_ai', 'filter_ai_options_page');
-
     add_menu_page(
       __('Filter AI Settings', 'filter_ai'),
       __('Filter AI', 'filter_ai'),
@@ -163,7 +164,17 @@
       array(),
       get_plugin_data(__FILE__)['Version']
     );
+
+    wp_localize_script(
+      'filter-ai-script',
+      'filter_ai_api',
+      array(
+        'url' => admin_url('admin-ajax.php'),
+        'nonce' => wp_create_nonce('filter_ai_api')
+      )
+    );
   }
   
   add_action('admin_enqueue_scripts', 'filter_ai_enqueue_scripts', -1);
+
 ?>

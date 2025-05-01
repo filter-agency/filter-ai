@@ -4,6 +4,8 @@ A WordPress plugin containing AI tools.
 
 ## Requirements
 
+[Composer](https://getcomposer.org/download/)
+
 This plugin requires the plugin [AI Services](https://wordpress.org/plugins/ai-services/).
 
 Once AI Services has been installed navigate to `Settings > AI Services` and configure an API key for at least one AI service.
@@ -13,6 +15,8 @@ Once AI Services has been installed navigate to `Settings > AI Services` and con
 You can either add this repository directly into the plugin directory `wp-content/plugins` of your local WordPress site or work on changes within a standalone directory and then build and update the plugin manually using the generated zip file.
 
 Install dependencies.
+
+`composer install`
 
 `npm install`
 
