@@ -80,19 +80,7 @@ function filter_ai_process_batch_image_alt_text($imageId) {
   );
 
   if (ai_services()->has_available_services($required_capabilities) == false) {
-    // because this action is being called by a scheduled job the ai services might not be available
-    // register a fake service to trigger the registration of the default services
-    ai_services()->register_service(
-			'fake-service',
-      static function () {
-        return null;
-      }
-		);
-  }
-
-  // double check we have services available
-  if (ai_services()->has_available_services($required_capabilities) == false) {
-    throw new Exception('Missing AI service');
+    throw new Exception('AI service not available');
   }
 
   $service = ai_services()->get_available_service($required_capabilities);
@@ -288,10 +276,11 @@ function filter_ai_api_get_image_count() {
   if (!empty($failedActionsRaw)) {
     foreach($failedActionsRaw as $actionId => $action) {
       $log = filter_ai_get_last_log_for_action_id($actionId);
+      $message = $log->message;
 
       $failedActions[] = array(
         'image_id' => $action->get_args()[0],
-        'message' => end(explode(': ', $log->message))
+        'message' => end(explode(': ', $message))
       );
     }
   }
