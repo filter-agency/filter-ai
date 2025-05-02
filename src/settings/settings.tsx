@@ -1,19 +1,11 @@
 import { showNotice, t } from '@/utils';
-import {
-  ToggleControl,
-  Panel,
-  PanelRow,
-  PanelBody,
-  TextareaControl,
-  Button,
-  Flex,
-  FlexItem,
-} from '@wordpress/components';
+import { Panel, PanelRow, PanelBody, TextareaControl, Button, FlexItem, FormToggle } from '@wordpress/components';
 import { createRoot, useState, useEffect, useMemo } from '@wordpress/element';
 import { FilterAISettings, useSettings } from './useSettings';
 import _ from 'underscore';
 import { sections } from './sections';
 import { filterLogo } from '@/assets/filter-logo';
+import { verticalDots } from '@/assets/vertical-dots';
 
 type ShowButtonProps = {
   extraKey: string;
@@ -42,10 +34,13 @@ const Settings = () => {
   const saveChanges = () => {
     saveSettings(formData)
       .then(() => {
-        showNotice(t('Settings have been updated.'));
+        showNotice({
+          title: t('Changes saved!'),
+          message: t('Your changes have been saved, you can now exit this screen.'),
+        });
       })
       .catch(() => {
-        showNotice(t('There has been an issue saving your changes.'));
+        showNotice({ message: t('There has been an issue saving your changes.'), type: 'error' });
       });
   };
 
@@ -57,27 +52,18 @@ const Settings = () => {
   };
 
   const ShowButton = ({ extraKey, extraValue, disabled }: ShowButtonProps) => {
-    if (showExtra[extraKey] === extraValue) {
-      return (
-        <Button
-          icon="no-alt"
-          iconSize={24}
-          label={t('close extra options')}
-          onClick={() => {
-            setShowExtra((prevState) => ({ ...prevState, [extraKey]: '' }));
-          }}
-        />
-      );
-    }
-
     return (
       <Button
-        icon="admin-generic"
-        label={t('show more options')}
+        icon={() => <img src={verticalDots} alt="" />}
+        label={t('toggle more options')}
         disabled={disabled}
         onClick={() => {
-          setShowExtra((prevState) => ({ ...prevState, [extraKey]: extraValue }));
+          setShowExtra((prevState) => ({
+            ...prevState,
+            [extraKey]: showExtra[extraKey] !== extraValue ? extraValue : '',
+          }));
         }}
+        className="filter-ai-settings-toggle-options"
       />
     );
   };
@@ -111,58 +97,67 @@ const Settings = () => {
   }
 
   return (
-    <Flex direction="column" gap="6" className="filter-ai-settings">
-      <Flex justify="flex-start">
-        <img src={filterLogo} alt={t('Filter AI logo')} style={{ width: '30px', marginLeft: '8px' }} />
-        <h1 style={{ margin: 0 }}>{t('Filter AI Settings')}</h1>
-      </Flex>
-      {sections.map((section) => (
-        <Panel header={section.header}>
-          {section.features.map((feature) => (
-            <PanelBody>
-              <PanelRow>
-                <ToggleControl
-                  __nextHasNoMarginBottom
-                  label={feature.toggle.label}
-                  help={feature.toggle.help}
-                  onChange={(newValue) => {
-                    onChange(feature.toggle.key, newValue);
-                  }}
-                  checked={!!formData?.[feature.toggle.key]}
-                />
-                <ShowButton
-                  disabled={!formData?.[feature.toggle.key]}
-                  extraKey={section.key}
-                  extraValue={feature.key}
-                />
-              </PanelRow>
-              {showExtra[section.key] === feature.key && (
-                <PanelRow>
-                  <div style={{ flex: 1 }}>
-                    <TextareaControl
-                      __nextHasNoMarginBottom
-                      label={feature.prompt.label}
-                      value={formData?.[feature.prompt.key]?.toString() || ''}
-                      placeholder={feature.prompt.placeholder}
-                      onChange={(newValue) => {
-                        onChange(feature.prompt.key, newValue);
-                      }}
-                      disabled={!formData?.[feature.toggle.key]}
-                    />
+    <div className="filter-ai-settings">
+      <header className="filter-ai-settings-header">
+        <div className="filter-ai-settings-header-content">
+          <div>
+            <h1>{t('Filter AI Plugin Settings')}</h1>
+            <p>Customise your settings for the Filter AI plugin here.</p>
+          </div>
+          <img src={filterLogo} alt={t('Filter AI logo')} />
+        </div>
+      </header>
+      <div className="filter-ai-settings-content">
+        {sections.map((section) => (
+          <Panel header={section.header} className="filter-ai-settings-panel">
+            {section.features.map((feature) => (
+              <PanelBody>
+                <PanelRow className="filter-ai-settings-field">
+                  <div className="filter-ai-settings-field-text">
+                    <label htmlFor={feature.toggle.key}>{feature.toggle.label}</label>
+                    {feature.toggle.help && <div>{feature.toggle.help}</div>}
                   </div>
+                  <FormToggle
+                    onChange={() => {
+                      onChange(feature.toggle.key, !formData?.[feature.toggle.key]);
+                    }}
+                    checked={!!formData?.[feature.toggle.key]}
+                    id={feature.toggle.key}
+                  />
+                  <ShowButton
+                    disabled={!formData?.[feature.toggle.key]}
+                    extraKey={section.key}
+                    extraValue={feature.key}
+                  />
                 </PanelRow>
-              )}
-            </PanelBody>
-          ))}
-        </Panel>
-      ))}
+                {showExtra[section.key] === feature.key && (
+                  <PanelRow>
+                    <div style={{ flex: 1 }}>
+                      <TextareaControl
+                        __nextHasNoMarginBottom
+                        label={feature.prompt.label}
+                        value={formData?.[feature.prompt.key]?.toString() || ''}
+                        placeholder={feature.prompt.placeholder}
+                        onChange={(newValue) => {
+                          onChange(feature.prompt.key, newValue);
+                        }}
+                        disabled={!formData?.[feature.toggle.key]}
+                      />
+                    </div>
+                  </PanelRow>
+                )}
+              </PanelBody>
+            ))}
+          </Panel>
+        ))}
 
-      <FlexItem>
-        <Button onClick={saveChanges} variant="primary">
-          {t('Save Changes')}
-        </Button>
-      </FlexItem>
-    </Flex>
+        <FlexItem>
+          <Button onClick={saveChanges} variant="primary">
+            {t('Save Changes')}
+          </Button>
+        </FlexItem>
+      </div>
+    </div>
   );
 };
 

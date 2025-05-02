@@ -1,5 +1,6 @@
 import { useNotice, hideNotice } from '@/utils';
 import { Animate, Snackbar } from '@wordpress/components';
+import { useMemo } from '@wordpress/element';
 
 const { render } = window.wp.element;
 
@@ -11,7 +12,11 @@ document.body.appendChild(container);
 const NoticeContainer = () => {
   const notice = useNotice();
 
-  if (!notice) {
+  const typeClass = useMemo(() => {
+    return notice?.type === 'error' ? 'filter-ai-notice-snackbar-error' : '';
+  }, [notice?.type]);
+
+  if (!notice?.message) {
     return null;
   }
 
@@ -19,8 +24,9 @@ const NoticeContainer = () => {
     <div className="filter-ai-notice">
       <Animate type="appear">
         {({ className }) => (
-          <Snackbar className={className} onDismiss={() => hideNotice()}>
-            {notice}
+          <Snackbar className={`filter-ai-notice-snackbar ${typeClass} ${className}`} onDismiss={() => hideNotice()}>
+            {notice?.title && <h2>{notice.title}</h2>}
+            <div>{notice?.message}</div>
           </Snackbar>
         )}
       </Animate>

@@ -94,7 +94,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
       if (promptKey === 'customise_text_summarise_prompt') {
         await navigator.clipboard.writeText(newText);
 
-        showNotice(t('Summary has been copied to your clipboard'));
+        showNotice({ message: t('Summary has been copied to your clipboard') });
       } else {
         if (hasSelection) {
           const newValue = insert(content, newText, selectionStart.offset, selectionEnd.offset);
@@ -106,13 +106,13 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
           setAttributes({ content: newText });
         }
 
-        showNotice(t(`Your ${type} has been updated`));
+        showNotice({ message: t(`Your ${type} has been updated`) });
       }
     } catch (error) {
       console.error(error);
 
       // @ts-expect-error Property 'message' does not exist on type '{}'
-      showNotice(error?.message || error);
+      showNotice({ message: error?.message || error, type: 'error' });
     } finally {
       hideLoadingMessage();
     }

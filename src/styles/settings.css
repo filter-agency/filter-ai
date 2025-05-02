@@ -1,8 +1,3 @@
-.filter-ai-settings {
-  margin-top: 2rem;
-  margin-bottom: 2rem;
-}
-
 .toplevel_page_filter_ai > .wp-menu-image:before {
   content: '';
   display: block;
@@ -12,4 +7,116 @@
   background-color: currentColor;
   margin: 0 auto;
   transform: translateX(2px);
+}
+
+.filter-ai-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.filter-ai-settings-header {
+  background: #fff;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 16px;
+  margin: -10px -20px 0;
+  position: sticky;
+  top: 32px;
+  z-index: 1;
+  flex-shrink: 0;
+
+  & h1,
+  & p {
+    margin: 0;
+    padding: 0;
+  }
+
+  & h1 {
+    margin-bottom: 8px;
+  }
+
+  & img {
+    width: 18px;
+  }
+
+  & .filter-ai-settings-header-content {
+    max-width: 760px;
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 782px) {
+  .filter-ai-settings-header {
+    margin: -10px -12px 0;
+    top: 46px;
+  }
+}
+
+@media (max-width: 600px) {
+  .filter-ai-settings-header {
+    position: static;
+  }
+}
+
+.filter-ai-settings-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.filter-ai-settings-panel {
+  border-radius: 8px;
+  border: 0;
+
+  & .components-panel__header h2 {
+    font-size: 15px;
+  }
+
+  & .components-panel__body p {
+    &:first-child {
+      margin-top: 0;
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  & .components-panel__row:not(:first-of-type) {
+    margin-top: 16px;
+  }
+}
+
+.filter-ai-settings-field {
+  gap: 10px;
+}
+
+.filter-ai-settings-field-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  & label {
+    font-weight: 500;
+  }
+}
+
+.filter-ai-settings-toggle-options {
+  &.has-icon {
+    padding: 0;
+    min-width: 24px;
+  }
+
+  &[disabled] {
+    opacity: 0.5;
+  }
 }

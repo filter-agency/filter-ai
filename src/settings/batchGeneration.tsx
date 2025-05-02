@@ -104,76 +104,82 @@ const BatchGeneration = () => {
   }, []);
 
   return (
-    <Flex direction="column" gap="6" className="filter-ai-settings">
-      <Flex justify="flex-start">
-        <img src={filterLogo} alt={t('Filter AI logo')} style={{ width: '30px', marginLeft: '8px' }} />
-        <h1 style={{ margin: 0 }}>{t('Filter AI Batch Generation')}</h1>
-      </Flex>
-      <Panel header={t('Image Alt Text')}>
-        <PanelBody>
-          <p>
-            {t(
-              `Generate alt text for the following image types within the media library: ${types.map((type) => type.replace(/image\//, '')).join(', ')}.`
-            )}
-          </p>
-          <p>{t(`Total images: ${count.images}`)}</p>
-          <p>{t(`Images missing alt text: ${count.imagesWithoutAltText}`)}</p>
-        </PanelBody>
-        {!inProgress && count.actions > 0 && (
-          <PanelBody title={t('Previous run stats')}>
-            <p>{t(`Images processed: ${count.actions}`)}</p>
-            <p>{t(`Completed images: ${count.completeActions}`)}</p>
-            <p>{t(`Failed images: ${count.failedActions}`)}</p>
-          </PanelBody>
-        )}
-
-        {!!count.failedActions && (
-          <PanelBody title={t(`Failed images: ${count.failedActions}`)} initialOpen={false}>
-            {failedActions?.map((action) => {
-              return (
-                <p>
-                  <a href={`/wp-admin/upload.php?item=${action.image_id}`}>{action.image_id}</a>
-                  {': '}
-                  {action.message ? action.message : 'Unknown'}
-                </p>
-              );
-            })}
-          </PanelBody>
-        )}
-
-        {!inProgress && count.imagesWithoutAltText > 0 && (
+    <div className="filter-ai-settings">
+      <header className="filter-ai-settings-header">
+        <div className="filter-ai-settings-header-content">
+          <div>
+            <h1 style={{ margin: 0 }}>{t('Filter AI Batch Generation')}</h1>
+          </div>
+          <img src={filterLogo} alt={t('Filter AI logo')} />
+        </div>
+      </header>
+      <div className="filter-ai-settings-content">
+        <Panel header={t('Image Alt Text')} className="filter-ai-settings-panel">
           <PanelBody>
-            <Button
-              variant="primary"
-              onClick={generateAltText}
-              disabled={inProgress || !settings?.image_alt_text_enabled}
-            >
-              {t('Generate alt text')}
-            </Button>
+            <p>
+              {t(
+                `Generate alt text for the following image types within the media library: ${types.map((type) => type.replace(/image\//, '')).join(', ')}.`
+              )}
+            </p>
+            <p>{t(`Total images: ${count.images}`)}</p>
+            <p>{t(`Images missing alt text: ${count.imagesWithoutAltText}`)}</p>
           </PanelBody>
-        )}
+          {!inProgress && count.actions > 0 && (
+            <PanelBody title={t('Previous run stats')}>
+              <p>{t(`Images processed: ${count.actions}`)}</p>
+              <p>{t(`Completed images: ${count.completeActions}`)}</p>
+              <p>{t(`Failed images: ${count.failedActions}`)}</p>
+            </PanelBody>
+          )}
 
-        {inProgress && (
-          <PanelBody>
-            <p style={{ fontWeight: 'bold' }}>{t('Generating')}</p>
-            <ProgressBar value={(count.completeActions / count.actions) * 100} className="filter-ai-progress-bar" />
-            <p>{t(`${count.completeActions} / ${count.actions} images processed`)}</p>
-            <Button variant="secondary" onClick={cancel} disabled={isCancelling}>
-              {t('Cancel')}
-            </Button>
-          </PanelBody>
-        )}
+          {!!count.failedActions && (
+            <PanelBody title={t(`Failed images: ${count.failedActions}`)} initialOpen={false}>
+              {failedActions?.map((action) => {
+                return (
+                  <p>
+                    <a href={`/wp-admin/upload.php?item=${action.image_id}`}>{action.image_id}</a>
+                    {': '}
+                    {action.message ? action.message : 'Unknown'}
+                  </p>
+                );
+              })}
+            </PanelBody>
+          )}
 
-        {!count.images && (
-          <PanelBody>
-            <p>{t('No images could be found')}</p>
-          </PanelBody>
-        )}
-      </Panel>
-      <p>
-        <a href="/wp-admin/tools.php?page=action-scheduler">{t('View all scheduled actions')}</a>
-      </p>
-    </Flex>
+          {!inProgress && count.imagesWithoutAltText > 0 && (
+            <PanelBody>
+              <Button
+                variant="primary"
+                onClick={generateAltText}
+                disabled={inProgress || !settings?.image_alt_text_enabled}
+              >
+                {t('Generate alt text')}
+              </Button>
+            </PanelBody>
+          )}
+
+          {inProgress && (
+            <PanelBody>
+              <p style={{ fontWeight: 'bold' }}>{t('Generating')}</p>
+              <ProgressBar value={(count.completeActions / count.actions) * 100} className="filter-ai-progress-bar" />
+              <p>{t(`${count.completeActions} / ${count.actions} images processed`)}</p>
+              <Button variant="secondary" onClick={cancel} disabled={isCancelling}>
+                {t('Cancel')}
+              </Button>
+            </PanelBody>
+          )}
+
+          {!count.images && (
+            <PanelBody>
+              <p>{t('No images could be found')}</p>
+            </PanelBody>
+          )}
+        </Panel>
+        <div>
+          <a href="/wp-admin/tools.php?page=action-scheduler">{t('View all scheduled actions')}</a>
+        </div>
+      </div>
+    </div>
   );
 };
 

@@ -77,12 +77,12 @@ export const useGenerateTags = () => {
 
       editPost({ tags: [...new Set([...postTagIds, ...newTagIds])] });
 
-      showNotice(t('Tags have been updated'));
+      showNotice({ message: t('Tags have been updated') });
     } catch (error) {
       console.error(error);
 
       // @ts-expect-error Property 'message' does not exist on type '{}'
-      showNotice(error?.message || error);
+      showNotice({ message: error?.message || error, type: 'error' });
     } finally {
       hideLoadingMessage();
     }
