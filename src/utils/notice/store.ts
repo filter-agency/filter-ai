@@ -4,13 +4,19 @@ const { register, createReduxStore, dispatch } = window.wp.data;
 
 const storeName = 'filter-ai/notice-store';
 
+type Notice = {
+  message: string;
+  title?: string;
+  type?: 'error' | 'notice';
+};
+
 type State = {
-  notice: string;
+  notice: Notice;
 };
 
 type Action = {
   type: 'setNotice';
-  payload: string;
+  payload: Notice;
 };
 
 const store = createReduxStore(storeName, {
@@ -26,7 +32,7 @@ const store = createReduxStore(storeName, {
     }
   },
   actions: {
-    setNotice: (newNotice: string): Action => {
+    setNotice: (newNotice: Notice): Action => {
       return {
         type: 'setNotice',
         payload: newNotice,
@@ -43,10 +49,10 @@ register(store);
 // @ts-expect-error Property 'getNotice' does not exist on type '{}'
 export const useNotice = (dependencies = []) => useSelect((select) => select(store).getNotice(), dependencies);
 
-export const showNotice = (notice: string) => {
-  dispatch(store).setNotice(notice);
+export const showNotice = ({ message, type = 'notice', title }: Notice) => {
+  dispatch(store).setNotice({ message, type, title });
 };
 
 export const hideNotice = () => {
-  dispatch(store).setNotice('');
+  dispatch(store).setNotice({ message: '' });
 };

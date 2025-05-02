@@ -28,3 +28,26 @@
     opacity: 1;
   }
 }
+
+.filter-ai-notice-snackbar {
+  background-color: #cef8e0;
+  border-radius: 8px;
+  padding: 16px;
+  max-width: 382px;
+
+  &.filter-ai-notice-snackbar-error {
+    background-color: #f4c2c2;
+  }
+
+  & .components-snackbar__content {
+    color: #1e1e1e;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  & h2 {
+    font-size: inherit;
+    font-weight: 500;
+    margin: 0;
+  }
+}

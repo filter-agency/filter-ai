@@ -55,12 +55,12 @@ export const useGenerateAltText = ({ attributes, setAttributes }: Props) => {
 
       setAttribute(altText, altTextKeys);
 
-      showNotice(t('Alt text has been updated.'));
+      showNotice({ message: t('Alt text has been updated.') });
     } catch (error) {
       console.error(error);
 
       // @ts-expect-error Property 'message' does not exist on type '{}'
-      showNotice(error?.message || error);
+      showNotice({ message: error?.message || error, type: 'error' });
     } finally {
       hideLoadingMessage();
     }
