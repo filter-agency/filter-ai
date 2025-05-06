@@ -52,7 +52,10 @@ function filter_ai_get_images_without_alt_text() {
   return get_posts($args);
 }
 
-function filter_ai_process_batch_image_alt_text($imageId) {
+function filter_ai_process_batch_image_alt_text($args) {
+  $imageId = $args['imageId'];
+  $userId = $args['userId'];
+  $currentUserId = get_current_user_id();
   $imageAltText = get_post_meta($imageId, '_wp_attachment_image_alt', true);
   $imageUrl = wp_get_attachment_image_url($imageId);
   $imageMimeType = get_post_mime_type($imageId);
@@ -76,47 +79,53 @@ function filter_ai_process_batch_image_alt_text($imageId) {
     )
   );
 
-  if (ai_services()->has_available_services($required_capabilities) == false) {
-    throw new Exception('AI service not available');
+  try {
+    wp_set_current_user($userId);
+
+    if (ai_services()->has_available_services($required_capabilities) == false) {
+      throw new Exception('AI service not available');
+    }
+
+    $service = ai_services()->get_available_service($required_capabilities);
+
+    $parts = new Parts();
+
+    $prompt = 'Please generate a short description no more than 50 words for the following image that can be used as its alternative text. The description should be clear, succinct, and provide a sense of what the image portrays, ensuring that it is accessible to individuals using screen readers.';
+
+    $settings = get_option('filter_ai_settings');
+
+    if (!empty($settings['image_alt_text_prompt'])) {
+      $prompt = $settings['image_alt_text_prompt'];
+    }
+
+    $parts->add_text_part($prompt);
+
+    $imageData = file_get_contents($imageUrl);
+    $imageBase64 = 'data:' . $imageMimeType . ';base64,' . base64_encode($imageData);
+
+    $parts->add_file_data_part($imageMimeType, $imageBase64);
+
+    $content = new Content(Content_Role::USER, $parts);
+
+    $candidates = $service->get_model(
+      array(
+        'feature' => 'filter-ai-image-alt-text',
+        $required_capabilities
+      )
+    )->generate_text($content);
+
+    $text = Helpers::get_text_from_contents(
+      Helpers::get_candidate_contents($candidates)
+    );
+
+    if (empty($text)) {
+      throw new Exception('Issue generating alt text');
+    }
+    
+    update_post_meta($imageId, '_wp_attachment_image_alt', $text);
+  } finally {
+    wp_set_current_user($currentUserId);
   }
-
-  $service = ai_services()->get_available_service($required_capabilities);
-
-  $parts = new Parts();
-
-  $prompt = 'Please generate a short description no more than 50 words for the following image that can be used as its alternative text. The description should be clear, succinct, and provide a sense of what the image portrays, ensuring that it is accessible to individuals using screen readers.';
-
-  $settings = get_option('filter_ai_settings');
-
-  if (!empty($settings['image_alt_text_prompt'])) {
-    $prompt = $settings['image_alt_text_prompt'];
-  }
-
-  $parts->add_text_part($prompt);
-
-  $imageData = file_get_contents($imageUrl);
-  $imageBase64 = 'data:' . $imageMimeType . ';base64,' . base64_encode($imageData);
-
-  $parts->add_file_data_part($imageMimeType, $imageBase64);
-
-  $content = new Content(Content_Role::USER, $parts);
-
-  $candidates = $service->get_model(
-    array(
-      'feature' => 'filter-ai-image-alt-text',
-      $required_capabilities
-    )
-  )->generate_text($content);
-
-  $text = Helpers::get_text_from_contents(
-    Helpers::get_candidate_contents($candidates)
-  );
-
-  if (empty($text)) {
-    throw new Exception('Issue generating alt text');
-  }
-  
-  update_post_meta($imageId, '_wp_attachment_image_alt', $text);
 }
 
 add_action('filter_ai_batch_image_alt_text', 'filter_ai_process_batch_image_alt_text');
@@ -176,12 +185,23 @@ function filter_ai_api_batch_image_alt_text() {
       // call action through a scheduled action
       as_enqueue_async_action(
         'filter_ai_batch_image_alt_text',
-        array($image->ID),
+        array(
+          array(
+            'imageId' => $image->ID, 
+            'userId' => get_current_user_id()
+          )
+        ),
         'filter-ai-current'
       );
 
       // call action instantly (user needs to stay on the page)
-      // do_action('filter_ai_batch_image_alt_text', $image->ID);
+      // do_action(
+      //   'filter_ai_batch_image_alt_text', 
+      //   array(
+      //     'imageId' => $image->ID, 
+      //     'userId' => get_current_user_id()
+      //   )
+      // );
     }
   }
 
@@ -284,7 +304,7 @@ function filter_ai_api_get_image_count() {
       $message = explode(': ', $log->message);
 
       $failedActions[] = array(
-        'image_id' => $action->get_args()[0],
+        'image_id' => $action->get_args()[0]['imageId'],
         'message' => end($message)
       );
     }
