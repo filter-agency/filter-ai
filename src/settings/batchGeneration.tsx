@@ -179,7 +179,7 @@ const BatchGeneration = () => {
           )}
         </Panel>
         <div>
-          <a href="/wp-admin/tools.php?page=action-scheduler">{t('View all scheduled actions')}</a>
+          <a href="/wp-admin/tools.php?page=action-scheduler">{t('View batch generation log')}</a>
         </div>
       </div>
     </div>
