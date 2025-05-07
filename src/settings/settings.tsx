@@ -25,7 +25,7 @@ const Settings = () => {
   );
   const [formData, setFormData] = useState<FilterAISettings>({});
 
-  const { settings, isLoading, saveSettings } = useSettings();
+  const { settings, saveSettings } = useSettings();
 
   const isMatch = useMemo(() => {
     return _.isMatch(formData, settings);
@@ -91,10 +91,6 @@ const Settings = () => {
       abortController.abort();
     };
   }, [isMatch]);
-
-  if (isLoading) {
-    return null;
-  }
 
   return (
     <div className="filter-ai-settings">
