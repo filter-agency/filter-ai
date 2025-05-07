@@ -2,7 +2,7 @@ import { useNotice, hideNotice } from '@/utils';
 import { Animate, Snackbar } from '@wordpress/components';
 import { useMemo } from '@wordpress/element';
 
-const { render } = window.wp.element;
+const { render } = window.wp?.element || {};
 
 const container = document.createElement('div');
 container.id = 'filter-ai-notice-container';
@@ -34,4 +34,4 @@ const NoticeContainer = () => {
   );
 };
 
-render(<NoticeContainer />, container);
+render?.(<NoticeContainer />, container);

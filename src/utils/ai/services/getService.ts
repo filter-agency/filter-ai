@@ -1,10 +1,10 @@
 const { store } = window.aiServices.ai;
 
 export const getService = async (capabilities: string[] = []) => {
-  const services = window.wp.data.select(store).getServices();
+  const services = window.wp?.data.select(store).getServices();
 
   if (!services) {
-    const newServices = await window.wp.apiFetch({
+    const newServices = await window.wp?.apiFetch({
       path: '/ai-services/v1/services',
     });
 
@@ -12,10 +12,10 @@ export const getService = async (capabilities: string[] = []) => {
       return;
     }
 
-    window.wp.data.dispatch(store).receiveServices(newServices);
+    window.wp?.data.dispatch(store).receiveServices(newServices);
   }
 
-  return window.wp.data.select(store).getAvailableService({
+  return window.wp?.data.select(store).getAvailableService({
     capabilities,
   });
 };

@@ -1,4 +1,4 @@
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 
 export type FilterAISettings = Partial<{
   image_alt_text_enabled: boolean;
@@ -32,7 +32,16 @@ export type FilterAISettings = Partial<{
 const settingsKey = 'filter_ai_settings';
 
 export const useSettings = () => {
-  const { record, isResolving } = window.wp.coreData.useEntityRecord('root', 'site');
+  const { record } = useSelect((select) => {
+    const { getEntityRecord } = select('core');
+
+    // @ts-expect-error Property 'useEntityRecord' does not exist on type '{}'
+    const record = getEntityRecord('root', 'site') || {};
+
+    return {
+      record,
+    };
+  }, []);
 
   const { saveEntityRecord } = useDispatch('core');
 
@@ -46,5 +55,5 @@ export const useSettings = () => {
     });
   };
 
-  return { settings: record?.[settingsKey], isLoading: isResolving, saveSettings };
+  return { settings: record?.[settingsKey], saveSettings };
 };

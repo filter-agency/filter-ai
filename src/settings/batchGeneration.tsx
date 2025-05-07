@@ -12,7 +12,6 @@ const defaultCount = {
   completeActions: 0,
   pendingActions: 0,
   runningActions: 0,
-  canceledActions: 0,
   failedActions: 0,
   statusActions: 0,
 };
@@ -25,17 +24,14 @@ type FailedAction = {
 const BatchGeneration = () => {
   const [count, setCount] = useState(defaultCount);
   const [failedActions, setFailedActions] = useState<FailedAction[]>([]);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   const { settings } = useSettings();
 
   const types = useMemo(() => [...new Set(mimeTypes.values())], [mimeTypes]);
 
   const inProgress = useMemo(() => {
-    return !!count.pendingActions || !!count.runningActions || !!count.canceledActions;
-  }, [count]);
-
-  const isCancelling = useMemo(() => {
-    return !!count.canceledActions;
+    return !!count.pendingActions || !!count.runningActions;
   }, [count]);
 
   const getCount = useCallback(async () => {
@@ -59,14 +55,13 @@ const BatchGeneration = () => {
           completeActions: data.complete_actions_count,
           pendingActions: data.pending_actions_count,
           runningActions: data.running_actions_count,
-          canceledActions: data.canceled_actions_count,
           failedActions: data.failed_actions_count,
         };
       });
 
       setFailedActions(Object.values(data.failed_actions || {}));
 
-      if (!!data.pending_actions_count || !!data.running_actions_count || !!data.canceled_actions_count) {
+      if (!!data.pending_actions_count || !!data.running_actions_count) {
         setTimeout(getCount, 1000);
       }
     } catch (e) {
@@ -89,6 +84,8 @@ const BatchGeneration = () => {
   }, []);
 
   const cancel = useCallback(async () => {
+    setIsCancelling(true);
+
     try {
       await fetch(
         `${window.filter_ai_api.url}?action=filter_ai_api_cancel_batch_image_alt_text&nonce=${window.filter_ai_api.nonce}`,
@@ -96,7 +93,9 @@ const BatchGeneration = () => {
           method: 'POST',
         }
       );
-    } catch (e) {}
+    } finally {
+      setIsCancelling(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -164,6 +163,7 @@ const BatchGeneration = () => {
           {inProgress && (
             <PanelBody>
               <p style={{ fontWeight: 'bold' }}>{t('Generating')}</p>
+              <p>Your batch generation will continue to run in the background if you move away.</p>
               <ProgressBar value={(count.completeActions / count.actions) * 100} className="filter-ai-progress-bar" />
               <p>{t(`${count.completeActions} / ${count.actions} images processed`)}</p>
               <Button variant="secondary" onClick={cancel} disabled={isCancelling}>

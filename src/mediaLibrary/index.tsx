@@ -8,7 +8,7 @@ const Events = _.extend({}, window?.Backbone?.Events);
 
 (function () {
   const AttachmentDetails =
-    window.wp.media?.view?.Attachment?.Details?.TwoColumn || window.wp.media?.view?.Attachment?.Details;
+    window.wp?.media?.view?.Attachment?.Details?.TwoColumn || window.wp?.media?.view?.Attachment?.Details;
 
   if (!AttachmentDetails) {
     return;
@@ -57,21 +57,21 @@ const Events = _.extend({}, window?.Backbone?.Events);
     },
   });
 
-  if (window.wp.media.view.Attachment.Details.TwoColumn) {
+  if (window.wp?.media.view.Attachment.Details.TwoColumn) {
     window.wp.media.view.Attachment.Details.TwoColumn = OverrideAttachmentDetails;
-  } else {
+  } else if (window.wp?.media.view.Attachment.Details) {
     window.wp.media.view.Attachment.Details = OverrideAttachmentDetails;
   }
 })();
 
 (function () {
-  const Modal = window.wp.media?.view?.Modal;
+  const Modal = window.wp?.media?.view?.Modal;
 
   if (!Modal) {
     return;
   }
 
-  const { createRoot } = window.wp.element;
+  const { createRoot } = window.wp?.element || {};
 
   const ModalButton = () => {
     const [generateAltTextEnabled, setGenerateAltTextEnabled] = useState(false);
@@ -118,7 +118,7 @@ const Events = _.extend({}, window?.Backbone?.Events);
       const container = document.createElement('div');
       container.id = 'filter-ai-media-modal-container';
 
-      const root = createRoot(container);
+      const root = createRoot?.(container);
 
       this.$el.find('.edit-media-header').addClass('filter-ai-edit-media-header');
 

@@ -2,7 +2,7 @@
   /**
    * Plugin Name: Filter AI
    * Description: Meet your digital sidekick: Filter AI, a plugin that tackles your to-do list faster than you can say 'procrastination'!
-   * Version: 0.1.15
+   * Version: 0.1.16
    * Author: Filter
    * Author URI: https://filter.agency
    * Text Domain: filter-ai
@@ -145,7 +145,7 @@
 
     $script = plugin_dir_url(__FILE__) . 'build/index.js';
     $script_metadata = require plugin_dir_path( __FILE__ ) . 'build/index.asset.php';
-		array_push($script_metadata['dependencies'], 'ais-ai-store', 'underscore');
+		array_push($script_metadata['dependencies'], 'ais-ai-store', 'underscore', 'wp-block-editor');
 
     wp_enqueue_script(
       'filter-ai-script',
