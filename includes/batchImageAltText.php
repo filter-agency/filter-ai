@@ -146,8 +146,7 @@ function filter_ai_reset_batch_image_alt_text() {
       'hook' => 'filter_ai_batch_image_alt_text',
       'status' => array(
         ActionScheduler_Store::STATUS_PENDING, 
-        ActionScheduler_Store::STATUS_RUNNING, 
-        ActionScheduler_Store::STATUS_CANCELED
+        ActionScheduler_Store::STATUS_RUNNING
       ),
       'group' => 'filter-ai-current',
       'per_page' => 1
@@ -277,16 +276,6 @@ function filter_ai_api_get_image_count() {
     'ids'
   );
 
-  $canceledActions = as_get_scheduled_actions(
-    array(
-      'hook' => 'filter_ai_batch_image_alt_text',
-      'status' => ActionScheduler_Store::STATUS_CANCELED,
-      'group' => 'filter-ai-current',
-      'per_page' => -1
-    ),
-    'ids'
-  );
-
   $failedActionsRaw = as_get_scheduled_actions(
     array(
       'hook' => 'filter_ai_batch_image_alt_text',
@@ -319,7 +308,6 @@ function filter_ai_api_get_image_count() {
       'pending_actions_count' => count($pendingActions),
       'running_actions_count' => count($runningActions),
       'complete_actions_count' => count($completeActions),
-      'canceled_actions_count' => count($canceledActions),
       'failed_actions_count' => count($failedActions),
       'failed_actions' => $failedActions
     )
