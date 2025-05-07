@@ -8,10 +8,11 @@ use Felix_Arntz\AI_Services\Services\API\Helpers;
 
 function filter_ai_mime_types() {
   $post_mime_types = array(
-    'image/png',
+    'image/avif',
     'image/gif',
+    'image/jpeg',
+    'image/png',
     'image/webp',
-    'image/jpeg'
   );
 
   return implode(',', $post_mime_types);

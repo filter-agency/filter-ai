@@ -118,7 +118,10 @@ const BatchGeneration = () => {
           <PanelBody>
             <p>
               {t(
-                `Generate alt text for the following image types within the media library: ${types.map((type) => type.replace(/image\//, '')).join(', ')}.`
+                `Generate alt text for the following image types within the media library: ${types
+                  .map((type) => type.replace(/image\//, ''))
+                  .sort()
+                  .join(', ')}.`
               )}
             </p>
             <p>{t(`Total images: ${count.images}`)}</p>

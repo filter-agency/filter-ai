@@ -4,6 +4,7 @@ export const mimeTypes = new Map<string, string>([
   ['webp', 'image/webp'],
   ['jpg', 'image/jpeg'],
   ['jpeg', 'image/jpeg'],
+  ['avif', 'image/avif'],
 ]);
 
 export const supportedMimeTypes = Array.from(mimeTypes.keys());
