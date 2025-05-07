@@ -57,14 +57,14 @@ function filter_ai_process_batch_image_alt_text($args) {
   $userId = $args['userId'];
   $currentUserId = get_current_user_id();
   $imageAltText = get_post_meta($imageId, '_wp_attachment_image_alt', true);
-  $imageUrl = wp_get_attachment_image_url($imageId);
+  $imagePath = get_attached_file($imageId);
   $imageMimeType = get_post_mime_type($imageId);
 
   if (!empty($imageAltText)) {
     return;
   }
   
-  if(empty($imageUrl)) {
+  if(empty($imagePath)) {
     throw new Exception('Missing image url');
   }
 
@@ -100,7 +100,7 @@ function filter_ai_process_batch_image_alt_text($args) {
 
     $parts->add_text_part($prompt);
 
-    $imageData = file_get_contents($imageUrl);
+    $imageData = file_get_contents($imagePath);
     $imageBase64 = 'data:' . $imageMimeType . ';base64,' . base64_encode($imageData);
 
     $parts->add_file_data_part($imageMimeType, $imageBase64);
