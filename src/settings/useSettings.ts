@@ -32,7 +32,7 @@ export type FilterAISettings = Partial<{
 const settingsKey = 'filter_ai_settings';
 
 export const useSettings = () => {
-  const { record, isResolving } = window.wp.coreData.useEntityRecord('root', 'site');
+  const { record, isResolving } = window.wp?.coreData?.useEntityRecord('root', 'site') || {};
 
   const { saveEntityRecord } = useDispatch('core');
 

@@ -1,6 +1,6 @@
 import { useSelect } from '@wordpress/data';
 
-const { register, createReduxStore, dispatch } = window.wp.data;
+const { register, createReduxStore, dispatch } = window.wp?.data || {};
 
 const storeName = 'filter-ai/loading-message-store';
 

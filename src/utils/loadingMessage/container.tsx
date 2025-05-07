@@ -1,7 +1,7 @@
 import { useLoadingMessage } from '@/utils';
 import { Spinner } from '@wordpress/components';
 
-const { render } = window.wp.element;
+const { render } = window.wp?.element || {};
 
 const container = document.createElement('div');
 container.id = 'filter-ai-loading-message-container';
@@ -26,4 +26,4 @@ const LoadingMessage = () => {
   );
 };
 
-render(<LoadingMessage />, container);
+render?.(<LoadingMessage />, container);
