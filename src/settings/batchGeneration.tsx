@@ -163,6 +163,7 @@ const BatchGeneration = () => {
           {inProgress && (
             <PanelBody>
               <p style={{ fontWeight: 'bold' }}>{t('Generating')}</p>
+              <p>Your batch generation will continue to run in the background if you move away.</p>
               <ProgressBar value={(count.completeActions / count.actions) * 100} className="filter-ai-progress-bar" />
               <p>{t(`${count.completeActions} / ${count.actions} images processed`)}</p>
               <Button variant="secondary" onClick={cancel} disabled={isCancelling}>
