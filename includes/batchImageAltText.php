@@ -291,11 +291,10 @@ function filter_ai_api_get_image_count() {
   if (!empty($failedActionsRaw)) {
     foreach($failedActionsRaw as $actionId => $action) {
       $log = filter_ai_get_last_log_for_action_id($actionId);
-      $message = explode(': ', $log->message);
 
       $failedActions[] = array(
         'image_id' => $action->get_args()[0]['imageId'],
-        'message' => end($message)
+        'message' => $log->message
       );
     }
   }
