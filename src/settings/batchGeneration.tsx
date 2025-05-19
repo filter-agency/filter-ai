@@ -25,6 +25,7 @@ const BatchGeneration = () => {
   const [count, setCount] = useState(defaultCount);
   const [failedActions, setFailedActions] = useState<FailedAction[]>([]);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [isGenerateButtonDisabled, setIsGenerateButtonDisabled] = useState(false);
 
   const { settings } = useSettings();
 
@@ -67,10 +68,14 @@ const BatchGeneration = () => {
     } catch (e) {
       setCount(defaultCount);
       setFailedActions([]);
+    } finally {
+      setIsGenerateButtonDisabled(false);
     }
   }, []);
 
   const generateAltText = useCallback(async () => {
+    setIsGenerateButtonDisabled(true);
+
     try {
       await fetch(
         `${window.filter_ai_api.url}?action=filter_ai_api_batch_image_alt_text&nonce=${window.filter_ai_api.nonce}`,
@@ -153,7 +158,7 @@ const BatchGeneration = () => {
               <Button
                 variant="primary"
                 onClick={generateAltText}
-                disabled={inProgress || !settings?.image_alt_text_enabled}
+                disabled={inProgress || !settings?.image_alt_text_enabled || isGenerateButtonDisabled}
               >
                 {t('Generate alt text')}
               </Button>
