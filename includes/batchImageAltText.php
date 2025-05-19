@@ -8,7 +8,9 @@ use Felix_Arntz\AI_Services\Services\API\Helpers;
 
 function filter_ai_mime_types() {
   $post_mime_types = array(
-    'image/avif',
+    // disable avif as Open AI doesn't current suport it
+    // https://platform.openai.com/docs/guides/images-vision?api-mode=responses#image-input-requirements
+    //'image/avif',
     'image/gif',
     'image/jpeg',
     'image/png',
