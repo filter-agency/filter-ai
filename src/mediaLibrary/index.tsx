@@ -33,7 +33,9 @@ const Events = _.extend({}, window?.Backbone?.Events);
       showLoadingMessage(t('Generating alt text'));
 
       try {
-        const altText = await ai.getAltTextFromUrl(this.model.get('url'), this.model.get('alt'), customPrompt);
+        const url = this.model.get('sizes')?.medium?.url || this.model.get('url');
+
+        const altText = await ai.getAltTextFromUrl(url, this.model.get('alt'), customPrompt);
 
         if (!altText) {
           throw new Error(t('Sorry, there has been an issue while generating your alt text 0.'));

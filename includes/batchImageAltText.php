@@ -75,16 +75,22 @@ function filter_ai_process_batch_image_alt_text($args) {
   $imageId = $args['imageId'];
   $userId = $args['userId'];
   $currentUserId = get_current_user_id();
-  $imageAltText = get_post_meta($imageId, '_wp_attachment_image_alt', true);
-  $imagePath = get_attached_file($imageId);
+  $metadata = wp_get_attachment_metadata($imageId);
+  $imageAltText = $metadata['_wp_attachment_image_alt'];
+  $imageFile = get_attached_file($imageId);
   $imageMimeType = get_post_mime_type($imageId);
+  $imagePath = $imageFile;
+
+  if (isset($metadata['sizes']['medium'])) {
+    $imagePath = dirname($imageFile) . '/' . $metadata['sizes']['medium']['file'];
+  }
 
   if (!empty($imageAltText)) {
     return;
   }
   
   if(empty($imagePath)) {
-    throw new Exception('Missing image url');
+    throw new Exception('Missing image path');
   }
 
   if (empty($imageMimeType)) {
