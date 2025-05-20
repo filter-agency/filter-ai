@@ -48,6 +48,10 @@
     justify-content: space-between;
     align-items: flex-start;
   }
+
+  & #leadin-disconnected-banner {
+    display: none;
+  }
 }
 
 @media (max-width: 782px) {
