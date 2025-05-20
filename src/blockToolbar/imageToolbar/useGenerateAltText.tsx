@@ -8,6 +8,7 @@ type Props = {
   setAttributes: BlockEditProps['setAttributes'];
 };
 
+const maxPixelSize = 2000;
 const altTextKeys = ['alt', 'mediaAlt'];
 const urlKeys = ['url', 'mediaUrl'];
 
@@ -40,11 +41,31 @@ export const useGenerateAltText = ({ attributes, setAttributes }: Props) => {
     [attributes, setAttributes]
   );
 
+  const getAttachmentUrl = useCallback(async () => {
+    let url = getAttribute(urlKeys);
+
+    if (!window.wp?.media?.attachment) {
+      return url;
+    }
+
+    const attachment = await window.wp.media.attachment(attributes.id).fetch();
+
+    if (attachment?.sizes?.medium?.url) {
+      url = attachment.sizes.medium.url;
+    } else {
+      if (attachment.width > maxPixelSize || attachment.height > maxPixelSize) {
+        throw new Error(t('Please choose a smaller image.'));
+      }
+    }
+
+    return url;
+  }, []);
+
   const generateAltText = async () => {
     showLoadingMessage(t('Generating alt text'));
 
     try {
-      const url = getAttribute(urlKeys);
+      const url = await getAttachmentUrl();
       const oldAltText = getAttribute(altTextKeys);
 
       const altText = await ai.getAltTextFromUrl(url, oldAltText, settings?.image_alt_text_prompt);

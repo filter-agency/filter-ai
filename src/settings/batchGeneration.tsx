@@ -1,5 +1,5 @@
 import { filterLogo } from '@/assets/filter-logo';
-import { Button, Flex, Panel, PanelBody, ProgressBar } from '@wordpress/components';
+import { Button, Spinner, Panel, PanelBody, ProgressBar } from '@wordpress/components';
 import { createRoot, useEffect, useCallback, useState } from '@wordpress/element';
 import { mimeTypes, t } from '@/utils';
 import { useMemo } from 'react';
@@ -25,6 +25,8 @@ const BatchGeneration = () => {
   const [count, setCount] = useState(defaultCount);
   const [failedActions, setFailedActions] = useState<FailedAction[]>([]);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [isGenerateButtonDisabled, setIsGenerateButtonDisabled] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const { settings } = useSettings();
 
@@ -67,10 +69,15 @@ const BatchGeneration = () => {
     } catch (e) {
       setCount(defaultCount);
       setFailedActions([]);
+    } finally {
+      setIsGenerateButtonDisabled(false);
+      setIsLoading(false);
     }
   }, []);
 
   const generateAltText = useCallback(async () => {
+    setIsGenerateButtonDisabled(true);
+
     try {
       await fetch(
         `${window.filter_ai_api.url}?action=filter_ai_api_batch_image_alt_text&nonce=${window.filter_ai_api.nonce}`,
@@ -113,74 +120,83 @@ const BatchGeneration = () => {
         </div>
       </header>
       <div className="filter-ai-settings-content">
-        <Panel header={t('Image Alt Text')} className="filter-ai-settings-panel">
-          <PanelBody>
-            <p>
-              {t(
-                `Generate alt text for the following image types within the media library: ${types
-                  .map((type) => type.replace(/image\//, ''))
-                  .sort()
-                  .join(', ')}.`
+        {isLoading && <Spinner className="filter-ai-settings-spinner" />}
+
+        {!isLoading && (
+          <>
+            <Panel header={t('Image Alt Text')} className="filter-ai-settings-panel">
+              <PanelBody>
+                <p>
+                  {t(
+                    `Generate alt text for the following image types within the media library: ${types
+                      .map((type) => type.replace(/image\//, ''))
+                      .sort()
+                      .join(', ')}.`
+                  )}
+                </p>
+                <p>{t(`Total images: ${count.images}`)}</p>
+                <p>{t(`Images missing alt text: ${count.imagesWithoutAltText}`)}</p>
+              </PanelBody>
+              {!inProgress && count.actions > 0 && (
+                <PanelBody title={t('Previous run stats')}>
+                  <p>{t(`Images processed: ${count.actions}`)}</p>
+                  <p>{t(`Completed images: ${count.completeActions}`)}</p>
+                  <p>{t(`Failed images: ${count.failedActions}`)}</p>
+                </PanelBody>
               )}
-            </p>
-            <p>{t(`Total images: ${count.images}`)}</p>
-            <p>{t(`Images missing alt text: ${count.imagesWithoutAltText}`)}</p>
-          </PanelBody>
-          {!inProgress && count.actions > 0 && (
-            <PanelBody title={t('Previous run stats')}>
-              <p>{t(`Images processed: ${count.actions}`)}</p>
-              <p>{t(`Completed images: ${count.completeActions}`)}</p>
-              <p>{t(`Failed images: ${count.failedActions}`)}</p>
-            </PanelBody>
-          )}
 
-          {!!count.failedActions && (
-            <PanelBody title={t(`Failed images: ${count.failedActions}`)} initialOpen={false}>
-              {failedActions?.map((action) => {
-                return (
-                  <p>
-                    <a href={`/wp-admin/upload.php?item=${action.image_id}`}>{action.image_id}</a>
-                    {': '}
-                    {action.message ? action.message : 'Unknown'}
-                  </p>
-                );
-              })}
-            </PanelBody>
-          )}
+              {!!count.failedActions && (
+                <PanelBody title={t(`Failed images: ${count.failedActions}`)} initialOpen={false}>
+                  {failedActions?.map((action) => {
+                    return (
+                      <p>
+                        <a href={`/wp-admin/upload.php?item=${action.image_id}`}>{action.image_id}</a>
+                        {': '}
+                        {action.message ? action.message : 'Unknown'}
+                      </p>
+                    );
+                  })}
+                </PanelBody>
+              )}
 
-          {!inProgress && count.imagesWithoutAltText > 0 && (
-            <PanelBody>
-              <Button
-                variant="primary"
-                onClick={generateAltText}
-                disabled={inProgress || !settings?.image_alt_text_enabled}
-              >
-                {t('Generate alt text')}
-              </Button>
-            </PanelBody>
-          )}
+              {!inProgress && count.imagesWithoutAltText > 0 && (
+                <PanelBody>
+                  <Button
+                    variant="primary"
+                    onClick={generateAltText}
+                    disabled={inProgress || !settings?.image_alt_text_enabled || isGenerateButtonDisabled}
+                  >
+                    {t('Generate alt text')}
+                  </Button>
+                </PanelBody>
+              )}
 
-          {inProgress && (
-            <PanelBody>
-              <p style={{ fontWeight: 'bold' }}>{t('Generating')}</p>
-              <p>Your batch generation will continue to run in the background if you move away.</p>
-              <ProgressBar value={(count.completeActions / count.actions) * 100} className="filter-ai-progress-bar" />
-              <p>{t(`${count.completeActions} / ${count.actions} images processed`)}</p>
-              <Button variant="secondary" onClick={cancel} disabled={isCancelling}>
-                {t('Cancel')}
-              </Button>
-            </PanelBody>
-          )}
+              {inProgress && (
+                <PanelBody>
+                  <p style={{ fontWeight: 'bold' }}>{t('Generating')}</p>
+                  <p>Your batch generation will continue to run in the background if you move away.</p>
+                  <ProgressBar
+                    value={(count.completeActions / count.actions) * 100}
+                    className="filter-ai-progress-bar"
+                  />
+                  <p>{t(`${count.completeActions} / ${count.actions} images processed`)}</p>
+                  <Button variant="secondary" onClick={cancel} disabled={isCancelling}>
+                    {t('Cancel')}
+                  </Button>
+                </PanelBody>
+              )}
 
-          {!count.images && (
-            <PanelBody>
-              <p>{t('No images could be found')}</p>
-            </PanelBody>
-          )}
-        </Panel>
-        <div>
-          <a href="/wp-admin/tools.php?page=action-scheduler">{t('View batch generation log')}</a>
-        </div>
+              {!count.images && (
+                <PanelBody>
+                  <p>{t('No images could be found')}</p>
+                </PanelBody>
+              )}
+            </Panel>
+            <div>
+              <a href="/wp-admin/tools.php?page=action-scheduler">{t('View batch generation log')}</a>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

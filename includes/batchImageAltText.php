@@ -8,7 +8,9 @@ use Felix_Arntz\AI_Services\Services\API\Helpers;
 
 function filter_ai_mime_types() {
   $post_mime_types = array(
-    'image/avif',
+    // disable avif as Open AI doesn't current suport it
+    // https://platform.openai.com/docs/guides/images-vision?api-mode=responses#image-input-requirements
+    //'image/avif',
     'image/gif',
     'image/jpeg',
     'image/png',
@@ -16,6 +18,18 @@ function filter_ai_mime_types() {
   );
 
   return implode(',', $post_mime_types);
+}
+
+function filter_ai_get_unique_attachments($attachments) {
+  $uniqueAttachments = [];
+
+  foreach ($attachments as $attachment) {
+    if (!isset($uniqueAttachments[$attachment->guid])) {
+      $uniqueAttachments[$attachment->guid] = $attachment;
+    }
+  }
+
+  return array_values($uniqueAttachments);
 }
 
 function filter_ai_get_images() {
@@ -26,7 +40,9 @@ function filter_ai_get_images() {
     'post_status' => 'inherit'    
   );
 
-  return get_posts($args);
+  $attachments = get_posts($args);
+
+  return filter_ai_get_unique_attachments($attachments);
 }
 
 function filter_ai_get_images_without_alt_text() {
@@ -50,23 +66,31 @@ function filter_ai_get_images_without_alt_text() {
     )      
   );
 
-  return get_posts($args);
+  $attachments = get_posts($args);
+
+  return filter_ai_get_unique_attachments($attachments);
 }
 
 function filter_ai_process_batch_image_alt_text($args) {
   $imageId = $args['imageId'];
   $userId = $args['userId'];
   $currentUserId = get_current_user_id();
-  $imageAltText = get_post_meta($imageId, '_wp_attachment_image_alt', true);
-  $imagePath = get_attached_file($imageId);
+  $metadata = wp_get_attachment_metadata($imageId);
+  $imageAltText = $metadata['_wp_attachment_image_alt'];
+  $imageFile = get_attached_file($imageId);
   $imageMimeType = get_post_mime_type($imageId);
+  $imagePath = $imageFile;
+
+  if (isset($metadata['sizes']['medium'])) {
+    $imagePath = dirname($imageFile) . '/' . $metadata['sizes']['medium']['file'];
+  }
 
   if (!empty($imageAltText)) {
     return;
   }
   
   if(empty($imagePath)) {
-    throw new Exception('Missing image url');
+    throw new Exception('Missing image path');
   }
 
   if (empty($imageMimeType)) {
@@ -291,11 +315,10 @@ function filter_ai_api_get_image_count() {
   if (!empty($failedActionsRaw)) {
     foreach($failedActionsRaw as $actionId => $action) {
       $log = filter_ai_get_last_log_for_action_id($actionId);
-      $message = explode(': ', $log->message);
 
       $failedActions[] = array(
         'image_id' => $action->get_args()[0]['imageId'],
-        'message' => end($message)
+        'message' => $log->message
       );
     }
   }
