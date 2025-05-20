@@ -76,6 +76,14 @@
   margin: 0 auto;
 }
 
+.filter-ai-settings-spinner.filter-ai-settings-spinner {
+  width: 2rem;
+  height: 2rem;
+  align-self: center;
+  margin-top: 4rem;
+  margin-bottom: 4rem;
+}
+
 .filter-ai-settings-panel {
   border-radius: 8px;
   border: 0;
