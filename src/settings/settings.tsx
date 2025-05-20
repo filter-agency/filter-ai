@@ -132,13 +132,19 @@ const Settings = () => {
                       <TextareaControl
                         __nextHasNoMarginBottom
                         label={feature.prompt.label}
-                        value={formData?.[feature.prompt.key]?.toString() || ''}
-                        placeholder={feature.prompt.placeholder}
+                        value={formData?.[feature.prompt.key]?.toString() || feature.prompt.placeholder}
                         onChange={(newValue) => {
                           onChange(feature.prompt.key, newValue);
                         }}
                         disabled={!formData?.[feature.toggle.key]}
                       />
+                      <Button
+                        className="filter-ai-settings-field-reset"
+                        variant="link"
+                        onClick={() => onChange(feature.prompt.key, '')}
+                      >
+                        {t('Reset to default')}
+                      </Button>
                     </div>
                   </PanelRow>
                 )}

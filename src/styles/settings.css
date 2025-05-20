@@ -122,6 +122,10 @@
   }
 }
 
+.filter-ai-settings-field-reset.filter-ai-settings-field-reset {
+  margin-top: 8px;
+}
+
 .filter-ai-settings-toggle-options {
   &.has-icon {
     padding: 0;
