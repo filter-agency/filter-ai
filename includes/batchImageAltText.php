@@ -20,6 +20,18 @@ function filter_ai_mime_types() {
   return implode(',', $post_mime_types);
 }
 
+function filter_ai_get_unique_attachments($attachments) {
+  $uniqueAttachments = [];
+
+  foreach ($attachments as $attachment) {
+    if (!isset($uniqueAttachments[$attachment->guid])) {
+      $uniqueAttachments[$attachment->guid] = $attachment;
+    }
+  }
+
+  return array_values($uniqueAttachments);
+}
+
 function filter_ai_get_images() {
   $args = array(
     'post_type' => 'attachment',
@@ -28,7 +40,9 @@ function filter_ai_get_images() {
     'post_status' => 'inherit'    
   );
 
-  return get_posts($args);
+  $attachments = get_posts($args);
+
+  return filter_ai_get_unique_attachments($attachments);
 }
 
 function filter_ai_get_images_without_alt_text() {
@@ -52,7 +66,9 @@ function filter_ai_get_images_without_alt_text() {
     )      
   );
 
-  return get_posts($args);
+  $attachments = get_posts($args);
+
+  return filter_ai_get_unique_attachments($attachments);
 }
 
 function filter_ai_process_batch_image_alt_text($args) {
