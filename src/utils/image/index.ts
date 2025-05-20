@@ -1,3 +1,5 @@
+const sizeLimitBytes = 10 * 1024 * 1024;
+
 export const mimeTypes = new Map<string, string>([
   ['png', 'image/png'],
   ['gif', 'image/gif'],
@@ -20,6 +22,10 @@ export const getBase64Image = async (url: string): Promise<string> => {
   const data: Response = await fetch(url);
   const blob: Blob = await data.blob();
   return new Promise((resolve, reject) => {
+    if (blob.size > sizeLimitBytes) {
+      reject(new Error('Please choose a smaller image.'));
+    }
+
     const reader = new FileReader();
     reader.readAsDataURL(blob);
     reader.onloadend = () => {

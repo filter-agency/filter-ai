@@ -4,6 +4,8 @@ import { ai, hideLoadingMessage, showLoadingMessage, showNotice, t } from '@/uti
 import { useEffect, useMemo, useState } from '@wordpress/element';
 import _ from 'underscore';
 
+const maxPixelSize = 2000;
+
 const Events = _.extend({}, window?.Backbone?.Events);
 
 (function () {
@@ -33,6 +35,12 @@ const Events = _.extend({}, window?.Backbone?.Events);
       showLoadingMessage(t('Generating alt text'));
 
       try {
+        if (!this.model.get('sizes')?.medium?.url) {
+          if (this.model.get('width') > maxPixelSize || this.model.get('height') > maxPixelSize) {
+            throw new Error(t('Please choose a smaller image.'));
+          }
+        }
+
         const url = this.model.get('sizes')?.medium?.url || this.model.get('url');
 
         const altText = await ai.getAltTextFromUrl(url, this.model.get('alt'), customPrompt);

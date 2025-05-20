@@ -8,6 +8,7 @@ type Props = {
   setAttributes: BlockEditProps['setAttributes'];
 };
 
+const maxPixelSize = 2000;
 const altTextKeys = ['alt', 'mediaAlt'];
 const urlKeys = ['url', 'mediaUrl'];
 
@@ -51,6 +52,10 @@ export const useGenerateAltText = ({ attributes, setAttributes }: Props) => {
 
     if (attachment?.sizes?.medium?.url) {
       url = attachment.sizes.medium.url;
+    } else {
+      if (attachment.width > maxPixelSize || attachment.height > maxPixelSize) {
+        throw new Error(t('Please choose a smaller image.'));
+      }
     }
 
     return url;
