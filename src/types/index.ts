@@ -10,5 +10,6 @@ declare global {
     aiServices: any;
     Backbone: any;
     filter_ai_api: any;
+    tinymce: any;
   }
 }

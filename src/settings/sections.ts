@@ -161,4 +161,36 @@ export const sections: Section[] = [
       },
     ],
   },
+  {
+    header: 'WooCommerce',
+    key: 'wc',
+    features: [
+      {
+        key: 'wc_product_description',
+        toggle: {
+          key: 'wc_product_description_enabled',
+          label: t('Product description'),
+          help: t('Generate the product description.'),
+        },
+        prompt: {
+          key: 'wc_product_description_prompt',
+          label: t('Product description prompt'),
+          placeholder: ai.prompts.wc_product_description_prompt,
+        },
+      },
+      {
+        key: 'wc_product_excerpt',
+        toggle: {
+          key: 'wc_product_excerpt_enabled',
+          label: t('Product short description'),
+          help: t('Generate the product short description.'),
+        },
+        prompt: {
+          key: 'wc_product_excerpt_prompt',
+          label: t('Product short description prompt'),
+          placeholder: ai.prompts.wc_product_excerpt_prompt,
+        },
+      },
+    ],
+  },
 ];

@@ -2,7 +2,7 @@
   /**
    * Plugin Name: Filter AI
    * Description: Meet your digital sidekick: Filter AI, a plugin that tackles your to-do list faster than you can say 'procrastination'!
-   * Version: 0.1.18
+   * Version: 0.1.19
    * Author: Filter
    * Author URI: https://filter.agency
    * Text Domain: filter-ai
@@ -47,6 +47,12 @@
 
         'customise_text_change_tone_enabled' => array('type' => 'boolean'),
         'customise_text_change_tone_prompt' => array('type' => 'string'),
+
+        'wc_product_description_enabled' => array('type' => 'boolean'),
+        'wc_product_description_prompt' => array('type' => 'string'),
+
+        'wc_product_excerpt_enabled' => array('type' => 'boolean'),
+        'wc_product_excerpt_prompt' => array('type' => 'string'),
       )
     );
 
