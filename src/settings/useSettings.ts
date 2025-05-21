@@ -27,6 +27,12 @@ export type FilterAISettings = Partial<{
 
   customise_text_change_tone_enabled: boolean;
   customise_text_change_tone_prompt: string;
+
+  wc_product_description_enabled: boolean;
+  wc_product_description_prompt: string;
+
+  wc_product_excerpt_enabled: boolean;
+  wc_product_excerpt_prompt: string;
 }>;
 
 const settingsKey = 'filter_ai_settings';

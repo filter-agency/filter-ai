@@ -4,6 +4,7 @@ import './settings';
 import './blockToolbar';
 import './mediaLibrary';
 import './postToolbar';
+import './woocommerce';
 
 import './utils/notice/container';
 import './utils/loadingMessage/container';

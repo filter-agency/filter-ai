@@ -1,0 +1,9 @@
+#filter-ai-wc-content-toolbar-container,
+#filter-ai-wc-excerpt-toolbar-container {
+  margin: 0 5px 4px 5px;
+}
+
+#wp-excerpt-media-buttons {
+  display: flex;
+  align-items: center;
+}

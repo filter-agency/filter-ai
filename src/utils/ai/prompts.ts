@@ -19,4 +19,9 @@ export const prompts = {
   customise_text_summarise_prompt: 'Please generate a summary of no more than 50 words for the following {{type}}:',
   customise_text_change_tone_prompt:
     'Please rewrite the following {{type}} changing its tone to make it sound more {{tone}} while keeping it a similar length:',
+
+  wc_product_description_prompt: 'Please generate a description based on the following product information:',
+
+  wc_product_excerpt_prompt:
+    'Please generate a summary of no more than 50 words based on the following product information:',
 };
