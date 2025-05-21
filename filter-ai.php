@@ -45,6 +45,9 @@
         'customise_text_summarise_enabled' => array('type' => 'boolean'),
         'customise_text_summarise_prompt' => array('type' => 'string'),
 
+        'customise_text_change_tone_enabled' => array('type' => 'boolean'),
+        'customise_text_change_tone_prompt' => array('type' => 'string'),
+
         'wc_product_description_enabled' => array('type' => 'boolean'),
         'wc_product_description_prompt' => array('type' => 'string'),
 
