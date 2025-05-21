@@ -182,12 +182,12 @@ export const sections: Section[] = [
         key: 'wc_product_excerpt',
         toggle: {
           key: 'wc_product_excerpt_enabled',
-          label: t('Product excerpt'),
-          help: t('Generate the product excerpt.'),
+          label: t('Product short description'),
+          help: t('Generate the product short description.'),
         },
         prompt: {
           key: 'wc_product_excerpt_prompt',
-          label: t('Product excerpt prompt'),
+          label: t('Product short description prompt'),
           placeholder: ai.prompts.wc_product_excerpt_prompt,
         },
       },
