@@ -30,6 +30,8 @@
     "filter-ai.php",
     "build",
     "includes",
+    "src",
+    "composer.json",
     "vendor"
   ],
   "dependencies": {
