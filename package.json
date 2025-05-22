@@ -1,5 +1,8 @@
 {
   "name": "filter-ai",
+  "version": "1.0.0",
+  "author": "Filter",
+  "license": "GPL-3.0",
   "main": "build/scripts.js",
   "scripts": {
     "build": "tsc && wp-scripts build && wp-scripts plugin-zip",
