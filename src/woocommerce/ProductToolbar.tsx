@@ -100,12 +100,12 @@ const useControl = ({ id }: Props) => {
 
     return (
       <Modal
-        title="Filter AI"
+        title="Generate Description"
         onRequestClose={() => {
           setShowModal(false);
         }}
       >
-        <div>{t('Please provide some information about the product')}</div>
+        <div>{t('Please provide information about the product to generate a description:')}</div>
         {/* @ts-expect-error */}
         <TextareaControl
           ref={textareaRef}
