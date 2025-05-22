@@ -1,17 +1,17 @@
 <?php
-  /**
-   * Plugin Name: Filter AI
-   * Description: Meet your digital sidekick: Filter AI, a plugin that tackles your to-do list faster than you can say 'procrastination'!
-   * Version: 1.0.0
-   * Author: Filter
-   * Author URI: https://filter.agency
-   * Requires at least: 6.3
-   * Requires PHP: 7.4
-   * License: GPLv3
-   * License URI: https://www.gnu.org/licenses/gpl-3.0.html
-   * Text Domain: filter-ai
-   * Requires Plugins: ai-services
-   */
+/**
+ * Plugin Name: Filter AI
+ * Description: Meet your digital sidekick: Filter AI, a plugin that tackles your to-do list faster than you can say 'procrastination'!
+ * Version: 1.0.0
+ * Author: Filter
+ * Author URI: https://filter.agency
+ * Requires at least: 6.3
+ * Requires PHP: 7.4
+ * License: GPLv3
+ * License URI: https://www.gnu.org/licenses/gpl-3.0.html
+ * Text Domain: filter-ai
+ * Requires Plugins: ai-services
+ */
 
   if (!defined('ABSPATH')) {
     exit;
