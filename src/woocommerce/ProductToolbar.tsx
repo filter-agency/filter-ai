@@ -82,8 +82,18 @@ const useControl = ({ id }: Props) => {
   };
 
   const onClick = async () => {
-    if (hasValue) {
-      generate(getElement(id)?.value);
+    let value = '';
+
+    switch (id) {
+      case 'excerpt':
+        value = getElement(id)?.value || getElement('content')?.value;
+        break;
+      default:
+        getElement(id)?.value;
+    }
+
+    if (value) {
+      generate(value);
     } else {
       setShowModal(true);
     }
@@ -100,12 +110,12 @@ const useControl = ({ id }: Props) => {
 
     return (
       <Modal
-        title="Filter AI"
+        title="Generate Description"
         onRequestClose={() => {
           setShowModal(false);
         }}
       >
-        <div>{t('Please provide some information about the product')}</div>
+        <div>{t('Please provide information about the product to generate a description:')}</div>
         {/* @ts-expect-error */}
         <TextareaControl
           ref={textareaRef}
