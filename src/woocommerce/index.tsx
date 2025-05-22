@@ -1,46 +1,27 @@
 import { createRoot } from '@wordpress/element';
-import { ProductDescriptionToolbar } from './productDescription';
-import { ProductExcerptToolbar } from './productExcerpt';
+import { ProductToolbar } from './ProductToolbar';
 
-const loadContent = () => {
-  const id = 'filter-ai-wc-content-toolbar-container';
-  const productDescriptionButtons = document.getElementById('wp-content-media-buttons');
+const loadButton = (id: string, buttonsContainerId: string) => {
+  const buttonId = `filter-ai-wc-${id}-toolbar-container`;
+  const productExcerptButtons = document.getElementById(buttonsContainerId);
 
-  if (!productDescriptionButtons || document.getElementById(id)) {
+  if (!productExcerptButtons || document.getElementById(buttonId)) {
     return;
   }
 
   const container = document.createElement('div');
-  container.id = id;
-
-  const root = createRoot(container);
-
-  productDescriptionButtons.append(container);
-
-  root.render(<ProductDescriptionToolbar />);
-};
-
-const loadExcerpt = () => {
-  const id = 'filter-ai-wc-excerpt-toolbar-container';
-  const productExcerptButtons = document.getElementById('wp-excerpt-media-buttons');
-
-  if (!productExcerptButtons || document.getElementById(id)) {
-    return;
-  }
-
-  const container = document.createElement('div');
-  container.id = id;
+  container.id = buttonId;
 
   const root = createRoot(container);
 
   productExcerptButtons.append(container);
 
-  root.render(<ProductExcerptToolbar />);
+  root.render(<ProductToolbar id={id} />);
 };
 
 const load = () => {
-  loadContent();
-  loadExcerpt();
+  loadButton('content', 'wp-content-media-buttons');
+  loadButton('excerpt', 'wp-excerpt-media-buttons');
 };
 
 const observer = new MutationObserver(load);
