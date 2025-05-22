@@ -1,13 +1,18 @@
 import { DropdownMenu } from '@/components/dropdownMenu';
 import { useSettings } from '@/settings';
 import { ai, hideLoadingMessage, showLoadingMessage, showNotice, t } from '@/utils';
+import { useEffect, useState } from '@wordpress/element';
 import _ from 'underscore';
 
+const getExcerptElement = () => document.getElementById('excerpt') as HTMLTextAreaElement;
+
 const useProductExcerpt = () => {
+  const [hasValue, setHasValue] = useState(!!getExcerptElement()?.value);
+
   const { settings } = useSettings();
 
   const updateExcerpt = (newValue: string) => {
-    const excerpt = document.getElementById('excerpt') as HTMLTextAreaElement;
+    const excerpt = getExcerptElement();
 
     if (!excerpt) {
       return;
@@ -25,7 +30,11 @@ const useProductExcerpt = () => {
     try {
       const promptPrefix = settings?.wc_product_excerpt_prompt || ai.prompts.wc_product_excerpt_prompt;
 
-      const promptSuffix = window.prompt('Please provide some information about the product');
+      let promptSuffix: string | null = getExcerptElement()?.value;
+
+      if (!hasValue) {
+        promptSuffix = window.prompt('Please provide some information about the product');
+      }
 
       if (!promptSuffix) {
         return;
@@ -55,12 +64,32 @@ const useProductExcerpt = () => {
     }
   };
 
+  const checkHasValue = () => {
+    setHasValue(!!getExcerptElement()?.value);
+  };
+
+  useEffect(() => {
+    const abortController = new AbortController();
+
+    getExcerptElement()?.addEventListener('input', checkHasValue, {
+      signal: abortController.signal,
+    });
+
+    getExcerptElement()?.addEventListener('change', checkHasValue, {
+      signal: abortController.signal,
+    });
+
+    return () => {
+      abortController.abort();
+    };
+  }, []);
+
   if (!settings?.wc_product_excerpt_enabled) {
     return;
   }
 
   return {
-    title: t('Generate short description'),
+    title: hasValue ? t('Regenerate short description') : t('Generate short description'),
     onClick,
   };
 };

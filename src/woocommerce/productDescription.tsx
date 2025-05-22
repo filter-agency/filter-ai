@@ -1,13 +1,18 @@
 import { DropdownMenu } from '@/components/dropdownMenu';
 import { useSettings } from '@/settings';
 import { ai, hideLoadingMessage, showLoadingMessage, showNotice, t } from '@/utils';
+import { useEffect, useState } from '@wordpress/element';
 import _ from 'underscore';
 
+const getContentElement = () => document.getElementById('content') as HTMLTextAreaElement;
+
 const useProductDescription = () => {
+  const [hasValue, setHasValue] = useState(!!getContentElement()?.value);
+
   const { settings } = useSettings();
 
   const updateContent = (newValue: string) => {
-    const content = document.getElementById('content') as HTMLTextAreaElement;
+    const content = getContentElement();
 
     if (!content) {
       return;
@@ -25,7 +30,11 @@ const useProductDescription = () => {
     try {
       const promptPrefix = settings?.wc_product_description_prompt || ai.prompts.wc_product_description_prompt;
 
-      const promptSuffix = window.prompt('Please provide some information about the product');
+      let promptSuffix: string | null = getContentElement()?.value;
+
+      if (!hasValue) {
+        promptSuffix = window.prompt('Please provide some information about the product');
+      }
 
       if (!promptSuffix) {
         return;
@@ -55,12 +64,32 @@ const useProductDescription = () => {
     }
   };
 
+  const checkHasValue = () => {
+    setHasValue(!!getContentElement()?.value);
+  };
+
+  useEffect(() => {
+    const abortController = new AbortController();
+
+    getContentElement()?.addEventListener('input', checkHasValue, {
+      signal: abortController.signal,
+    });
+
+    getContentElement()?.addEventListener('change', checkHasValue, {
+      signal: abortController.signal,
+    });
+
+    return () => {
+      abortController.abort();
+    };
+  }, []);
+
   if (!settings?.wc_product_description_enabled) {
     return;
   }
 
   return {
-    title: t('Generate description'),
+    title: hasValue ? t('Regnerate description') : t('Generate description'),
     onClick,
   };
 };
