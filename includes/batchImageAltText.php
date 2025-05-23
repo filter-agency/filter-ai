@@ -90,11 +90,11 @@ function filter_ai_process_batch_image_alt_text($args) {
   }
   
   if(empty($imagePath)) {
-    throw new Exception('Missing image path');
+    throw new Exception( esc_html__( 'Missing image path', 'filter-ai' ) );
   }
 
   if (empty($imageMimeType)) {
-    throw new Exception('Missing image mime type');
+    throw new Exception( esc_html__( 'Missing image mime type', 'filter-ai' ) );
   }
 
   $required_capabilities = array(
@@ -108,14 +108,14 @@ function filter_ai_process_batch_image_alt_text($args) {
     wp_set_current_user($userId);
 
     if (ai_services()->has_available_services($required_capabilities) == false) {
-      throw new Exception('AI service not available');
+      throw new Exception( __( 'AI service not available', 'filter-ai' ) );
     }
 
     $service = ai_services()->get_available_service($required_capabilities);
 
     $parts = new Parts();
 
-    $prompt = 'Please generate a short description no more than 50 words for the following image that can be used as its alternative text. The description should be clear, succinct, and provide a sense of what the image portrays, ensuring that it is accessible to individuals using screen readers.';
+    $prompt = __( 'Please generate a short description no more than 50 words for the following image that can be used as its alternative text. The description should be clear, succinct, and provide a sense of what the image portrays, ensuring that it is accessible to individuals using screen readers.', 'filter-ai' );
 
     $settings = get_option('filter_ai_settings');
 
@@ -144,7 +144,7 @@ function filter_ai_process_batch_image_alt_text($args) {
     );
 
     if (empty($text)) {
-      throw new Exception('Issue generating alt text');
+      throw new Exception( esc_html__( 'Issue generating alt text', 'filter-ai' ) );
     }
     
     update_post_meta($imageId, '_wp_attachment_image_alt', $text);
@@ -349,4 +349,3 @@ function filter_ai_api_cancel_batch_image_alt_text() {
 
 add_action('wp_ajax_filter_ai_api_cancel_batch_image_alt_text', 'filter_ai_api_cancel_batch_image_alt_text');
 
-?>
