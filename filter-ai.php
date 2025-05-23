@@ -74,12 +74,15 @@
   
   add_action('init', 'filter_ai_settings_init');
 
-  function filter_ai_add_action_links($actions) {
-    $pluginLinks = array(
-      '<a href="' . admin_url('admin.php?page=filter_ai') . '">Settings</a>'
+  function filter_ai_add_action_links( $actions ) {
+    $plugin_links = array(
+      sprintf( 
+        '<a href="' . admin_url( 'admin.php?page=filter_ai' ) . '">%s</a>',
+        __( 'Settings', 'filter-ai' ),
+      )
     );
 
-    return array_merge($pluginLinks, $actions);
+    return array_merge( $plugin_links, $actions );
   }
 
   add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'filter_ai_add_action_links');
@@ -95,7 +98,12 @@
       add_settings_error(
         'filter_ai_messages',
         'filter_ai_message_missing_plugin',
-        __('Please activate an AI within the <a href="options-general.php?page=ais_services">AI Services</a> plugin.', 'filter_ai'),
+        sprintf( 
+          /* translators: 1: %s expands to a website link to AI Services settings, 2: </a> closing tag. */
+          esc_html__( 'Please activate an AI within the %1$sAI Services%2$s plugin.', 'filter-ai' ),
+          '<a href="options-general.php?page=ais_services">',
+          '</a>'
+        ),
         'warning'
       );
     }
@@ -118,8 +126,8 @@
 
   function filter_ai_add_admin_menu() {
     add_menu_page(
-      __('Filter AI Settings', 'filter_ai'),
-      __('Filter AI', 'filter_ai'),
+      __( 'Filter AI Settings', 'filter-ai' ),
+      __( 'Filter AI', 'filter-ai' ),
       'manage_options',
       'filter_ai',
       'filter_ai_options_page',
@@ -129,8 +137,8 @@
 
     add_submenu_page(
       'filter_ai',
-      __('Filter AI Settings', 'filter_ai'),
-      __('Settings', 'filter_ai'),
+      __( 'Filter AI Settings', 'filter-ai' ),
+      __( 'Settings', 'filter-ai' ),
       'manage_options',
       'filter_ai',
       'filter_ai_options_page',
@@ -138,8 +146,8 @@
 
     add_submenu_page(
       'filter_ai',
-      __('Filter AI Batch Generation', 'filter_ai'),
-      __('Batch Generation', 'filter_ai'),
+      __( 'Filter AI Batch Generation', 'filter-ai' ),
+      __( 'Batch Generation', 'filter-ai' ),
       'manage_options',
       'filter_ai_submenu_page_batch',
       'filter_ai_batch_page',
@@ -186,5 +194,3 @@
   }
   
   add_action('admin_enqueue_scripts', 'filter_ai_enqueue_scripts', -1);
-
-?>

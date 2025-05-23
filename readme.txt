@@ -1,7 +1,7 @@
 === Filter AI === 
-Contributors: filterdigital, filterteam 
-Tags: ai, content generation, artificial intelligence, openai, anthropic, gemini, blocks, content creation 
-Requires at least: 6.0 
+Contributors: filterdigital, paulfhalfpenny, ianharrisfilter, davecpage
+Tags: ai, content generation, artificial intelligence, openai, anthropic
+Requires at least: 6.3 
 Tested up to: 6.8
 Stable tag: 1.0.0 
 Requires PHP: 7.4 
