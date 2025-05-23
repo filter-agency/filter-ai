@@ -75,7 +75,7 @@ Filter AI is designed to work with the WordPress block editor (Gutenberg) and sh
 
 = Where can I get support? =
 
-If you need help with Filter AI, you can visit our support forum or contact us directly.
+If you need help with Filter AI, you can visit our support forum or [contact us directly](https://filter.agency/contact/).
 
 == Screenshots ==
 
