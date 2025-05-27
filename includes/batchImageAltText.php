@@ -29,54 +29,58 @@ function filter_ai_mime_types() {
 }
 
 /**
- * Filter array of attachments and returns unique items based on $attachment->guid
+ * Adapt the distinct clause of a query
  *
- * @param mixed[] $attachments Array of attachments
+ * @param string $distinct The distinct clause for the query
  *
- * @return mixed[] Retuns an array of unique attachments
+ * @return string Retuns $distinct
  */
-function filter_ai_get_unique_attachments( $attachments ) {
-	$unique_attachments = [];
+function filter_ai_distinct_query( $distinct ) {
+	global $wp_query;
 
-	foreach ( $attachments as $attachment ) {
-		if ( ! isset( $unique_attachments[ $attachment->guid ] ) ) {
-			$unique_attachments[ $attachment->guid ] = $attachment;
-		}
+	if ( $wp_query->get( 'filter_ai_distinct_guid' ) === true ) {
+		$distinct = 'DISTINCT guid';
 	}
 
-	return array_values( $unique_attachments );
+	return $distinct;
 }
+
+add_filter( 'posts_distinct', 'filter_ai_distinct_query' );
 
 /**
  * Get all images
  *
- * @return mixed[] Returns array of images
+ * @return int Returns number of images
  */
-function filter_ai_get_images() {
+function filter_ai_get_images_count() {
 	$args = array(
-		'post_type'      => 'attachment',
-		'post_mime_type' => filter_ai_mime_types(),
-		'posts_per_page' => -1,
-		'post_status'    => 'inherit',
+		'post_type'               => 'attachment',
+		'post_mime_type'          => filter_ai_mime_types(),
+		'posts_per_page'          => 0,
+		'post_status'             => 'inherit',
+		'update_post_meta_cache'  => false,
+		'update_post_term_cache'  => false,
+		'fields'                  => 'ids',
+		'filter_ai_distinct_guid' => true,
 	);
 
-	$attachments = get_posts( $args );
+	$attachments = new WP_Query( $args );
 
-	return filter_ai_get_unique_attachments( $attachments );
+	return $attachments->found_posts;
 }
 
 /**
- * Get all images without alt text
+ * Get number of all images without alt text
  *
- * @return mixed[] Returns array of images without alt text
+ * @return int Return number of images without alt text
  */
-function filter_ai_get_images_without_alt_text() {
+function filter_ai_get_images_without_alt_text_count() {
 	$args = array(
-		'post_type'      => 'attachment',
-		'post_mime_type' => filter_ai_mime_types(),
-		'posts_per_page' => -1,
-		'post_status'    => 'inherit',
-		'meta_query'     => array(
+		'post_type'               => 'attachment',
+		'post_mime_type'          => filter_ai_mime_types(),
+		'posts_per_page'          => 0,
+		'post_status'             => 'inherit',
+		'meta_query'              => array(
 			'relation' => 'OR',
 			array(
 				'key'     => '_wp_attachment_image_alt',
@@ -89,11 +93,47 @@ function filter_ai_get_images_without_alt_text() {
 				'compare' => '=',
 			),
 		),
+		'update_post_term_cache'  => false,
+		'fields'                  => 'ids',
+		'filter_ai_distinct_guid' => true,
 	);
 
-	$attachments = get_posts( $args );
+	$attachments = new WP_Query( $args );
 
-	return filter_ai_get_unique_attachments( $attachments );
+	return $attachments->found_posts;
+}
+
+/**
+ * Get all images without alt text
+ *
+ * @return mixed[] Returns array of images without alt text
+ */
+function filter_ai_get_images_without_alt_text() {
+	$args = array(
+		'post_type'               => 'attachment',
+		'post_mime_type'          => filter_ai_mime_types(),
+		'posts_per_page'          => -1,
+		'post_status'             => 'inherit',
+		'meta_query'              => array(
+			'relation' => 'OR',
+			array(
+				'key'     => '_wp_attachment_image_alt',
+				'value'   => '',
+				'compare' => 'NOT EXISTS',
+			),
+			array(
+				'key'     => '_wp_attachment_image_alt',
+				'value'   => '',
+				'compare' => '=',
+			),
+		),
+		'update_post_term_cache'  => false,
+		'filter_ai_distinct_guid' => true,
+	);
+
+	$attachments = new WP_Query( $args );
+
+	return $attachments->get_posts();
 }
 
 /**
@@ -281,39 +321,6 @@ function filter_ai_api_batch_image_alt_text() {
 add_action( 'wp_ajax_filter_ai_api_batch_image_alt_text', 'filter_ai_api_batch_image_alt_text' );
 
 /**
- * Get the last log message for a scheduled action
- *
- * @param int $action_id Scheduled action ID
- *
- * @return null|string Return log message
- */
-function filter_ai_get_last_log_for_action_id( $action_id ) {
-	if ( ! isset( $action_id ) ) {
-		return null;
-	}
-
-	global $wpdb;
-
-	$log = null;
-
-	try {
-		$log = $wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT `message` FROM {$wpdb->prefix}actionscheduler_logs
-        WHERE action_id = %s
-        ORDER BY log_date_gmt DESC
-        LIMIT 1",
-				$action_id
-			)
-		);
-	} catch ( Exception $e ) {
-		$log = null;
-	}
-
-	return $log->message;
-}
-
-/**
  * API handler to get the image counts
  */
 function filter_ai_api_get_image_count() {
@@ -355,7 +362,7 @@ function filter_ai_api_get_image_count() {
 			'group'    => 'filter-ai-current',
 			'per_page' => -1,
 		),
-		'ids'
+		'id',
 	);
 
 	$failed_actions_raw = as_get_scheduled_actions(
@@ -372,19 +379,26 @@ function filter_ai_api_get_image_count() {
 
 	if ( ! empty( $failed_actions_raw ) ) {
 		foreach ( $failed_actions_raw as $action_id => $action ) {
-			$log = filter_ai_get_last_log_for_action_id( $action_id );
+			$logger = ActionScheduler::logger();
+			$logs   = $logger->get_logs( $action_id );
+
+			$message = null;
+
+			if ( ! empty( $logs ) ) {
+				$message = end( $logs )->get_message();
+			}
 
 			$failed_actions[] = array(
 				'image_id' => $action->get_args()[0]['image_id'],
-				'message'  => $log,
+				'message'  => $message,
 			);
 		}
 	}
 
 	wp_send_json_success(
 		array(
-			'images_count'                  => count( filter_ai_get_images() ),
-			'images_without_alt_text_count' => count( filter_ai_get_images_without_alt_text() ),
+			'images_count'                  => filter_ai_get_images_count(),
+			'images_without_alt_text_count' => filter_ai_get_images_without_alt_text_count(),
 			'actions_count'                 => count( $actions ),
 			'pending_actions_count'         => count( $pending_actions ),
 			'running_actions_count'         => count( $running_actions ),
