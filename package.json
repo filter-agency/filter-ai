@@ -32,7 +32,7 @@
     "includes",
     "src",
     "composer.json",
-    "vendor"
+    "vendor/woocommerce/action-scheduler"
   ],
   "dependencies": {
     "@wordpress/block-editor": "^14.15.0",
