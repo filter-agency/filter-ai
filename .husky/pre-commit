@@ -1,2 +1,3 @@
+composer run-script check-cs
 npm run build
 git add filter-ai.zip
