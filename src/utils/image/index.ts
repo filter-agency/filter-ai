@@ -1,3 +1,5 @@
+import { __ } from '@wordpress/i18n';
+
 const sizeLimitBytes = 10 * 1024 * 1024;
 
 export const mimeTypes = new Map<string, string>([
@@ -23,7 +25,7 @@ export const getBase64Image = async (url: string): Promise<string> => {
   const blob: Blob = await data.blob();
   return new Promise((resolve, reject) => {
     if (blob.size > sizeLimitBytes) {
-      reject(new Error('Please choose a smaller image.'));
+      reject(new Error(__('Please choose a smaller image.', 'filter-ai')));
     }
 
     const reader = new FileReader();
@@ -36,11 +38,11 @@ export const getBase64Image = async (url: string): Promise<string> => {
         }
         resolve(base64data);
       } else {
-        reject(new Error('Failed to convert blob to base64 string.'));
+        reject(new Error(__('Failed to convert blob to base64 string.', 'filter-ai')));
       }
     };
     reader.onerror = () => {
-      reject(new Error('FileReader failed to read the blob.'));
+      reject(new Error(__('FileReader failed to read the blob.', 'filter-ai')));
     };
   });
 };

@@ -1,8 +1,8 @@
 import { generateText } from './services';
 import { prompts } from './prompts';
-import { t } from '@/utils/translate';
 import { capitalize } from '@/utils/capitalize';
 import _ from 'underscore';
+import { __ } from '@wordpress/i18n';
 
 const maxNumber = 10;
 
@@ -16,24 +16,26 @@ const formatTags = (rawTags: string) => {
 
 export const getTagsFromContent = async (content: string, oldTags = [], customPrompt?: string) => {
   if (!content) {
-    throw new Error(t('Please add some content first.'));
+    throw new Error(__('Please add some content first.', 'filter-ai'));
   }
 
   const number = maxNumber - oldTags.length;
 
   if (number < 1) {
-    throw new Error(t('You probably have enough tags for this page. Please remove some before generating more.'));
+    throw new Error(
+      __('You probably have enough tags for this page. Please remove some before generating more.', 'filter-ai')
+    );
   }
 
   const prePrompt = oldTags.length
-    ? `${t('Making sure they are different to the following tags:')} "${oldTags.join(', ')}".`
+    ? `Making sure they are different to the following tags: "${oldTags.join(', ')}".`
     : '';
 
   const prompt = customPrompt || prompts.post_tags_prompt.replace('{{number}}', number.toString());
 
   const response = await generateText({
     feature: 'filter-ai-post-tags',
-    prompt: `${prePrompt} ${t(prompt)} ${content}`,
+    prompt: `${prePrompt} ${prompt} ${content}`,
   });
 
   const tags = formatTags(response);

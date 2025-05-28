@@ -1,6 +1,7 @@
 import { useSettings } from '@/settings';
-import { ai, hideLoadingMessage, removeWrappingQuotes, showLoadingMessage, showNotice, t } from '@/utils';
+import { ai, hideLoadingMessage, removeWrappingQuotes, showLoadingMessage, showNotice } from '@/utils';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 
 export const useGenerateTitle = () => {
   const { settings } = useSettings();
@@ -22,18 +23,18 @@ export const useGenerateTitle = () => {
   }, []);
 
   const onClick = async () => {
-    showLoadingMessage(t('Generating title'));
+    showLoadingMessage(__('Generating title', 'filter-ai'));
 
     try {
       const title = await ai.getTitleFromContent(content, oldTitle, settings?.post_title_prompt);
 
       if (!title) {
-        throw new Error(t('Sorry, there has been an issue while generating your title.'));
+        throw new Error(__('Sorry, there has been an issue while generating your title.', 'filter-ai'));
       }
 
       editPost({ title: removeWrappingQuotes(title) });
 
-      showNotice({ message: t('Title has been updated') });
+      showNotice({ message: __('Title has been updated', 'filter-ai') });
     } catch (error) {
       console.error(error);
 
@@ -49,7 +50,7 @@ export const useGenerateTitle = () => {
   }
 
   return {
-    title: t('Generate Title'),
+    title: __('Generate Title', 'filter-ai'),
     onClick,
   };
 };

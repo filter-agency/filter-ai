@@ -1,4 +1,4 @@
-import { showNotice, t } from '@/utils';
+import { showNotice } from '@/utils';
 import { Panel, PanelRow, PanelBody, TextareaControl, Button, FlexItem, FormToggle } from '@wordpress/components';
 import { createRoot, useState, useEffect, useMemo } from '@wordpress/element';
 import { FilterAISettings, useSettings } from './useSettings';
@@ -6,6 +6,7 @@ import _ from 'underscore';
 import { sections } from './sections';
 import { filterLogo } from '@/assets/filter-logo';
 import { verticalDots } from '@/assets/vertical-dots';
+import { __ } from '@wordpress/i18n';
 
 type ShowButtonProps = {
   extraKey: string;
@@ -35,12 +36,12 @@ const Settings = () => {
     saveSettings(formData)
       .then(() => {
         showNotice({
-          title: t('Changes saved!'),
-          message: t('Your changes have been saved, you can now exit this screen.'),
+          title: __('Changes saved!', 'filter-ai'),
+          message: __('Your changes have been saved, you can now exit this screen.', 'filter-ai'),
         });
       })
       .catch(() => {
-        showNotice({ message: t('There has been an issue saving your changes.'), type: 'error' });
+        showNotice({ message: __('There has been an issue saving your changes.', 'filter-ai'), type: 'error' });
       });
   };
 
@@ -55,7 +56,7 @@ const Settings = () => {
     return (
       <Button
         icon={() => <img src={verticalDots} alt="" />}
-        label={t('toggle more options')}
+        label={__('toggle more options', 'filter-ai')}
         disabled={disabled}
         onClick={() => {
           setShowExtra((prevState) => ({
@@ -97,10 +98,10 @@ const Settings = () => {
       <header className="filter-ai-settings-header">
         <div className="filter-ai-settings-header-content">
           <div>
-            <h1>{t('Filter AI Plugin Settings')}</h1>
+            <h1>{__('Filter AI Plugin Settings', 'filter-ai')}</h1>
             <p>Customise your settings for the Filter AI plugin here.</p>
           </div>
-          <img src={filterLogo} alt={t('Filter AI logo')} />
+          <img src={filterLogo} alt={__('Filter AI logo', 'filter-ai')} />
         </div>
       </header>
       <div className="filter-ai-settings-content">
@@ -143,7 +144,7 @@ const Settings = () => {
                         variant="link"
                         onClick={() => onChange(feature.prompt.key, '')}
                       >
-                        {t('Reset to default')}
+                        {__('Reset to default', 'filter-ai')}
                       </Button>
                     </div>
                   </PanelRow>
@@ -155,7 +156,7 @@ const Settings = () => {
 
         <FlexItem>
           <Button onClick={saveChanges} variant="primary">
-            {t('Save Changes')}
+            {__('Save Changes', 'filter-ai')}
           </Button>
         </FlexItem>
       </div>

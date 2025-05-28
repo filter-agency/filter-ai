@@ -1,13 +1,25 @@
 import { MenuItem, Popover, NavigableMenu } from '@wordpress/components';
 import { useMemo, useState } from '@wordpress/element';
-import { capitalize, hideLoadingMessage, showLoadingMessage, t, showNotice, ai, removeWrappingQuotes } from '@/utils';
+import { capitalize, hideLoadingMessage, showLoadingMessage, showNotice, ai, removeWrappingQuotes } from '@/utils';
 import { BlockEditProps } from '@/types';
 import { useSettings } from '@/settings';
 import { insert, toHTMLString, slice, create } from '@wordpress/rich-text';
 import { useSelect } from '@wordpress/data';
 import { ToolbarButton } from '@/components/toolbarButton';
+import { __, sprintf } from '@wordpress/i18n';
 
-const tones = ['professional', 'informal', 'humorous', 'helpful'];
+const tones = [
+  {
+    key: 'professional',
+    label: __('Professional', 'filter-ai'),
+  },
+  {
+    key: 'informal',
+    label: __('Informal', 'filter-ai'),
+  },
+  { key: 'humorous', label: __('Humorous', 'filter-ai') },
+  { key: 'helpful', label: __('Helpful', 'filter-ai') },
+];
 
 type OnClick = (promptKey: keyof typeof ai.prompts, params?: Record<string, string>) => Promise<void>;
 
@@ -46,19 +58,19 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
   const type = useMemo(() => {
     switch (name) {
       case 'core/heading':
-        return 'heading';
+        return __('heading', 'filter-ai');
       case 'core/list-item':
-        return 'list item';
+        return __('list item', 'filter-ai');
       default:
-        return 'text';
+        return __('text', 'filter-ai');
     }
   }, [name]);
 
   const onClick: OnClick = async (promptKey, params) => {
     if (promptKey === 'customise_text_summarise_prompt') {
-      showLoadingMessage(t(`Summarising ${type}`));
+      showLoadingMessage(sprintf(__('Summarising %s', 'filter-ai'), type));
     } else {
-      showLoadingMessage(t(`Customising ${type}`));
+      showLoadingMessage(sprintf(__('Customising %s', 'filter-ai'), type));
     }
 
     try {
@@ -68,7 +80,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
         typeof attributes.content === 'string' ? create({ text: attributes.content }) : attributes.content;
 
       if (!content) {
-        throw new Error(t('Please provide some text'));
+        throw new Error(__('Please provide some text', 'filter-ai'));
       }
 
       const text = toHTMLString({
@@ -86,7 +98,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
       let newText = await ai.customiseText(feature, text, prompt);
 
       if (!newText) {
-        throw new Error(t(`Sorry, there has been an issue while generating your ${type}.`));
+        throw new Error(sprintf(__('Sorry, there has been an issue while generating your %s', 'filter-ai'), type));
       }
 
       newText = removeWrappingQuotes(newText);
@@ -94,7 +106,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
       if (promptKey === 'customise_text_summarise_prompt') {
         await navigator.clipboard.writeText(newText);
 
-        showNotice({ message: t('Summary has been copied to your clipboard') });
+        showNotice({ message: __('Summary has been copied to your clipboard', 'filter-ai') });
       } else {
         if (hasSelection) {
           const newValue = insert(content, newText, selectionStart.offset, selectionEnd.offset);
@@ -106,7 +118,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
           setAttributes({ content: newText });
         }
 
-        showNotice({ message: t(`Your ${type} has been updated`) });
+        showNotice({ message: sprintf(__('Your %s has been updated', 'filter-ai'), type) });
       }
     } catch (error) {
       console.error(error);
@@ -142,7 +154,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
                 onClick('customise_text_rewrite_prompt', { type });
               }}
             >
-              {t('Rewrite')}
+              {__('Rewrite', 'filter-ai')}
             </MenuItem>
           )}
           {settings?.customise_text_expand_enabled && (
@@ -152,7 +164,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
                 onClick('customise_text_expand_prompt', { type });
               }}
             >
-              {t('Expand')}
+              {__('Expand', 'filter-ai')}
             </MenuItem>
           )}
           {settings?.customise_text_condense_enabled && (
@@ -162,7 +174,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
                 onClick('customise_text_condense_prompt', { type });
               }}
             >
-              {t('Condense')}
+              {__('Condense', 'filter-ai')}
             </MenuItem>
           )}
           {settings?.customise_text_summarise_enabled && (
@@ -172,7 +184,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
                 onClick('customise_text_summarise_prompt', { type });
               }}
             >
-              {t('Summarise')}
+              {__('Summarise', 'filter-ai')}
             </MenuItem>
           )}
           {settings?.customise_text_change_tone_enabled && (
@@ -187,7 +199,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
                 icon="arrow-right-alt2"
                 iconPosition="right"
               >
-                {t('Change Tone')}
+                {__('Change Tone', 'filter-ai')}
               </MenuItem>
               {showChangeToneOptions && (
                 <Popover
@@ -202,10 +214,10 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
                       <MenuItem
                         onClick={() => {
                           onClose();
-                          onClick('customise_text_change_tone_prompt', { tone, type });
+                          onClick('customise_text_change_tone_prompt', { tone: tone.key, type });
                         }}
                       >
-                        {t(capitalize(tone))}
+                        {tone.label}
                       </MenuItem>
                     ))}
                   </NavigableMenu>

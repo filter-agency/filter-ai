@@ -1,7 +1,8 @@
 import { useSettings } from '@/settings';
 import { BlockEditProps } from '@/types';
-import { t, showNotice, ai, hideLoadingMessage, showLoadingMessage } from '@/utils';
+import { showNotice, ai, hideLoadingMessage, showLoadingMessage } from '@/utils';
 import { useMemo, useCallback } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 type Props = {
   attributes: BlockEditProps['attributes'];
@@ -54,7 +55,7 @@ export const useGenerateAltText = ({ attributes, setAttributes }: Props) => {
       url = attachment.sizes.medium.url;
     } else {
       if (attachment.width > maxPixelSize || attachment.height > maxPixelSize) {
-        throw new Error(t('Please choose a smaller image.'));
+        throw new Error(__('Please choose a smaller image.', 'filter-ai'));
       }
     }
 
@@ -62,7 +63,7 @@ export const useGenerateAltText = ({ attributes, setAttributes }: Props) => {
   }, []);
 
   const generateAltText = async () => {
-    showLoadingMessage(t('Generating alt text'));
+    showLoadingMessage(__('Generating alt text', 'filter-ai'));
 
     try {
       const url = await getAttachmentUrl();
@@ -71,12 +72,12 @@ export const useGenerateAltText = ({ attributes, setAttributes }: Props) => {
       const altText = await ai.getAltTextFromUrl(url, oldAltText, settings?.image_alt_text_prompt);
 
       if (!altText) {
-        throw new Error(t('Sorry, there has been an issue while generating your alt text.'));
+        throw new Error(__('Sorry, there has been an issue while generating your alt text.', 'filter-ai'));
       }
 
       setAttribute(altText, altTextKeys);
 
-      showNotice({ message: t('Alt text has been updated.') });
+      showNotice({ message: __('Alt text has been updated.', 'filter-ai') });
     } catch (error) {
       console.error(error);
 
@@ -92,7 +93,7 @@ export const useGenerateAltText = ({ attributes, setAttributes }: Props) => {
   }
 
   return {
-    title: t('Generate Alt Text'),
+    title: __('Generate Alt Text', 'filter-ai'),
     onClick: generateAltText,
     isDisabled,
   };

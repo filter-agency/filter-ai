@@ -1,13 +1,14 @@
 import { useSettings } from '@/settings';
-import { ai, hideLoadingMessage, showLoadingMessage, showNotice, t } from '@/utils';
+import { ai, hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils';
 import { useDispatch, useSelect, resolveSelect, dispatch } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 import { cleanForSlug } from '@wordpress/url';
 
 export const useGenerateTags = () => {
   const { settings } = useSettings();
   const { editPost } = useDispatch('core/editor');
 
-  const errorMessage = t('Sorry, there has been an issue while generating your tags.');
+  const errorMessage = __('Sorry, there has been an issue while generating your tags.', 'filter-ai');
 
   const { tagsEnabled, content, postTagIds, postTags } = useSelect((select) => {
     const { getCurrentPostType, getEditedPostAttribute } = select('core/editor');
@@ -40,7 +41,7 @@ export const useGenerateTags = () => {
   }, []);
 
   const onClick = async () => {
-    showLoadingMessage(t('Generating tags'));
+    showLoadingMessage(__('Generating tags', 'filter-ai'));
 
     try {
       const tags = await ai.getTagsFromContent(content, postTags, settings?.post_tags_prompt);
@@ -77,7 +78,7 @@ export const useGenerateTags = () => {
 
       editPost({ tags: [...new Set([...postTagIds, ...newTagIds])] });
 
-      showNotice({ message: t('Tags have been updated') });
+      showNotice({ message: __('Tags have been updated', 'filter-ai') });
     } catch (error) {
       console.error(error);
 
@@ -93,7 +94,7 @@ export const useGenerateTags = () => {
   }
 
   return {
-    title: t('Generate Tags'),
+    title: __('Generate Tags', 'filter-ai'),
     onClick,
   };
 };

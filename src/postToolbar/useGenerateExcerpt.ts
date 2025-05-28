@@ -1,6 +1,7 @@
 import { useSettings } from '@/settings';
-import { ai, hideLoadingMessage, showLoadingMessage, showNotice, t } from '@/utils';
+import { ai, hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 
 export const useGenerateExcerpt = () => {
   const { settings } = useSettings();
@@ -32,18 +33,18 @@ export const useGenerateExcerpt = () => {
   }, []);
 
   const onClick = async () => {
-    showLoadingMessage(t('Generating excerpt'));
+    showLoadingMessage(__('Generating excerpt', 'filter-ai'));
 
     try {
       const excerpt = await ai.getExcerptFromContent(content, oldExcerpt, settings?.post_excerpt_prompt);
 
       if (!excerpt) {
-        throw new Error(t('Sorry, there has been an issue while generating your excerpt.'));
+        throw new Error(__('Sorry, there has been an issue while generating your excerpt.', 'filter-ai'));
       }
 
       editPost({ excerpt });
 
-      showNotice({ message: t('Excerpt has been updated') });
+      showNotice({ message: __('Excerpt has been updated', 'filter-ai') });
     } catch (error) {
       console.error(error);
 
@@ -59,7 +60,7 @@ export const useGenerateExcerpt = () => {
   }
 
   return {
-    title: t('Generate Excerpt'),
+    title: __('Generate Excerpt', 'filter-ai'),
     onClick,
   };
 };
