@@ -29,39 +29,18 @@ function filter_ai_mime_types() {
 }
 
 /**
- * Adapt the distinct clause of a query
- *
- * @param string $distinct The distinct clause for the query
- *
- * @return string Retuns $distinct
- */
-function filter_ai_distinct_query( $distinct ) {
-	global $wp_query;
-
-	if ( $wp_query->get( 'filter_ai_distinct_guid' ) === true ) {
-		$distinct = 'DISTINCT guid';
-	}
-
-	return $distinct;
-}
-
-add_filter( 'posts_distinct', 'filter_ai_distinct_query' );
-
-/**
  * Get all images
  *
  * @return int Returns number of images
  */
 function filter_ai_get_images_count() {
 	$args = array(
-		'post_type'               => 'attachment',
-		'post_mime_type'          => filter_ai_mime_types(),
-		'posts_per_page'          => 0,
-		'post_status'             => 'inherit',
-		'update_post_meta_cache'  => false,
-		'update_post_term_cache'  => false,
-		'fields'                  => 'ids',
-		'filter_ai_distinct_guid' => true,
+		'post_type'              => 'attachment',
+		'post_mime_type'         => filter_ai_mime_types(),
+		'post_status'            => 'inherit',
+		'update_post_meta_cache' => false,
+		'update_post_term_cache' => false,
+		'fields'                 => 'ids',
 	);
 
 	$attachments = new WP_Query( $args );
@@ -76,11 +55,10 @@ function filter_ai_get_images_count() {
  */
 function filter_ai_get_images_without_alt_text_count() {
 	$args = array(
-		'post_type'               => 'attachment',
-		'post_mime_type'          => filter_ai_mime_types(),
-		'posts_per_page'          => 0,
-		'post_status'             => 'inherit',
-		'meta_query'              => array(
+		'post_type'              => 'attachment',
+		'post_mime_type'         => filter_ai_mime_types(),
+		'post_status'            => 'inherit',
+		'meta_query'             => array(
 			'relation' => 'OR',
 			array(
 				'key'     => '_wp_attachment_image_alt',
@@ -93,9 +71,8 @@ function filter_ai_get_images_without_alt_text_count() {
 				'compare' => '=',
 			),
 		),
-		'update_post_term_cache'  => false,
-		'fields'                  => 'ids',
-		'filter_ai_distinct_guid' => true,
+		'update_post_term_cache' => false,
+		'fields'                 => 'ids',
 	);
 
 	$attachments = new WP_Query( $args );
@@ -106,15 +83,19 @@ function filter_ai_get_images_without_alt_text_count() {
 /**
  * Get all images without alt text
  *
- * @return mixed[] Returns array of images without alt text
+ * @param int $paged Page number
+ * @param int $posts_per_page Number of posts per page
+ *
+ * @return int[] Returns array of image ids
  */
-function filter_ai_get_images_without_alt_text() {
+function filter_ai_get_images_without_alt_text( $paged = 1, $posts_per_page = 500 ) {
 	$args = array(
-		'post_type'               => 'attachment',
-		'post_mime_type'          => filter_ai_mime_types(),
-		'posts_per_page'          => -1,
-		'post_status'             => 'inherit',
-		'meta_query'              => array(
+		'post_type'              => 'attachment',
+		'post_mime_type'         => filter_ai_mime_types(),
+		'posts_per_page'         => $posts_per_page,
+		'paged'                  => $paged,
+		'post_status'            => 'inherit',
+		'meta_query'             => array(
 			'relation' => 'OR',
 			array(
 				'key'     => '_wp_attachment_image_alt',
@@ -127,8 +108,8 @@ function filter_ai_get_images_without_alt_text() {
 				'compare' => '=',
 			),
 		),
-		'update_post_term_cache'  => false,
-		'filter_ai_distinct_guid' => true,
+		'update_post_term_cache' => false,
+		'fields'                 => 'ids',
 	);
 
 	$attachments = new WP_Query( $args );
@@ -149,8 +130,17 @@ function filter_ai_get_images_without_alt_text() {
  * @return void Returns early if the image already has alt text
  */
 function filter_ai_process_batch_image_alt_text( $args ) {
-	$image_id        = $args['image_id'];
-	$user_id         = $args['user_id'];
+	$image_id = $args['image_id'];
+	$user_id  = $args['user_id'];
+
+	if ( ! isset( $image_id ) ) {
+		throw new Exception( esc_html__( 'Missing image', 'filter-ai' ) );
+	}
+
+	if ( ! isset( $user_id ) ) {
+		throw new Exception( esc_html__( 'Missing user', 'filter-ai' ) );
+	}
+
 	$current_user_id = get_current_user_id();
 	$metadata        = wp_get_attachment_metadata( $image_id );
 	$image_alt_text  = $metadata['_wp_attachment_image_alt'];
@@ -288,30 +278,36 @@ function filter_ai_api_batch_image_alt_text() {
 
 	filter_ai_reset_batch_image_alt_text();
 
-	$images = filter_ai_get_images_without_alt_text();
+	$posts_per_page = 500;
+	$images_count   = filter_ai_get_images_without_alt_text_count();
+	$total_pages    = ceil( $images_count / $posts_per_page );
 
-	if ( ! empty( $images ) ) {
-		foreach ( $images as $image ) {
-			// call action through a scheduled action
-			as_enqueue_async_action(
-				'filter_ai_batch_image_alt_text',
-				array(
+	for ( $current_page = 1; $current_page <= $total_pages; $current_page++ ) {
+		$images = filter_ai_get_images_without_alt_text( $current_page, $posts_per_page );
+
+		if ( ! empty( $images ) ) {
+			foreach ( $images as $image_id ) {
+				// call action through a scheduled action
+				as_enqueue_async_action(
+					'filter_ai_batch_image_alt_text',
 					array(
-						'image_id' => $image->ID,
-						'user_id'  => get_current_user_id(),
+						array(
+							'image_id' => $image_id,
+							'user_id'  => get_current_user_id(),
+						),
 					),
-				),
-				'filter-ai-current'
-			);
+					'filter-ai-current'
+				);
 
-			// call action instantly (user needs to stay on the page)
-			// do_action(
-			// 'filter_ai_batch_image_alt_text',
-			// array(
-			// 'image_id' => $image->ID,
-			// 'user_id' => get_current_user_id()
-			// )
-			// );
+				// call action instantly (user needs to stay on the page)
+				// do_action(
+				// 'filter_ai_batch_image_alt_text',
+				// array(
+				// 'image_id' => $image->ID,
+				// 'user_id' => get_current_user_id()
+				// )
+				// );
+			}
 		}
 	}
 
