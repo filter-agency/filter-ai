@@ -1,18 +1,18 @@
 import { generateText } from './services';
 import { prompts } from './prompts';
-import { t } from '@/utils/translate';
+import { __ } from '@wordpress/i18n';
 
 export const getExcerptFromContent = async (content: string, oldExcerpt?: string, customPrompt?: string) => {
   if (!content) {
-    throw new Error(t('Please add some content first.'));
+    throw new Error(__('Please add some content first.', 'filter-ai'));
   }
 
-  const prePrompt = oldExcerpt ? `${t(prompts.common.different)} "${oldExcerpt}".` : '';
+  const prePrompt = oldExcerpt ? `${prompts.common.different} "${oldExcerpt}".` : '';
 
   const prompt = customPrompt || prompts.post_excerpt_prompt;
 
   return generateText({
     feature: 'filter-ai-post-excerpt',
-    prompt: `${prePrompt} ${t(prompt)} ${content}`,
+    prompt: `${prePrompt} ${prompt} ${content}`,
   });
 };

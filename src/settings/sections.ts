@@ -1,5 +1,6 @@
-import { ai, t } from '@/utils';
+import { ai } from '@/utils';
 import { FilterAISettings } from './useSettings';
+import { __ } from '@wordpress/i18n';
 
 type Toggle = {
   key: keyof FilterAISettings;
@@ -34,12 +35,12 @@ export const sections: Section[] = [
         key: 'image_alt_text',
         toggle: {
           key: 'image_alt_text_enabled',
-          label: t('Image alt text'),
-          help: t('Generate descriptive text about the selected image for use as the alternative text.'),
+          label: __('Image alt text', 'filter-ai'),
+          help: __('Generate descriptive text about the selected image for use as the alternative text.', 'filter-ai'),
         },
         prompt: {
           key: 'image_alt_text_prompt',
-          label: t('Image alt text prompt'),
+          label: __('Image alt text prompt', 'filter-ai'),
           placeholder: ai.prompts.image_alt_text_prompt,
         },
       },
@@ -53,12 +54,12 @@ export const sections: Section[] = [
         key: 'post_title',
         toggle: {
           key: 'post_title_enabled',
-          label: t('Post title'),
-          help: t('Generate a page title based on the post content.'),
+          label: __('Post title', 'filter-ai'),
+          help: __('Generate a page title based on the post content.', 'filter-ai'),
         },
         prompt: {
           key: 'post_title_prompt',
-          label: t('Post title prompt'),
+          label: __('Post title prompt', 'filter-ai'),
           placeholder: ai.prompts.post_title_prompt,
         },
       },
@@ -66,12 +67,12 @@ export const sections: Section[] = [
         key: 'post_excerpt',
         toggle: {
           key: 'post_excerpt_enabled',
-          label: t('Post excerpt'),
-          help: t('Generate an excerpt based on the post content.'),
+          label: __('Post excerpt', 'filter-ai'),
+          help: __('Generate an excerpt based on the post content.', 'filter-ai'),
         },
         prompt: {
           key: 'post_excerpt_prompt',
-          label: t('Post excerpt prompt'),
+          label: __('Post excerpt prompt', 'filter-ai'),
           placeholder: ai.prompts.post_excerpt_prompt,
         },
       },
@@ -79,12 +80,12 @@ export const sections: Section[] = [
         key: 'post_tags',
         toggle: {
           key: 'post_tags_enabled',
-          label: t('Post tags'),
-          help: t('Generate tags based on the post content.'),
+          label: __('Post tags', 'filter-ai'),
+          help: __('Generate tags based on the post content.', 'filter-ai'),
         },
         prompt: {
           key: 'post_tags_prompt',
-          label: t('Post tags prompt'),
+          label: __('Post tags prompt', 'filter-ai'),
           placeholder: ai.prompts.post_tags_prompt,
         },
       },
@@ -98,12 +99,12 @@ export const sections: Section[] = [
         key: 'customise_text_rewrite',
         toggle: {
           key: 'customise_text_rewrite_enabled',
-          label: t('Rewrite text'),
-          help: t('Rewrite the text into a new version.'),
+          label: __('Rewrite text', 'filter-ai'),
+          help: __('Rewrite the text into a new version.', 'filter-ai'),
         },
         prompt: {
           key: 'customise_text_rewrite_prompt',
-          label: t('Rewrite text prompt'),
+          label: __('Rewrite text prompt', 'filter-ai'),
           placeholder: ai.prompts.customise_text_rewrite_prompt,
         },
       },
@@ -111,12 +112,12 @@ export const sections: Section[] = [
         key: 'customise_text_expand',
         toggle: {
           key: 'customise_text_expand_enabled',
-          label: t('Expand text'),
-          help: t('Write more of the same.'),
+          label: __('Expand text', 'filter-ai'),
+          help: __('Write more of the same.', 'filter-ai'),
         },
         prompt: {
           key: 'customise_text_expand_prompt',
-          label: t('Expand text prompt'),
+          label: __('Expand text prompt', 'filter-ai'),
           placeholder: ai.prompts.customise_text_expand_prompt,
         },
       },
@@ -124,12 +125,12 @@ export const sections: Section[] = [
         key: 'customise_text_condense',
         toggle: {
           key: 'customise_text_condense_enabled',
-          label: t('Condense text'),
-          help: t('Reduce the text into a shorter version.'),
+          label: __('Condense text', 'filter-ai'),
+          help: __('Reduce the text into a shorter version.', 'filter-ai'),
         },
         prompt: {
           key: 'customise_text_condense_prompt',
-          label: t('Condense text prompt'),
+          label: __('Condense text prompt', 'filter-ai'),
           placeholder: ai.prompts.customise_text_condense_prompt,
         },
       },
@@ -137,12 +138,12 @@ export const sections: Section[] = [
         key: 'customise_text_summarise',
         toggle: {
           key: 'customise_text_summarise_enabled',
-          label: t('Summarise text'),
-          help: t('Generate a separate summary of the content.'),
+          label: __('Summarise text', 'filter-ai'),
+          help: __('Generate a separate summary of the content.', 'filter-ai'),
         },
         prompt: {
           key: 'customise_text_summarise_prompt',
-          label: t('Summarise text prompt'),
+          label: __('Summarise text prompt', 'filter-ai'),
           placeholder: ai.prompts.customise_text_summarise_prompt,
         },
       },
@@ -150,12 +151,12 @@ export const sections: Section[] = [
         key: 'customise_text_change_tone',
         toggle: {
           key: 'customise_text_change_tone_enabled',
-          label: t('Change the tone of the text'),
-          help: t('Update the way the words come across.'),
+          label: __('Change the tone of the text', 'filter-ai'),
+          help: __('Update the way the words come across.', 'filter-ai'),
         },
         prompt: {
           key: 'customise_text_change_tone_prompt',
-          label: t('Change tone of text prompt'),
+          label: __('Change tone of text prompt', 'filter-ai'),
           placeholder: ai.prompts.customise_text_change_tone_prompt,
         },
       },
@@ -169,12 +170,12 @@ export const sections: Section[] = [
         key: 'wc_product_description',
         toggle: {
           key: 'wc_product_description_enabled',
-          label: t('Product description'),
-          help: t('Generate the product description.'),
+          label: __('Product description', 'filter-ai'),
+          help: __('Generate the product description.', 'filter-ai'),
         },
         prompt: {
           key: 'wc_product_description_prompt',
-          label: t('Product description prompt'),
+          label: __('Product description prompt', 'filter-ai'),
           placeholder: ai.prompts.wc_product_description_prompt,
         },
       },
@@ -182,12 +183,12 @@ export const sections: Section[] = [
         key: 'wc_product_excerpt',
         toggle: {
           key: 'wc_product_excerpt_enabled',
-          label: t('Product short description'),
-          help: t('Generate the product short description.'),
+          label: __('Product short description', 'filter-ai'),
+          help: __('Generate the product short description.', 'filter-ai'),
         },
         prompt: {
           key: 'wc_product_excerpt_prompt',
-          label: t('Product short description prompt'),
+          label: __('Product short description prompt', 'filter-ai'),
           placeholder: ai.prompts.wc_product_excerpt_prompt,
         },
       },

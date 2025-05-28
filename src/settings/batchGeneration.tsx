@@ -1,9 +1,10 @@
 import { filterLogo } from '@/assets/filter-logo';
 import { Button, Spinner, Panel, PanelBody, ProgressBar } from '@wordpress/components';
 import { createRoot, useEffect, useCallback, useState } from '@wordpress/element';
-import { mimeTypes, t } from '@/utils';
+import { mimeTypes } from '@/utils';
 import { useMemo } from 'react';
 import { useSettings } from './useSettings';
+import { __, sprintf } from '@wordpress/i18n';
 
 const defaultCount = {
   images: 0,
@@ -114,9 +115,9 @@ const BatchGeneration = () => {
       <header className="filter-ai-settings-header">
         <div className="filter-ai-settings-header-content">
           <div>
-            <h1 style={{ margin: 0 }}>{t('Filter AI Batch Generation')}</h1>
+            <h1 style={{ margin: 0 }}>{__('Filter AI Batch Generation', 'filter-ai')}</h1>
           </div>
-          <img src={filterLogo} alt={t('Filter AI logo')} />
+          <img src={filterLogo} alt={__('Filter AI logo', 'filter-ai')} />
         </div>
       </header>
       <div className="filter-ai-settings-content">
@@ -124,29 +125,33 @@ const BatchGeneration = () => {
 
         {!isLoading && (
           <>
-            <Panel header={t('Image Alt Text')} className="filter-ai-settings-panel">
+            <Panel header={__('Image Alt Text', 'filter-ai')} className="filter-ai-settings-panel">
               <PanelBody>
                 <p>
-                  {t(
-                    `Generate alt text for the following image types within the media library: ${types
+                  {sprintf(
+                    __('Generate alt text for the following image types within the media library: %s.', 'filter-ai'),
+                    types
                       .map((type) => type.replace(/image\//, ''))
                       .sort()
-                      .join(', ')}.`
+                      .join(', ')
                   )}
                 </p>
-                <p>{t(`Total images: ${count.images}`)}</p>
-                <p>{t(`Images missing alt text: ${count.imagesWithoutAltText}`)}</p>
+                <p>{sprintf(__('Total images: %s', 'filter-ai'), count.images)}</p>
+                <p>{sprintf(__('Images missing alt text: %s', 'filter-ai'), count.imagesWithoutAltText)}</p>
               </PanelBody>
               {!inProgress && count.actions > 0 && (
-                <PanelBody title={t('Previous run stats')}>
-                  <p>{t(`Images processed: ${count.actions}`)}</p>
-                  <p>{t(`Completed images: ${count.completeActions}`)}</p>
-                  <p>{t(`Failed images: ${count.failedActions}`)}</p>
+                <PanelBody title={__('Previous run stats', 'filter-ai')}>
+                  <p>{sprintf(__('Images processed: %s', 'filter-ai'), count.actions)}</p>
+                  <p>{sprintf(__('Completed images: %s', 'filter-ai'), count.completeActions)}</p>
+                  <p>{sprintf(__('Failed images %s', 'filter-ai'), count.failedActions)}</p>
                 </PanelBody>
               )}
 
               {!!count.failedActions && (
-                <PanelBody title={t(`Failed images: ${count.failedActions}`)} initialOpen={false}>
+                <PanelBody
+                  title={sprintf(__('Failed images: %s', 'filter-ai'), count.failedActions)}
+                  initialOpen={false}
+                >
                   {failedActions?.map((action) => {
                     return (
                       <p>
@@ -166,34 +171,34 @@ const BatchGeneration = () => {
                     onClick={generateAltText}
                     disabled={inProgress || !settings?.image_alt_text_enabled || isGenerateButtonDisabled}
                   >
-                    {t('Generate alt text')}
+                    {__('Generate alt text', 'filter-ai')}
                   </Button>
                 </PanelBody>
               )}
 
               {inProgress && (
                 <PanelBody>
-                  <p style={{ fontWeight: 'bold' }}>{t('Generating')}</p>
+                  <p style={{ fontWeight: 'bold' }}>{__('Generating', 'filter-ai')}</p>
                   <p>Your batch generation will continue to run in the background if you move away.</p>
                   <ProgressBar
                     value={(count.completeActions / count.actions) * 100}
                     className="filter-ai-progress-bar"
                   />
-                  <p>{t(`${count.completeActions} / ${count.actions} images processed`)}</p>
+                  <p>{`${count.completeActions} / ${count.actions} ${__('images processed', 'filter-ai')}`}</p>
                   <Button variant="secondary" onClick={cancel} disabled={isCancelling}>
-                    {t('Cancel')}
+                    {__('Cancel', 'filter-ai')}
                   </Button>
                 </PanelBody>
               )}
 
               {!count.images && (
                 <PanelBody>
-                  <p>{t('No images could be found')}</p>
+                  <p>{__('No images could be found', 'filter-ai')}</p>
                 </PanelBody>
               )}
             </Panel>
             <div>
-              <a href="/wp-admin/tools.php?page=action-scheduler">{t('View batch generation log')}</a>
+              <a href="/wp-admin/tools.php?page=action-scheduler">{__('View batch generation log', 'filter-ai')}</a>
             </div>
           </>
         )}
