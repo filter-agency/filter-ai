@@ -1,8 +1,9 @@
 import { DropdownMenu } from '@/components/dropdownMenu';
 import { useSettings } from '@/settings';
-import { ai, hideLoadingMessage, showLoadingMessage, showNotice, t } from '@/utils';
+import { ai, hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils';
 import { Button, Flex, Modal, TextareaControl } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import _ from 'underscore';
 
 type Props = {
@@ -24,14 +25,25 @@ const useControl = ({ id }: Props) => {
       case 'excerpt':
         return {
           enabled: settings?.wc_product_excerpt_enabled,
-          label: 'short description',
           promptPrefix: settings?.wc_product_excerpt_prompt || ai.prompts.wc_product_excerpt_prompt,
+          loadingMessage: __('Generating product short description', 'filter-ai'),
+          successMessage: __('Product short description has been updated', 'filter-ai'),
+          errorMessage: __(
+            'Sorry, there has been an issue while generating your product short description.',
+            'filter-ai'
+          ),
+          generateLabel: __('Generate short description', 'filter-ai'),
+          regenerateLabel: __('Regenerate short description', 'filter-ai'),
         };
       default:
         return {
           enabled: settings?.wc_product_description_enabled,
-          label: 'description',
           promptPrefix: settings?.wc_product_description_prompt || ai.prompts.wc_product_description_prompt,
+          loadingMessage: __('Generating product description', 'filter-ai'),
+          successMessage: __('Product description has been updated', 'filter-ai'),
+          errorMessage: __('Sorry, there has been an issue while generating your product description.', 'filter-ai'),
+          generateLabel: __('Generate description', 'filter-ai'),
+          regenerateLabel: __('Regenerate description', 'filter-ai'),
         };
     }
   }, [id, settings]);
@@ -54,7 +66,7 @@ const useControl = ({ id }: Props) => {
       return;
     }
 
-    showLoadingMessage(t(`Generating product ${data.label}`));
+    showLoadingMessage(data.loadingMessage);
 
     try {
       const prompt = `${data.promptPrefix} ${promptSuffix}`;
@@ -65,12 +77,12 @@ const useControl = ({ id }: Props) => {
       });
 
       if (!content) {
-        throw new Error(t(`Sorry, there has been an issue while generating your product ${data.label}.`));
+        throw new Error(data.errorMessage);
       }
 
       updateValue(content);
 
-      showNotice({ message: t(`Product ${data.label} has been updated`) });
+      showNotice({ message: data.successMessage });
     } catch (error) {
       console.error(error);
 
@@ -110,17 +122,17 @@ const useControl = ({ id }: Props) => {
 
     return (
       <Modal
-        title="Generate Description"
+        title={__('Generate Description', 'filter-ai')}
         onRequestClose={() => {
           setShowModal(false);
         }}
       >
-        <div>{t('Please provide information about the product to generate a description:')}</div>
+        <div>{__('Please provide information about the product to generate a description:', 'filter-ai')}</div>
         {/* @ts-expect-error */}
         <TextareaControl
           ref={textareaRef}
           label=""
-          aria-label={t('Information about the product')}
+          aria-label={__('Information about the product', 'filter-ai')}
           className="filter-ai-wc-modal-textarea"
           onChange={() => {}}
           __nextHasNoMarginBottom
@@ -170,7 +182,7 @@ const useControl = ({ id }: Props) => {
   return {
     ControlModal,
     control: {
-      title: hasValue ? t(`Regnerate ${data.label}`) : t(`Generate ${data.label}`),
+      title: hasValue ? data.regenerateLabel : data.generateLabel,
       onClick,
     },
   };

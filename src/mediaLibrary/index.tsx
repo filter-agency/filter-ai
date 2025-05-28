@@ -1,7 +1,8 @@
 import { DropdownMenu } from '@/components/dropdownMenu';
 import { useSettings } from '@/settings';
-import { ai, hideLoadingMessage, showLoadingMessage, showNotice, t } from '@/utils';
+import { ai, hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils';
 import { useEffect, useMemo, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import _ from 'underscore';
 
 const maxPixelSize = 2000;
@@ -32,12 +33,12 @@ const Events = _.extend({}, window?.Backbone?.Events);
       Events.trigger('filter-ai:generateAltTextEnabled', false);
     },
     async generateAltText(customPrompt?: string) {
-      showLoadingMessage(t('Generating alt text'));
+      showLoadingMessage(__('Generating alt text', 'filter-ai'));
 
       try {
         if (!this.model.get('sizes')?.medium?.url) {
           if (this.model.get('width') > maxPixelSize || this.model.get('height') > maxPixelSize) {
-            throw new Error(t('Please choose a smaller image.'));
+            throw new Error(__('Please choose a smaller image.', 'filter-ai'));
           }
         }
 
@@ -46,7 +47,7 @@ const Events = _.extend({}, window?.Backbone?.Events);
         const altText = await ai.getAltTextFromUrl(url, this.model.get('alt'), customPrompt);
 
         if (!altText) {
-          throw new Error(t('Sorry, there has been an issue while generating your alt text 0.'));
+          throw new Error(__('Sorry, there has been an issue while generating your alt text 0.', 'filter-ai'));
         }
 
         this.model.set('alt', altText);
@@ -55,7 +56,7 @@ const Events = _.extend({}, window?.Backbone?.Events);
 
         this.render();
 
-        showNotice({ message: t('Alt text has been updated.') });
+        showNotice({ message: __('Alt text has been updated.', 'filter-ai') });
       } catch (error) {
         console.error(error);
 
@@ -93,7 +94,7 @@ const Events = _.extend({}, window?.Backbone?.Events);
 
       if (settings?.image_alt_text_enabled) {
         options.push({
-          title: t('Generate Alt Text'),
+          title: __('Generate Alt Text', 'filter-ai'),
           onClick: () => {
             Events.trigger('filter-ai:generateAltText', settings?.image_alt_text_prompt);
           },
