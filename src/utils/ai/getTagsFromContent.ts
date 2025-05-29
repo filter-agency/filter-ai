@@ -27,7 +27,7 @@ export const getTagsFromContent = async (content: string, oldTags = [], customPr
     );
   }
 
-  const prePrompt = oldTags.length
+  const promptDifference = oldTags.length
     ? `Making sure they are different to the following tags: "${oldTags.join(', ')}".`
     : '';
 
@@ -35,7 +35,7 @@ export const getTagsFromContent = async (content: string, oldTags = [], customPr
 
   const response = await generateText({
     feature: 'filter-ai-post-tags',
-    prompt: `${prePrompt} ${prompt} ${content}`,
+    prompt: `${prompts.common.prefix} ${promptDifference} ${prompt} ${content}`,
   });
 
   const tags = formatTags(response);

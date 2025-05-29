@@ -21,13 +21,13 @@ export const getAltTextFromUrl = async (url: string, oldAltText?: string, custom
 
   const base64Image = await getBase64Image(url);
 
-  const prePrompt = oldAltText ? `${prompts.common.different} "${oldAltText}".` : '';
+  const promptDifference = oldAltText ? `${prompts.common.different} "${oldAltText}".` : '';
 
   const prompt = customPrompt || prompts.image_alt_text_prompt;
 
   return generateText({
     feature: 'filter-ai-image-alt-text',
-    prompt: `${prePrompt} ${prompt}`,
+    prompt: `${prompts.common.prefix} ${promptDifference} ${prompt}`,
     capabilities: [aiCapability.MULTIMODAL_INPUT, aiCapability.TEXT_GENERATION],
     parts: [
       {

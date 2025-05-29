@@ -7,12 +7,12 @@ export const getExcerptFromContent = async (content: string, oldExcerpt?: string
     throw new Error(__('Please add some content first.', 'filter-ai'));
   }
 
-  const prePrompt = oldExcerpt ? `${prompts.common.different} "${oldExcerpt}".` : '';
+  const promptDifference = oldExcerpt ? `${prompts.common.different} "${oldExcerpt}".` : '';
 
   const prompt = customPrompt || prompts.post_excerpt_prompt;
 
   return generateText({
     feature: 'filter-ai-post-excerpt',
-    prompt: `${prePrompt} ${prompt} ${content}`,
+    prompt: `${prompts.common.prefix} ${promptDifference} ${prompt} ${content}`,
   });
 };

@@ -182,7 +182,9 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 
 		$parts = new Parts();
 
-		$prompt = __( 'Please generate a short description no more than 50 words for the following image that can be used as its alternative text. The description should be clear, succinct, and provide a sense of what the image portrays, ensuring that it is accessible to individuals using screen readers.', 'filter-ai' );
+		$pre_prompt = 'The response should only contain the answer and in plain text, so no <br> tags for line breaks. ';
+
+		$prompt = 'Please generate a short description no more than 50 words for the following image that can be used as its alternative text. The description should be clear, succinct, and provide a sense of what the image portrays, ensuring that it is accessible to individuals using screen readers.';
 
 		$settings = get_option( 'filter_ai_settings' );
 
@@ -190,7 +192,7 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 			$prompt = $settings['image_alt_text_prompt'];
 		}
 
-		$parts->add_text_part( $prompt );
+		$parts->add_text_part( $pre_prompt . $prompt );
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		$image_data = file_get_contents( $image_path );

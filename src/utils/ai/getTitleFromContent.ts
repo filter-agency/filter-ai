@@ -7,12 +7,12 @@ export const getTitleFromContent = async (content: string, oldTitle?: string, cu
     throw new Error(__('Please add some content first.', 'filter-ai'));
   }
 
-  const prePrompt = oldTitle ? `${prompts.common.different} "${oldTitle}".` : '';
+  const promptDifference = oldTitle ? `${prompts.common.different} "${oldTitle}".` : '';
 
   const prompt = customPrompt || prompts.post_title_prompt;
 
   return generateText({
     feature: 'filter-ai-post-title',
-    prompt: `${prePrompt} ${prompt} ${content}`,
+    prompt: `${prompts.common.prefix} ${promptDifference} ${prompt} ${content}`,
   });
 };
