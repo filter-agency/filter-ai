@@ -203,8 +203,10 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 		$content = new Content( Content_Role::USER, $parts );
 
 		$candidates = $service->get_model(
-			array(
-				'feature' => 'filter-ai-image-alt-text',
+			array_merge(
+				array(
+					'feature' => 'filter-ai-image-alt-text',
+				),
 				$required_capabilities,
 			)
 		)->generate_text( $content );
