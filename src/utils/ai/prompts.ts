@@ -1,6 +1,7 @@
 export const prompts = {
   common: {
     different: 'Making sure it is different to the current text:',
+    prefix: 'The response should only contain the answer and in plain text, so no <br> tags for line breaks.',
   },
 
   image_alt_text_prompt:

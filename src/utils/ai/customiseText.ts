@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { generateText } from './services';
+import { prompts } from './prompts';
 
 export const customiseText = async (feature: string, text: string, prompt: string) => {
   if (!prompt) {
@@ -12,6 +13,6 @@ export const customiseText = async (feature: string, text: string, prompt: strin
 
   return generateText({
     feature,
-    prompt: `${prompt} \`${text}\``,
+    prompt: `${prompts.common.prefix} ${prompt} \`${text}\``,
   });
 };

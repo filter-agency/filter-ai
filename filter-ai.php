@@ -185,7 +185,7 @@ function filter_ai_enqueue_assets() {
 
 	$script          = plugin_dir_url( __FILE__ ) . 'build/index.js';
 	$script_metadata = require plugin_dir_path( __FILE__ ) . 'build/index.asset.php';
-		array_push( $script_metadata['dependencies'], 'ais-ai-store', 'underscore', 'wp-block-editor', 'wp-core-data', 'wp-i18n' );
+		array_push( $script_metadata['dependencies'], 'ais-ai', 'underscore', 'wp-block-editor', 'wp-core-data', 'wp-i18n' );
 
 	wp_enqueue_script(
 		'filter-ai-script',
