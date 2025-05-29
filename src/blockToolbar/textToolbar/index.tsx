@@ -58,11 +58,11 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
   const type = useMemo(() => {
     switch (name) {
       case 'core/heading':
-        return __('heading', 'filter-ai');
+        return 'heading';
       case 'core/list-item':
-        return __('list item', 'filter-ai');
+        return 'list item';
       default:
-        return __('text', 'filter-ai');
+        return 'text';
     }
   }, [name]);
 
