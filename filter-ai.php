@@ -22,10 +22,12 @@ require_once plugin_dir_path( __FILE__ ) . '/vendor/woocommerce/action-scheduler
 require_once plugin_dir_path( __FILE__ ) . 'includes/batchImageAltText.php';
 
 /**
- *  Register settings
+ *  Get option schema
+ *
+ * @return mixed{} Returns option schema
  */
-function filter_ai_settings_init() {
-	$schema = array(
+function filter_ai_get_options_schema() {
+	return array(
 		'type'       => 'object',
 		'properties' => array(
 			'image_alt_text_enabled'             => array( 'type' => 'boolean' ),
@@ -62,6 +64,13 @@ function filter_ai_settings_init() {
 			'wc_product_excerpt_prompt'          => array( 'type' => 'string' ),
 		),
 	);
+}
+
+/**
+ *  Register settings
+ */
+function filter_ai_settings_init() {
+	$options_schema = filter_ai_get_options_schema();
 
 	register_setting(
 		'options',
@@ -69,13 +78,44 @@ function filter_ai_settings_init() {
 		array(
 			'type'         => 'object',
 			'show_in_rest' => array(
-				'schema' => $schema,
+				'schema' => $options_schema,
 			),
 		)
 	);
 }
 
 add_action( 'init', 'filter_ai_settings_init' );
+
+/**
+ * Add setting options on plugin activation
+ */
+function filter_ai_activate() {
+	$options_schema = filter_ai_get_options_schema();
+
+	$new_options = array();
+
+	foreach ( $options_schema['properties'] as $key => $value ) {
+		// we only need to setup the booleans for now
+		if ( 'boolean' === $value['type'] ) {
+			$new_options[ $key ] = true;
+		}
+	}
+
+	if ( ! empty( $new_options ) ) {
+		add_option( 'filter_ai_settings', $new_options );
+	}
+}
+
+register_activation_hook( __FILE__, 'filter_ai_activate' );
+
+/**
+ * Remove setting options when the plugin in uninstalled
+ */
+function filter_ai_uninstall() {
+	delete_option( 'filter_ai_settings' );
+}
+
+register_uninstall_hook( __FILE__, 'filter_ai_uninstall' );
 
 /**
  *  Add settings link to the plugin action links
