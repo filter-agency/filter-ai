@@ -33,7 +33,7 @@ const Events = _.extend({}, window?.Backbone?.Events);
       Events.trigger('filter-ai:generateAltTextEnabled', false);
     },
     async generateAltText(customPrompt?: string) {
-      showLoadingMessage(__('Generating alt text', 'filter-ai'));
+      showLoadingMessage(__('Generating Alt Text', 'filter-ai'));
 
       try {
         if (!this.model.get('sizes')?.medium?.url) {

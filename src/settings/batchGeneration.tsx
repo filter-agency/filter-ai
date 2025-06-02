@@ -171,7 +171,7 @@ const BatchGeneration = () => {
                     onClick={generateAltText}
                     disabled={inProgress || !settings?.image_alt_text_enabled || isGenerateButtonDisabled}
                   >
-                    {__('Generate alt text', 'filter-ai')}
+                    {__('Generate Alt Text', 'filter-ai')}
                   </Button>
                 </PanelBody>
               )}
