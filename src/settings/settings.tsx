@@ -93,6 +93,10 @@ const Settings = () => {
     };
   }, [isMatch]);
 
+  if (!Object.keys(formData).length) {
+    return null;
+  }
+
   return (
     <div className="filter-ai-settings">
       <header className="filter-ai-settings-header">
