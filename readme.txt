@@ -3,7 +3,7 @@ Contributors: filterdigital, paulfhalfpenny, ianharrisfilter, davecpage
 Tags: ai, content generation, artificial intelligence, openai, anthropic
 Requires at least: 6.3 
 Tested up to: 6.8
-Stable tag: 1.0.0 
+Stable tag: 1.1.0 
 Requires PHP: 7.4 
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -86,6 +86,21 @@ If you need help with Filter AI, you can visit our support forum or [contact us 
 5. Rewriting existing content with AI assistance
 
 == Changelog ==
+
+= 1.1.0 =
+
+**Enhancements:**
+
+* Improved text generation prompts for AI requests
+* Settings screen UX improvement
+* Improved compatibility with AI Services plugin
+* Improved general database performance when batch updating images
+* Decreased timeout issues arising from batch updating images
+
+**Bug fixes:**
+
+* Correct link to edit an image that doesn't have its alt text updated during batching
+
 
 = 1.0.0 =
 
