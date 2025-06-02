@@ -155,7 +155,7 @@ const BatchGeneration = () => {
                   {failedActions?.map((action) => {
                     return (
                       <p>
-                        <a href={`/wp-admin/upload.php?item=${action.image_id}`}>{action.image_id}</a>
+                        <a href={`/wp-admin/post.php?post=${action.image_id}&action=edit`}>{action.image_id}</a>
                         {': '}
                         {action.message ? action.message : 'Unknown'}
                       </p>
