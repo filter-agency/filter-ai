@@ -155,7 +155,7 @@ const BatchGeneration = () => {
                   {failedActions?.map((action) => {
                     return (
                       <p>
-                        <a href={`/wp-admin/upload.php?item=${action.image_id}`}>{action.image_id}</a>
+                        <a href={`/wp-admin/post.php?post=${action.image_id}&action=edit`}>{action.image_id}</a>
                         {': '}
                         {action.message ? action.message : 'Unknown'}
                       </p>
@@ -171,7 +171,7 @@ const BatchGeneration = () => {
                     onClick={generateAltText}
                     disabled={inProgress || !settings?.image_alt_text_enabled || isGenerateButtonDisabled}
                   >
-                    {__('Generate alt text', 'filter-ai')}
+                    {__('Generate Alt Text', 'filter-ai')}
                   </Button>
                 </PanelBody>
               )}
