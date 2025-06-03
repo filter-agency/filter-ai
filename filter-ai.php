@@ -26,7 +26,7 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/batchImageAltText.php';
  *
  * @return mixed{} Returns option schema
  */
-function filter_ai_get_options_schema() {
+function filter_ai_get_option_schema() {
 	return array(
 		'type'       => 'object',
 		'properties' => array(
@@ -67,10 +67,31 @@ function filter_ai_get_options_schema() {
 }
 
 /**
+ *  Get default option value
+ *
+ * @return mixed{} Returns default option value
+ */
+function filter_ai_get_option_value_default() {
+	$options_schema = filter_ai_get_option_schema();
+
+	$default_options = array();
+
+	foreach ( $options_schema['properties'] as $key => $value ) {
+		// we only need to setup the booleans for now
+		if ( 'boolean' === $value['type'] ) {
+			$default_options[ $key ] = true;
+		}
+	}
+
+	return $default_options;
+}
+
+/**
  *  Register settings
  */
 function filter_ai_settings_init() {
-	$options_schema = filter_ai_get_options_schema();
+	$option_schema        = filter_ai_get_option_schema();
+	$option_value_default = filter_ai_get_option_value_default();
 
 	register_setting(
 		'options',
@@ -78,8 +99,9 @@ function filter_ai_settings_init() {
 		array(
 			'type'         => 'object',
 			'show_in_rest' => array(
-				'schema' => $options_schema,
+				'schema' => $option_schema,
 			),
+			'default'      => $option_value_default,
 		)
 	);
 }
@@ -87,29 +109,20 @@ function filter_ai_settings_init() {
 add_action( 'init', 'filter_ai_settings_init' );
 
 /**
- * Add setting options on plugin activation
+ * Add setting option on plugin activation
  */
 function filter_ai_activate() {
-	$options_schema = filter_ai_get_options_schema();
+	$option_value_default = filter_ai_get_option_value_default();
 
-	$new_options = array();
-
-	foreach ( $options_schema['properties'] as $key => $value ) {
-		// we only need to setup the booleans for now
-		if ( 'boolean' === $value['type'] ) {
-			$new_options[ $key ] = true;
-		}
-	}
-
-	if ( ! empty( $new_options ) ) {
-		add_option( 'filter_ai_settings', $new_options );
+	if ( ! empty( $option_value_default ) ) {
+		add_option( 'filter_ai_settings', $option_value_default );
 	}
 }
 
 register_activation_hook( __FILE__, 'filter_ai_activate' );
 
 /**
- * Remove setting options when the plugin in uninstalled
+ * Remove setting option when the plugin in uninstalled
  */
 function filter_ai_uninstall() {
 	delete_option( 'filter_ai_settings' );
