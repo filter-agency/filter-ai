@@ -10,6 +10,7 @@ declare global {
     aiServices: any;
     Backbone: any;
     filter_ai_api: any;
+    filter_ai_dependencies: any;
     tinymce: any;
   }
 }
