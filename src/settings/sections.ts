@@ -28,7 +28,7 @@ type Section = {
 
 export const sections: Section[] = [
   {
-    header: 'Images',
+    header: __('Images', 'filter-ai'),
     key: 'image',
     features: [
       {
@@ -47,7 +47,7 @@ export const sections: Section[] = [
     ],
   },
   {
-    header: 'Post',
+    header: __('Post', 'filter-ai'),
     key: 'post',
     features: [
       {
@@ -92,7 +92,7 @@ export const sections: Section[] = [
     ],
   },
   {
-    header: 'Customise Text',
+    header: __('Customise Text', 'filter-ai'),
     key: 'customise_text',
     features: [
       {
@@ -163,7 +163,7 @@ export const sections: Section[] = [
     ],
   },
   {
-    header: 'WooCommerce',
+    header: __('WooCommerce', 'filter-ai'),
     key: 'wc',
     features: [
       {

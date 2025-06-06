@@ -103,7 +103,7 @@ const Settings = () => {
         <div className="filter-ai-settings-header-content">
           <div>
             <h1>{__('Filter AI Plugin Settings', 'filter-ai')}</h1>
-            <p>Customise your settings for the Filter AI plugin here.</p>
+            <p>{__('Customise your settings for the Filter AI plugin here.', 'filter-ai')}</p>
           </div>
           <img src={filterLogo} alt={__('Filter AI logo', 'filter-ai')} />
         </div>
