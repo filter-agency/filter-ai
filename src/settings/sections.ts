@@ -203,7 +203,7 @@ export const sections: Section[] = [
         toggle: {
           key: 'yoast_seo_title_enabled',
           label: __('Yoast SEO title', 'filter-ai'),
-          help: __('Generate the SEO title.', 'fitler-ai'),
+          help: __('Generate the SEO title.', 'filter-ai'),
         },
         prompt: {
           key: 'yoast_seo_title_prompt',
@@ -216,7 +216,7 @@ export const sections: Section[] = [
         toggle: {
           key: 'yoast_seo_meta_description_enabled',
           label: __('Yoast SEO meta description', 'filter-ai'),
-          help: __('Generate the SEO meta description.', 'fitler-ai'),
+          help: __('Generate the SEO meta description.', 'filter-ai'),
         },
         prompt: {
           key: 'yoast_seo_meta_description_prompt',
