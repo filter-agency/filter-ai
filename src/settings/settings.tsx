@@ -1,5 +1,14 @@
 import { showNotice } from '@/utils';
-import { Panel, PanelRow, PanelBody, TextareaControl, Button, FlexItem, FormToggle } from '@wordpress/components';
+import {
+  Panel,
+  PanelRow,
+  PanelBody,
+  TextareaControl,
+  Button,
+  FlexItem,
+  FormToggle,
+  PanelHeader,
+} from '@wordpress/components';
 import { createRoot, useState, useEffect, useMemo } from '@wordpress/element';
 import { FilterAISettings, useSettings } from './useSettings';
 import _ from 'underscore';
@@ -109,54 +118,69 @@ const Settings = () => {
         </div>
       </header>
       <div className="filter-ai-settings-content">
-        {sections.map((section) => (
-          <Panel header={section.header} className="filter-ai-settings-panel">
-            {section.features.map((feature) => (
-              <PanelBody>
-                <PanelRow className="filter-ai-settings-field">
-                  <div className="filter-ai-settings-field-text">
-                    <label htmlFor={feature.toggle.key}>{feature.toggle.label}</label>
-                    {feature.toggle.help && <div>{feature.toggle.help}</div>}
-                  </div>
-                  <FormToggle
-                    onChange={() => {
-                      onChange(feature.toggle.key, !formData?.[feature.toggle.key]);
-                    }}
-                    checked={!!formData?.[feature.toggle.key]}
-                    id={feature.toggle.key}
-                  />
-                  <ShowButton
-                    disabled={!formData?.[feature.toggle.key]}
-                    extraKey={section.key}
-                    extraValue={feature.key}
-                  />
-                </PanelRow>
-                {showExtra[section.key] === feature.key && (
-                  <PanelRow>
-                    <div style={{ flex: 1 }}>
-                      <TextareaControl
-                        __nextHasNoMarginBottom
-                        label={feature.prompt.label}
-                        value={formData?.[feature.prompt.key]?.toString() || feature.prompt.placeholder}
-                        onChange={(newValue) => {
-                          onChange(feature.prompt.key, newValue);
-                        }}
-                        disabled={!formData?.[feature.toggle.key]}
-                      />
-                      <Button
-                        className="filter-ai-settings-field-reset"
-                        variant="link"
-                        onClick={() => onChange(feature.prompt.key, '')}
-                      >
-                        {__('Reset to default', 'filter-ai')}
-                      </Button>
+        {sections.map((section) => {
+          let isDisabled = false;
+
+          if (window.filter_ai_dependencies?.hasOwnProperty(section.key)) {
+            isDisabled = !window.filter_ai_dependencies[section.key];
+          }
+
+          return (
+            <Panel className={`filter-ai-settings-panel ${isDisabled ? 'disabled' : ''}`}>
+              <PanelHeader>
+                <h2>
+                  {section.header}
+                  {isDisabled && <small> ({__('plugin not installed or activated', 'filter-ai')})</small>}
+                </h2>
+              </PanelHeader>
+              {section.features.map((feature) => (
+                <PanelBody>
+                  <PanelRow className="filter-ai-settings-field">
+                    <div className="filter-ai-settings-field-text">
+                      <label htmlFor={feature.toggle.key}>{feature.toggle.label}</label>
+                      {feature.toggle.help && <div>{feature.toggle.help}</div>}
                     </div>
+                    <FormToggle
+                      onChange={() => {
+                        onChange(feature.toggle.key, !formData?.[feature.toggle.key]);
+                      }}
+                      checked={isDisabled ? false : !!formData?.[feature.toggle.key]}
+                      id={feature.toggle.key}
+                      disabled={isDisabled}
+                    />
+                    <ShowButton
+                      disabled={!formData?.[feature.toggle.key] || isDisabled}
+                      extraKey={section.key}
+                      extraValue={feature.key}
+                    />
                   </PanelRow>
-                )}
-              </PanelBody>
-            ))}
-          </Panel>
-        ))}
+                  {showExtra[section.key] === feature.key && (
+                    <PanelRow>
+                      <div style={{ flex: 1 }}>
+                        <TextareaControl
+                          __nextHasNoMarginBottom
+                          label={feature.prompt.label}
+                          value={formData?.[feature.prompt.key]?.toString() || feature.prompt.placeholder}
+                          onChange={(newValue) => {
+                            onChange(feature.prompt.key, newValue);
+                          }}
+                          disabled={!formData?.[feature.toggle.key]}
+                        />
+                        <Button
+                          className="filter-ai-settings-field-reset"
+                          variant="link"
+                          onClick={() => onChange(feature.prompt.key, '')}
+                        >
+                          {__('Reset to default', 'filter-ai')}
+                        </Button>
+                      </div>
+                    </PanelRow>
+                  )}
+                </PanelBody>
+              ))}
+            </Panel>
+          );
+        })}
 
         <FlexItem>
           <Button onClick={saveChanges} variant="primary">

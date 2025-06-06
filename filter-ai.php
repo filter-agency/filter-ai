@@ -266,6 +266,14 @@ function filter_ai_enqueue_assets() {
 			'nonce' => wp_create_nonce( 'filter_ai_api' ),
 		)
 	);
+
+	wp_localize_script(
+		'filter-ai-script',
+		'filter_ai_dependencies',
+		array(
+			'wc' => is_plugin_active( 'woocommerce/woocommerce.php' ),
+		)
+	);
 }
 
 add_action( 'admin_enqueue_scripts', 'filter_ai_enqueue_assets', -1 );

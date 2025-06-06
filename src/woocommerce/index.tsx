@@ -20,6 +20,10 @@ const loadButton = (id: string, buttonsContainerId: string) => {
 };
 
 const load = () => {
+  if (!window?.filter_ai_dependencies?.wc) {
+    return;
+  }
+
   loadButton('content', 'wp-content-media-buttons');
   loadButton('excerpt', 'wp-excerpt-media-buttons');
 };
