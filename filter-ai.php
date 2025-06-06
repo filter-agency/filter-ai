@@ -278,7 +278,7 @@ function filter_ai_enqueue_assets() {
 		'filter_ai_dependencies',
 		array(
 			'wc'        => is_plugin_active( 'woocommerce/woocommerce.php' ),
-			'yoast_seo' => is_plugin_active( 'wordpress-seo/wp-seo.php' ),
+			'yoast_seo' => is_plugin_active( 'wordpress-seo/wp-seo.php' ) || is_plugin_action( 'wordpress-seo-premium/wp-seo-premium.php' ),
 		)
 	);
 }
