@@ -62,6 +62,12 @@ function filter_ai_get_option_schema() {
 
 			'wc_product_excerpt_enabled'         => array( 'type' => 'boolean' ),
 			'wc_product_excerpt_prompt'          => array( 'type' => 'string' ),
+
+			'yoast_seo_title_enabled'            => array( 'type' => 'boolean' ),
+			'yoast_seo_title_prompt'             => array( 'type' => 'string' ),
+
+			'yoast_seo_meta_description_enabled' => array( 'type' => 'boolean' ),
+			'yoast_seo_meta_description_prompt'  => array( 'type' => 'string' ),
 		),
 	);
 }
@@ -271,7 +277,8 @@ function filter_ai_enqueue_assets() {
 		'filter-ai-script',
 		'filter_ai_dependencies',
 		array(
-			'wc' => is_plugin_active( 'woocommerce/woocommerce.php' ),
+			'wc'        => is_plugin_active( 'woocommerce/woocommerce.php' ),
+			'yoast_seo' => is_plugin_active( 'wordpress-seo/wp-seo.php' ) || is_plugin_action( 'wordpress-seo-premium/wp-seo-premium.php' ),
 		)
 	);
 }

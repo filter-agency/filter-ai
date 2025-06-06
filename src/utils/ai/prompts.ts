@@ -25,4 +25,8 @@ export const prompts = {
 
   wc_product_excerpt_prompt:
     'Please generate a summary of no more than 50 words based on the following product information:',
+
+  yoast_seo_title_prompt: '',
+
+  yoast_seo_meta_description_prompt: '',
 };
