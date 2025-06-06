@@ -194,4 +194,36 @@ export const sections: Section[] = [
       },
     ],
   },
+  {
+    header: __('Yoast SEO', 'filter-ai'),
+    key: 'yoast_seo',
+    features: [
+      {
+        key: 'yoast_seo_title',
+        toggle: {
+          key: 'yoast_seo_title_enabled',
+          label: __('Yoast SEO title', 'filter-ai'),
+          help: __('Generate the SEO title.', 'fitler-ai'),
+        },
+        prompt: {
+          key: 'yoast_seo_title_prompt',
+          label: __('Yoast SEO title prompt', 'filter-ai'),
+          placeholder: ai.prompts.yoast_seo_title_prompt,
+        },
+      },
+      {
+        key: 'yoast_seo_meta_description',
+        toggle: {
+          key: 'yoast_seo_meta_description_enabled',
+          label: __('Yoast SEO meta description', 'filter-ai'),
+          help: __('Generate the SEO meta description.', 'fitler-ai'),
+        },
+        prompt: {
+          key: 'yoast_seo_meta_description_prompt',
+          label: __('Yoast SEO meta description prompt', 'filter-ai'),
+          placeholder: ai.prompts.yoast_seo_meta_description_prompt,
+        },
+      },
+    ],
+  },
 ];
