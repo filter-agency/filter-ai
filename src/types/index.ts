@@ -12,5 +12,6 @@ declare global {
     filter_ai_api: any;
     filter_ai_dependencies: any;
     tinymce: any;
+    YoastSEO: any;
   }
 }

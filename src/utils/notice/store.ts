@@ -1,6 +1,4 @@
-import { useSelect } from '@wordpress/data';
-
-const { register, createReduxStore, dispatch } = window.wp?.data || {};
+import { useSelect, register, createReduxStore, dispatch } from '@wordpress/data';
 
 const storeName = 'filter-ai/notice-store';
 
@@ -20,7 +18,7 @@ type Action = {
 };
 
 const store = createReduxStore?.(storeName, {
-  reducer: (state: { notice: '' }, action: Action) => {
+  reducer: (state: State, action: Action) => {
     switch (action.type) {
       case 'setNotice':
         return {
@@ -44,9 +42,8 @@ const store = createReduxStore?.(storeName, {
   },
 });
 
-register?.(store);
+register(store);
 
-// @ts-expect-error Property 'getNotice' does not exist on type '{}'
 export const useNotice = (dependencies = []) => useSelect((select) => select(store).getNotice(), dependencies);
 
 export const showNotice = ({ message, type = 'notice', title }: Notice) => {

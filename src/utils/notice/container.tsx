@@ -1,13 +1,6 @@
-import { useNotice, hideNotice } from '@/utils';
+import { useNotice, hideNotice } from './store';
 import { Animate, Snackbar } from '@wordpress/components';
-import { useMemo } from '@wordpress/element';
-
-const { render } = window.wp?.element || {};
-
-const container = document.createElement('div');
-container.id = 'filter-ai-notice-container';
-
-document.body.appendChild(container);
+import { useMemo, createRoot } from '@wordpress/element';
 
 const NoticeContainer = () => {
   const notice = useNotice();
@@ -34,4 +27,11 @@ const NoticeContainer = () => {
   );
 };
 
-render?.(<NoticeContainer />, container);
+const container = document.createElement('div');
+container.id = 'filter-ai-notice-container';
+
+document.body.appendChild(container);
+
+const root = createRoot(container);
+
+root.render(<NoticeContainer />);

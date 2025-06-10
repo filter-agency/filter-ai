@@ -1,6 +1,4 @@
-import { useSelect } from '@wordpress/data';
-
-const { register, createReduxStore, dispatch } = window.wp?.data || {};
+import { useSelect, register, createReduxStore, dispatch } from '@wordpress/data';
 
 const storeName = 'filter-ai/loading-message-store';
 
@@ -10,11 +8,11 @@ type State = {
 
 type Action = {
   type: 'setLoadingMessage';
-  payload: string;
+  payload: State['loadingMessage'];
 };
 
 const store = createReduxStore(storeName, {
-  reducer: (state: { loadingMessage: '' }, action: Action) => {
+  reducer: (state: State, action: Action) => {
     switch (action.type) {
       case 'setLoadingMessage':
         return {
@@ -26,7 +24,7 @@ const store = createReduxStore(storeName, {
     }
   },
   actions: {
-    setLoadingMessage: (newLoadingMessage: string): Action => {
+    setLoadingMessage: (newLoadingMessage: State['loadingMessage']): Action => {
       return {
         type: 'setLoadingMessage',
         payload: newLoadingMessage,
@@ -41,10 +39,9 @@ const store = createReduxStore(storeName, {
 register(store);
 
 export const useLoadingMessage = (dependencies = []) =>
-  // @ts-expect-error Property 'getLoadingMessage' does not exist on type '{}'
   useSelect((select) => select(store).getLoadingMessage(), dependencies);
 
-export const showLoadingMessage = (loadingMessage: string) => {
+export const showLoadingMessage = (loadingMessage: State['loadingMessage']) => {
   dispatch(store).setLoadingMessage(loadingMessage);
 };
 
