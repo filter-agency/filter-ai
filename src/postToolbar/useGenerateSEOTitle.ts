@@ -17,15 +17,17 @@ export const useGenerateSEOTitle = () => {
 
   const { options, choice } = useOptionsModal();
 
-  const { content, getSeoTitleTemplate } = useSelect((select) => {
+  const { content, getSeoTitleTemplate, oldSeoTitle } = useSelect((select) => {
     const { getEditedPostAttribute } = select('core/editor');
-    const { getSeoTitleTemplate } = select('yoast-seo/editor');
+    const { getSeoTitleTemplate, getSeoTitle } = select('yoast-seo/editor');
 
     return {
       // @ts-expect-error Type 'never' has no call signatures.
       content: getEditedPostAttribute('content'),
       // @ts-expect-error Type 'never' has no call signatures.
       getSeoTitleTemplate: getSeoTitleTemplate(),
+      // @ts-expect-error Type 'never' has no call signatures.
+      oldSeoTitle: getSeoTitle(),
     };
   }, []);
 
@@ -79,7 +81,7 @@ export const useGenerateSEOTitle = () => {
     let options = [];
 
     try {
-      const titles = await ai.getSeoTitleFromContent(content, settings?.yoast_seo_title_prompt);
+      const titles = await ai.getSeoTitleFromContent(content, oldSeoTitle, settings?.yoast_seo_title_prompt);
 
       if (!titles) {
         throw new Error(__('Sorry, there has been an issue while generating your SEO title.', 'filter-ai'));
