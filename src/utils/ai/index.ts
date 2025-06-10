@@ -5,6 +5,7 @@ import { getTitleFromContent } from './getTitleFromContent';
 import { getTagsFromContent } from './getTagsFromContent';
 import { customiseText } from './customiseText';
 import { generateText } from './services';
+import { getSeoTitleFromContent } from './getSeoTitleFromContent';
 
 export const ai = {
   prompts,
@@ -14,4 +15,5 @@ export const ai = {
   getTagsFromContent,
   customiseText,
   generateText,
+  getSeoTitleFromContent,
 };
