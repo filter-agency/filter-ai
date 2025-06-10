@@ -29,5 +29,6 @@ export const prompts = {
   yoast_seo_title_prompt:
     'Please generate an SEO-friendly title for this page that is between 40 and 60 characters based on the following content:',
 
-  yoast_seo_meta_description_prompt: '',
+  yoast_seo_meta_description_prompt:
+    'Please generate an SEO-friendly description for this page that is between 120 and 150 characters based on the following content:',
 };
