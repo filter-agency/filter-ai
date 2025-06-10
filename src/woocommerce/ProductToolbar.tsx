@@ -126,6 +126,7 @@ const useControl = ({ id }: Props) => {
         onRequestClose={() => {
           setShowModal(false);
         }}
+        size="medium"
       >
         <div>{__('Please provide information about the product to generate a description:', 'filter-ai')}</div>
         {/* @ts-expect-error */}
