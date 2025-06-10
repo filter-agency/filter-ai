@@ -5,14 +5,22 @@ import { useGenerateExcerpt } from './useGenerateExcerpt';
 import _ from 'underscore';
 import { useGenerateTags } from './useGenerateTags';
 import { useGenerateSEOTitle } from './useGenerateSEOTitle';
+import { useGenerateSEOMetaDescription } from './useGenerateSEOMetaDescription';
 
 const PostToolbar = () => {
   const generateTitle = useGenerateTitle();
   const generateExcerpt = useGenerateExcerpt();
   const generateTags = useGenerateTags();
   const generateSEOTitle = useGenerateSEOTitle();
+  const generateSEOMetaDescription = useGenerateSEOMetaDescription();
 
-  const controls = _.compact([generateTitle, generateExcerpt, generateTags, generateSEOTitle]);
+  const controls = _.compact([
+    generateTitle,
+    generateExcerpt,
+    generateTags,
+    generateSEOTitle,
+    generateSEOMetaDescription,
+  ]);
 
   return <DropdownMenu controls={controls} toggleProps={{ className: 'is-small' }} />;
 };
