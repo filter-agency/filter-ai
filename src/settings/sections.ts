@@ -28,6 +28,25 @@ type Section = {
 
 export const sections: Section[] = [
   {
+    header: __('Global', 'filter-ai'),
+    key: 'global',
+    features: [
+      {
+        key: 'stop_words',
+        toggle: {
+          key: 'stop_words_enabled',
+          label: __('Stop Words', 'filter-ai'),
+          help: __('Enter stop words to prevent specific words from appearing in any AI-generated outputs.', 'filter-ai'),
+        },
+        prompt: {
+          key: 'stop_words_prompt',
+          label: __('Stop words prompt', 'filter-ai'),
+          placeholder: ai.prompts.stop_words_prompt,
+        },
+      },
+    ],
+  },
+  {
     header: __('Images', 'filter-ai'),
     key: 'image',
     features: [

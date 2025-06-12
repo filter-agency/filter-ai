@@ -69,7 +69,7 @@ export const useGenerateAltText = ({ attributes, setAttributes }: Props) => {
       const url = await getAttachmentUrl();
       const oldAltText = getAttribute(altTextKeys);
 
-      const altText = await ai.getAltTextFromUrl(url, oldAltText, settings?.image_alt_text_prompt);
+      const altText = await ai.getAltTextFromUrl(url, oldAltText, settings?.image_alt_text_prompt, settings);
 
       if (!altText) {
         throw new Error(__('Sorry, there has been an issue while generating your alt text.', 'filter-ai'));

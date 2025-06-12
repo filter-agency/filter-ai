@@ -31,7 +31,7 @@ const Toolbar = () => {
     showLoadingMessage(__('Generating alt text', 'filter-ai'));
 
     try {
-      const newAltText = await ai.getAltTextFromUrl(imageUrl, altText, settings?.image_alt_text_prompt);
+      const newAltText = await ai.getAltTextFromUrl(imageUrl, altText, settings?.image_alt_text_prompt, settings);
 
       if (!newAltText) {
         throw new Error(__('Sorry, there has been an issue while generating your alt text.', 'filter-ai'));

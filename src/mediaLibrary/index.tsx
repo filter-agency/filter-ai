@@ -32,7 +32,7 @@ const Events = _.extend({}, window?.Backbone?.Events);
 
       Events.trigger('filter-ai:generateAltTextEnabled', false);
     },
-    async generateAltText(customPrompt?: string) {
+    async generateAltText(customPrompt?: string, settings?: any) {
       showLoadingMessage(__('Generating Alt Text', 'filter-ai'));
 
       try {
@@ -44,10 +44,10 @@ const Events = _.extend({}, window?.Backbone?.Events);
 
         const url = this.model.get('sizes')?.medium?.url || this.model.get('url');
 
-        const altText = await ai.getAltTextFromUrl(url, this.model.get('alt'), customPrompt);
+        const altText = await ai.getAltTextFromUrl(url, this.model.get('alt'), customPrompt, settings);
 
         if (!altText) {
-          throw new Error(__('Sorry, there has been an issue while generating your alt text 0.', 'filter-ai'));
+          throw new Error(__('Sorry, there has been an issue while generating your alt text', 'filter-ai'));
         }
 
         this.model.set('alt', altText);
@@ -96,7 +96,7 @@ const Events = _.extend({}, window?.Backbone?.Events);
         options.push({
           title: __('Generate Alt Text', 'filter-ai'),
           onClick: () => {
-            Events.trigger('filter-ai:generateAltText', settings?.image_alt_text_prompt);
+            Events.trigger('filter-ai:generateAltText', settings?.image_alt_text_prompt, settings);
           },
           isDisabled: !generateAltTextEnabled,
         });

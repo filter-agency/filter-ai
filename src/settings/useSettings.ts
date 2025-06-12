@@ -1,6 +1,9 @@
 import { useDispatch, useSelect } from '@wordpress/data';
 
 const defaultSettings = {
+  stop_words_enabled: false,
+  stop_words_prompt: '',
+
   image_alt_text_enabled: true,
   image_alt_text_prompt: '',
 
