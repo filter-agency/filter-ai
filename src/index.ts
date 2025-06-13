@@ -9,4 +9,4 @@ import './editPost';
 
 import './utils/notice/container';
 import './utils/loadingMessage/container';
-import './utils/optionsModal/container';
+import './utils/seoTitleOptionsModal/container';

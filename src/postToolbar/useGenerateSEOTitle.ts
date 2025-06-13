@@ -6,16 +6,16 @@ import {
   hideLoadingMessage,
   showLoadingMessage,
   showNotice,
-  setOptionsModal,
-  useOptionsModal,
-  resetOptionsModal,
+  setSeoTitleOptionsModal,
+  useSeoTitleOptionsModal,
+  resetSeoTitleOptionsModal,
 } from '@/utils';
 import { useEffect } from '@wordpress/element';
 
 export const useGenerateSEOTitle = () => {
   const { settings } = useSettings();
 
-  const { options, choice } = useOptionsModal();
+  const { options, choice } = useSeoTitleOptionsModal();
 
   const { content, getSeoTitleTemplate, oldSeoTitle } = useSelect((select) => {
     const { getEditedPostAttribute } = select('core/editor');
@@ -89,7 +89,7 @@ export const useGenerateSEOTitle = () => {
 
       options = titles.split('||').map((option: string) => option.trim());
 
-      setOptionsModal({ options, choice: '', title: __('Generate SEO Title', 'filter-ai') });
+      setSeoTitleOptionsModal({ options, choice: '' });
     } catch (error) {
       console.error(error);
 
@@ -103,7 +103,7 @@ export const useGenerateSEOTitle = () => {
   useEffect(() => {
     if (choice && !options.length) {
       updateTitle(choice);
-      resetOptionsModal();
+      resetSeoTitleOptionsModal();
     }
   }, [choice, options]);
 
