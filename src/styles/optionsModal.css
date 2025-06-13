@@ -1,8 +1,0 @@
-.filter-ai-options-modal {
-  & .components-modal__content {
-    & .components-radio-control__group-wrapper {
-      margin-top: 1rem;
-      margin-bottom: 1rem;
-    }
-  }
-}
