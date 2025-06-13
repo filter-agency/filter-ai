@@ -32,6 +32,19 @@ export const sections: Section[] = [
     key: 'global',
     features: [
       {
+        key: 'brand_voice',
+        toggle: {
+          key: 'brand_voice_enabled',
+          label: __('Brand Voice', 'filter-ai'),
+          help: __('Set your global brand voice applied to all AI-generated outputs', 'filter-ai'),
+        },
+        prompt: {
+          key: 'brand_voice_prompt',
+          label: __('Brand voice prompt', 'filter-ai'),
+          placeholder: ai.prompts.brand_voice_prompt,
+        },
+      },
+      {
         key: 'stop_words',
         toggle: {
           key: 'stop_words_enabled',
@@ -43,7 +56,7 @@ export const sections: Section[] = [
           label: __('Stop words prompt', 'filter-ai'),
           placeholder: ai.prompts.stop_words_prompt,
         },
-      },
+      }
     ],
   },
   {

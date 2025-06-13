@@ -4,6 +4,9 @@ export const prompts = {
     prefix: 'The response should only contain the answer and in plain text, so no <br> tags for line breaks.',
   },
 
+  brand_voice_prompt:
+    'Please apply this brand voice to all AI generated outputs: ',
+
   stop_words_prompt:
     'Please avoid using the following words in any generated response:',
 

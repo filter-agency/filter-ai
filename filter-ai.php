@@ -30,6 +30,9 @@ function filter_ai_get_option_schema() {
 	return array(
 		'type'       => 'object',
 		'properties' => array(
+		    'brand_voice_enabled'             => array( 'type' => 'boolean' ),
+			'brand_voice_prompt'              => array( 'type' => 'string' ),
+
 		    'stop_words_enabled'             => array( 'type' => 'boolean' ),
 			'stop_words_prompt'              => array( 'type' => 'string' ),
 

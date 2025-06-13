@@ -26,7 +26,7 @@ export const useGenerateTitle = () => {
     showLoadingMessage(__('Generating title', 'filter-ai'));
 
     try {
-      const title = await ai.getTitleFromContent(content, oldTitle, settings?.post_title_prompt);
+      const title = await ai.getTitleFromContent(content, oldTitle, settings?.post_title_prompt, settings);
 
       if (!title) {
         throw new Error(__('Sorry, there has been an issue while generating your title.', 'filter-ai'));

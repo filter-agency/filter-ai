@@ -1,6 +1,9 @@
 import { useDispatch, useSelect } from '@wordpress/data';
 
 const defaultSettings = {
+  brand_voice_enabled: false,
+  brand_voice_prompt: '',
+
   stop_words_enabled: false,
   stop_words_prompt: '',
 
