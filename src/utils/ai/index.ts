@@ -1,4 +1,4 @@
-import { prompts } from './prompts';
+import { prompts } from './prompts/index';
 import { getAltTextFromUrl } from './getAltTextFromUrl';
 import { getExcerptFromContent } from './getExcerptFromContent';
 import { getTitleFromContent } from './getTitleFromContent';

@@ -44,7 +44,7 @@ const Events = _.extend({}, window?.Backbone?.Events);
 
         const url = this.model.get('sizes')?.medium?.url || this.model.get('url');
 
-        const altText = await ai.getAltTextFromUrl(url, this.model.get('alt'), customPrompt, settings);
+        const altText = await ai.getAltTextFromUrl(url, this.model.get('alt'), customPrompt);
 
         if (!altText) {
           throw new Error(__('Sorry, there has been an issue while generating your alt text', 'filter-ai'));

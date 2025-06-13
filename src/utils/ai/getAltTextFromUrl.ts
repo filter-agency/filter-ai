@@ -1,10 +1,9 @@
 import { getBase64Image, getMimeType, supportedMimeTypes } from '@/utils/image';
 import { generateText, aiCapability } from './services';
-import { prompts } from './prompts';
+import { prompts } from './prompts/index';
 import { __, sprintf } from '@wordpress/i18n';
-import {getPromptWithStopWords} from "@/utils/ai/getPromptWithStopWords";
 
-export const getAltTextFromUrl = async (url: string, oldAltText?: string, customPrompt?: string, settings?: any) => {
+export const getAltTextFromUrl = async (url: string, oldAltText?: string, customPrompt?: string) => {
   if (!url) {
     throw new Error(__('Please select an image.', 'filter-ai'));
   }
@@ -26,11 +25,9 @@ export const getAltTextFromUrl = async (url: string, oldAltText?: string, custom
 
   const basePrompt = customPrompt || prompts.image_alt_text_prompt;
 
-  const finalPrompt = getPromptWithStopWords(`${prompts.common.prefix} ${promptDifference} ${basePrompt}`, settings);
-
   return generateText({
     feature: 'filter-ai-image-alt-text',
-    prompt: finalPrompt,
+    prompt: `${prompts.common.prefix} ${promptDifference} ${basePrompt}`,
     capabilities: [aiCapability.MULTIMODAL_INPUT, aiCapability.TEXT_GENERATION],
     parts: [
       {
