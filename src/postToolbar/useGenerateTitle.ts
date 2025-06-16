@@ -23,7 +23,7 @@ export const useGenerateTitle = () => {
   }, []);
 
   const onClick = async () => {
-    showLoadingMessage(__('Generating title', 'filter-ai'));
+    showLoadingMessage(__('Title', 'filter-ai'));
 
     try {
       const title = await ai.getTitleFromContent(content, oldTitle, settings?.post_title_prompt);

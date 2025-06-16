@@ -33,7 +33,7 @@ export const useGenerateExcerpt = () => {
   }, []);
 
   const onClick = async () => {
-    showLoadingMessage(__('Generating excerpt', 'filter-ai'));
+    showLoadingMessage(__('Excerpt', 'filter-ai'));
 
     try {
       const excerpt = await ai.getExcerptFromContent(content, oldExcerpt, settings?.post_excerpt_prompt);

@@ -41,7 +41,7 @@ export const useGenerateTags = () => {
   }, []);
 
   const onClick = async () => {
-    showLoadingMessage(__('Generating tags', 'filter-ai'));
+    showLoadingMessage(__('Tags', 'filter-ai'));
 
     try {
       const tags = await ai.getTagsFromContent(content, postTags, settings?.post_tags_prompt);

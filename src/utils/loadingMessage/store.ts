@@ -3,12 +3,13 @@ import { useSelect, register, createReduxStore, dispatch } from '@wordpress/data
 const storeName = 'filter-ai/loading-message-store';
 
 type State = {
-  loadingMessage: string;
+  label: string;
+  type: 'generating' | 'summarising' | 'customising';
 };
 
 type Action = {
   type: 'setLoadingMessage';
-  payload: State['loadingMessage'];
+  payload: Partial<State>;
 };
 
 const store = createReduxStore(storeName, {
@@ -17,22 +18,24 @@ const store = createReduxStore(storeName, {
       case 'setLoadingMessage':
         return {
           ...state,
-          loadingMessage: action.payload,
+          type: 'generating',
+          label: '',
+          ...action.payload,
         };
       default:
         return state;
     }
   },
   actions: {
-    setLoadingMessage: (newLoadingMessage: State['loadingMessage']): Action => {
+    setLoadingMessage: (payload: Action['payload']): Action => {
       return {
         type: 'setLoadingMessage',
-        payload: newLoadingMessage,
+        payload,
       };
     },
   },
   selectors: {
-    getLoadingMessage: (state: State) => state?.loadingMessage,
+    getLoadingMessage: (state: State) => state || {},
   },
 });
 
@@ -41,10 +44,10 @@ register(store);
 export const useLoadingMessage = (dependencies = []) =>
   useSelect((select) => select(store).getLoadingMessage(), dependencies);
 
-export const showLoadingMessage = (loadingMessage: State['loadingMessage']) => {
-  dispatch(store).setLoadingMessage(loadingMessage);
+export const showLoadingMessage = (label: State['label'], type: State['type'] = 'generating') => {
+  dispatch(store).setLoadingMessage({ label, type });
 };
 
 export const hideLoadingMessage = () => {
-  dispatch(store).setLoadingMessage('');
+  dispatch(store).setLoadingMessage({});
 };

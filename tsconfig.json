@@ -11,7 +11,8 @@
       "@/*": ["./src/*"]
     },
     "noEmit": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "resolveJsonModule": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "build"]
