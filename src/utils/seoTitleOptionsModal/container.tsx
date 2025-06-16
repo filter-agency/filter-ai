@@ -95,7 +95,7 @@ const SeoTiltleOptionsModalContainer = () => {
         </p>
         <div className="filter-ai-seo-title-options-modal-actions">
           <Button variant="secondary" onClick={regenerate} icon={<ReloadIcon />} iconPosition="right">
-            {isRegenerating ? __('Generating...', 'fiter-ai') : __('Regenerate Titles', 'fiter-ai')}
+            {isRegenerating ? __('Generating...', 'filter-ai') : __('Regenerate Titles', 'filter-ai')}
           </Button>
           <div className="filter-ai-seo-title-options-modal-actions-group">
             <Button variant="secondary" disabled={isRegenerating} onClick={onClose}>
