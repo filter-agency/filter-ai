@@ -55,22 +55,22 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
     return selectionStart.clientId === selectionEnd.clientId && selectionStart.offset !== selectionEnd.offset;
   }, [selectionStart, selectionEnd]);
 
-  const type = useMemo(() => {
+  const { type, label } = useMemo(() => {
     switch (name) {
       case 'core/heading':
-        return 'heading';
+        return { type: 'heading', label: __('Heading', 'filter-ai') };
       case 'core/list-item':
-        return 'list item';
+        return { type: 'list item', label: __('List Item', 'filter-ai') };
       default:
-        return 'text';
+        return { type: 'text', label: __('Text', 'filter-ai') };
     }
   }, [name]);
 
   const onClick: OnClick = async (promptKey, params) => {
     if (promptKey === 'customise_text_summarise_prompt') {
-      showLoadingMessage(sprintf(__('Summarising %s', 'filter-ai'), type));
+      showLoadingMessage(label, 'summarising');
     } else {
-      showLoadingMessage(sprintf(__('Customising %s', 'filter-ai'), type));
+      showLoadingMessage(label, 'customising');
     }
 
     try {
@@ -98,7 +98,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
       let newText = await ai.customiseText(feature, text, prompt);
 
       if (!newText) {
-        throw new Error(sprintf(__('Sorry, there has been an issue while generating your %s', 'filter-ai'), type));
+        throw new Error(sprintf(__('Sorry, there has been an issue while generating your %s', 'filter-ai'), label));
       }
 
       newText = removeWrappingQuotes(newText);
@@ -118,7 +118,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
           setAttributes({ content: newText });
         }
 
-        showNotice({ message: sprintf(__('Your %s has been updated', 'filter-ai'), type) });
+        showNotice({ message: sprintf(__('Your %s has been updated', 'filter-ai'), label.toLowerCase()) });
       }
     } catch (error) {
       console.error(error);

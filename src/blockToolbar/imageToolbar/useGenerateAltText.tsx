@@ -63,7 +63,7 @@ export const useGenerateAltText = ({ attributes, setAttributes }: Props) => {
   }, []);
 
   const generateAltText = async () => {
-    showLoadingMessage(__('Generating Alt Text', 'filter-ai'));
+    showLoadingMessage(__('Alt Text', 'filter-ai'));
 
     try {
       const url = await getAttachmentUrl();

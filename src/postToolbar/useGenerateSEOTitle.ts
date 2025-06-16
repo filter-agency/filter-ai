@@ -76,7 +76,7 @@ export const useGenerateSEOTitle = () => {
   };
 
   const onClick = async () => {
-    showLoadingMessage(__('Generating SEO Title', 'filter-ai'));
+    showLoadingMessage(__('SEO Title', 'filter-ai'));
 
     let options = [];
 

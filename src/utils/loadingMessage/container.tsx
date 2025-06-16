@@ -1,11 +1,37 @@
+import { __, sprintf } from '@wordpress/i18n';
 import { useLoadingMessage } from './store';
-import { Spinner } from '@wordpress/components';
-import { createRoot } from '@wordpress/element';
+import { createRoot, useMemo } from '@wordpress/element';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import loadingJSON from '@/assets/loading.json';
 
 const LoadingMessage = () => {
-  const loadingMessage = useLoadingMessage();
+  const { type = 'generating', label } = useLoadingMessage();
 
-  if (!loadingMessage) {
+  const title = useMemo(() => {
+    switch (type) {
+      case 'customising':
+        return __('Customising %s', 'filter-ai');
+      case 'summarising':
+        return __('Summarising %s', 'filter-ai');
+      default:
+        return __('Generating %s', 'filter-ai');
+    }
+  }, [type]);
+
+  const convertToLowerCase = (text: string) => {
+    return text
+      ?.split(' ')
+      .map((word) => {
+        if (word === word.toUpperCase()) {
+          return word;
+        }
+
+        return word.toLowerCase();
+      })
+      .join(' ');
+  };
+
+  if (!label) {
     return null;
   }
 
@@ -13,8 +39,17 @@ const LoadingMessage = () => {
     <>
       <div className="filter-ai-loading-message-overlay" />
       <div className="filter-ai-loading-message">
-        <p>{loadingMessage}</p>
-        <Spinner />
+        <h2>{sprintf(title, label)}</h2>
+        <p>
+          {sprintf(
+            __('Analysing your requirements and crafting the perfect %s.', 'filter-ai'),
+            convertToLowerCase(label)
+          )}
+        </p>
+        <p>{__('This can take a few moments.', 'filter-ai')}</p>
+        <div className="filter-ai-loading-message-animation">
+          <DotLottieReact loop autoplay data={loadingJSON} />
+        </div>
       </div>
     </>
   );

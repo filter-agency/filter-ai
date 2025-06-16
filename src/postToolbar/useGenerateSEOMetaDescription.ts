@@ -55,7 +55,7 @@ export const useGenerateSEOMetaDescription = () => {
   };
 
   const onClick = async () => {
-    showLoadingMessage(__('Generating SEO Meta Description', 'filter-ai'));
+    showLoadingMessage(__('SEO Meta Description', 'filter-ai'));
 
     try {
       const description = await ai.getSeoMetaDescriptionFromContent(

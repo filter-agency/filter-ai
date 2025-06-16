@@ -28,7 +28,7 @@ const Toolbar = () => {
   }, []);
 
   const updateAltText = useCallback(async () => {
-    showLoadingMessage(__('Generating alt text', 'filter-ai'));
+    showLoadingMessage(__('Alt Text', 'filter-ai'));
 
     try {
       const newAltText = await ai.getAltTextFromUrl(imageUrl, altText, settings?.image_alt_text_prompt);
