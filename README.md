@@ -14,19 +14,32 @@ Once AI Services has been installed navigate to `Settings > AI Services` and con
 
 You can either add this repository directly into the plugin directory `wp-content/plugins` of your local WordPress site or work on changes within a standalone directory and then build and update the plugin manually using the generated zip file.
 
-Install dependencies.
+Install dependencies:
 
 `composer install`
 
 `npm install`
 
-Serve the plugin so any changes are automatically built.
+Run once to enable Husky locally:
+
+`npm run prepare`
+
+Serve the plugin so any changes are automatically built:
 
 `npm run start`
 
-Typecheck, build the plugin and create a zip file. This command is also run automatically prior to committing.
+Typecheck, build the plugin and create a zip file:
 
 `npm run build`
+
+## Commits
+
+When you commit a change, Husky will run the following:
+
+- WordPress coding standards check
+- lint-staged will prettify files
+- build script will run
+- generated build zip is added to the commit
 
 ## Further reading
 
