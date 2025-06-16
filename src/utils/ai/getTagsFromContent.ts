@@ -1,5 +1,5 @@
 import { generateText } from './services';
-import { prompts } from './prompts';
+import { prompts } from './prompts/index';
 import { capitalize } from '@/utils/capitalize';
 import _ from 'underscore';
 import { __ } from '@wordpress/i18n';

@@ -2,10 +2,13 @@ import { useSettings } from '@/settings';
 import { ai, hideLoadingMessage, removeWrappingQuotes, showLoadingMessage, showNotice } from '@/utils';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import {usePrompts} from "@/utils/ai/prompts/usePrompts";
 
 export const useGenerateTitle = () => {
   const { settings } = useSettings();
   const { editPost } = useDispatch('core/editor');
+
+  const prompt = usePrompts('post_title_prompt');
 
   const { content, oldTitle } = useSelect((select) => {
     const { getEditedPostAttribute } = select('core/editor');
@@ -26,7 +29,7 @@ export const useGenerateTitle = () => {
     showLoadingMessage(__('Generating title', 'filter-ai'));
 
     try {
-      const title = await ai.getTitleFromContent(content, oldTitle, settings?.post_title_prompt);
+      const title = await ai.getTitleFromContent(content, oldTitle, prompt);
 
       if (!title) {
         throw new Error(__('Sorry, there has been an issue while generating your title.', 'filter-ai'));
