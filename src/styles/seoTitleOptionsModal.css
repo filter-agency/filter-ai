@@ -217,6 +217,13 @@
         flex-direction: row;
       }
 
+      & .is-generating {
+        & svg {
+          animation: animate-regenerate 1.5s infinite linear;
+          transform-origin: 46% 50%;
+        }
+      }
+
       & .filter-ai-seo-title-options-modal-actions-group {
         display: flex;
         flex-direction: row;
@@ -233,5 +240,14 @@
         }
       }
     }
+  }
+}
+
+@keyframes animate-regenerate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }
