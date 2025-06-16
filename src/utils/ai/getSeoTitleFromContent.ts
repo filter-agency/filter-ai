@@ -1,5 +1,5 @@
 import { generateText } from './services';
-import { prompts } from './prompts';
+import { prompts } from './prompts/index';
 import { __ } from '@wordpress/i18n';
 
 export const getSeoTitleFromContent = async (content: string, oldTitle?: string, customPrompt?: string) => {

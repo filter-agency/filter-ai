@@ -96,7 +96,7 @@ const Events = _.extend({}, window?.Backbone?.Events);
         options.push({
           title: __('Generate Alt Text', 'filter-ai'),
           onClick: () => {
-            Events.trigger('filter-ai:generateAltText', settings?.image_alt_text_prompt);
+            Events.trigger('filter-ai:generateAltText', settings?.image_alt_text_prompt, settings);
           },
           isDisabled: !generateAltTextEnabled,
         });

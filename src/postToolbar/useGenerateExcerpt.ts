@@ -2,10 +2,13 @@ import { useSettings } from '@/settings';
 import { ai, hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import {usePrompts} from "@/utils/ai/prompts/usePrompts";
 
 export const useGenerateExcerpt = () => {
   const { settings } = useSettings();
   const { editPost } = useDispatch('core/editor');
+
+  const prompt = usePrompts('post_excerpt_prompt');
 
   const { excerptPanelEnabled, content, oldExcerpt } = useSelect((select) => {
     const { getCurrentPostType, isEditorPanelEnabled, getEditedPostAttribute } = select('core/editor');
@@ -36,7 +39,7 @@ export const useGenerateExcerpt = () => {
     showLoadingMessage(__('Excerpt', 'filter-ai'));
 
     try {
-      const excerpt = await ai.getExcerptFromContent(content, oldExcerpt, settings?.post_excerpt_prompt);
+      const excerpt = await ai.getExcerptFromContent(content, oldExcerpt, prompt);
 
       if (!excerpt) {
         throw new Error(__('Sorry, there has been an issue while generating your excerpt.', 'filter-ai'));
