@@ -1,0 +1,19 @@
+name: Asana Comment
+
+on:
+  pull_request:
+    types: [opened, closed, reopened, assigned, ready_for_review, review_requested]
+
+jobs:
+  create-comment-in-asana-task-job:
+    runs-on: ubuntu-latest
+    name: Create pull request comment on Asana task
+    steps:
+      - name: Create a comment
+        uses: Asana/comment-on-task-github-action@v1.2
+        id: createComment
+        with:
+          asana-secret: ${{ secrets.ASANA_SECRET }}
+          comment-text: "Pull Request: {{PR_NAME}} is now {{PR_STATE}}: {{PR_URL}}"
+      - name: Get status
+        run: echo "Status is ${{ steps.createComment.outputs.status }}"

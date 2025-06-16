@@ -1,22 +1,21 @@
 import { createReduxStore, dispatch, register, useSelect } from '@wordpress/data';
 
-const storeName = 'filter-ai/options-modal-store';
+const storeName = 'filter-ai/seo-title-options-modal-store';
 
 type State = {
   options: string[];
   choice: string;
-  title: string;
 };
 
 type Action = {
-  type: 'setOptionsModal';
+  type: 'setSeoTitleOptionsModal';
   payload: Partial<State>;
 };
 
 const store = createReduxStore(storeName, {
   reducer: (state: State, action: Action) => {
     switch (action.type) {
-      case 'setOptionsModal':
+      case 'setSeoTitleOptionsModal':
         return {
           ...state,
           ...action.payload,
@@ -26,9 +25,9 @@ const store = createReduxStore(storeName, {
     }
   },
   actions: {
-    setOptionsModal: (newState: Partial<State>): Action => {
+    setSeoTitleOptionsModal: (newState: Partial<State>): Action => {
       return {
-        type: 'setOptionsModal',
+        type: 'setSeoTitleOptionsModal',
         payload: newState,
       };
     },
@@ -40,17 +39,17 @@ const store = createReduxStore(storeName, {
 
 register(store);
 
-export const useOptionsModal = (dependencies = []) =>
+export const useSeoTitleOptionsModal = (dependencies = []) =>
   useSelect((select) => select(store).getOptionsModal(), dependencies);
 
-export const hideOptionsModal = () => {
-  dispatch(store).setOptionsModal({ options: [] });
+export const hideSeoTitleOptionsModal = () => {
+  dispatch(store).setSeoTitleOptionsModal({ options: [] });
 };
 
-export const setOptionsModal = (newState: Partial<State>) => {
-  dispatch(store).setOptionsModal(newState);
+export const setSeoTitleOptionsModal = (newState: Partial<State>) => {
+  dispatch(store).setSeoTitleOptionsModal(newState);
 };
 
-export const resetOptionsModal = () => {
-  dispatch(store).setOptionsModal({ title: '', choice: '', options: [] });
+export const resetSeoTitleOptionsModal = () => {
+  dispatch(store).setSeoTitleOptionsModal({ choice: '', options: [] });
 };

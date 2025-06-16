@@ -6,9 +6,9 @@ import {
   hideLoadingMessage,
   showLoadingMessage,
   showNotice,
-  setOptionsModal,
-  useOptionsModal,
-  resetOptionsModal,
+  setSeoTitleOptionsModal,
+  useSeoTitleOptionsModal,
+  resetSeoTitleOptionsModal,
 } from '@/utils';
 import { useEffect } from '@wordpress/element';
 import {usePrompts} from "@/utils/ai/prompts/usePrompts";
@@ -16,7 +16,7 @@ import {usePrompts} from "@/utils/ai/prompts/usePrompts";
 export const useGenerateSEOTitle = () => {
   const { settings } = useSettings();
 
-  const { options, choice } = useOptionsModal();
+  const { options, choice } = useSeoTitleOptionsModal();
 
   const prompt = usePrompts('yoast_seo_title_prompt');
 
@@ -92,7 +92,7 @@ export const useGenerateSEOTitle = () => {
 
       options = titles.split('||').map((option: string) => option.trim());
 
-      setOptionsModal({ options, choice: '', title: __('Generate SEO Title', 'filter-ai') });
+      setSeoTitleOptionsModal({ options, choice: '' });
     } catch (error) {
       console.error(error);
 
@@ -106,7 +106,7 @@ export const useGenerateSEOTitle = () => {
   useEffect(() => {
     if (choice && !options.length) {
       updateTitle(choice);
-      resetOptionsModal();
+      resetSeoTitleOptionsModal();
     }
   }, [choice, options]);
 
