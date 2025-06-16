@@ -4,7 +4,6 @@ import { ai, hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils'
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createRoot, useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import {usePrompts} from "@/utils/ai/prompts/usePrompts";
 
 const Toolbar = () => {
   const { settings } = useSettings();
@@ -32,9 +31,7 @@ const Toolbar = () => {
     showLoadingMessage(__('Generating alt text', 'filter-ai'));
 
     try {
-
-      const prompt = usePrompts('image_alt_text_prompt');
-      const newAltText = await ai.getAltTextFromUrl(imageUrl, altText, prompt);
+      const newAltText = await ai.getAltTextFromUrl(imageUrl, altText, settings?.image_alt_text_prompt);
 
       if (!newAltText) {
         throw new Error(__('Sorry, there has been an issue while generating your alt text.', 'filter-ai'));
