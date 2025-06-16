@@ -129,7 +129,10 @@ const BatchGeneration = () => {
               <PanelBody>
                 <p>
                   {sprintf(
-                    __('Generate alt text for the following image types within the media library: %s.', 'filter-ai'),
+                    __(
+                      'Generate alt text for images in the media library that are missing alt text. Supported image types include: %s.',
+                      'filter-ai'
+                    ),
                     types
                       .map((type) => type.replace(/image\//, ''))
                       .sort()
