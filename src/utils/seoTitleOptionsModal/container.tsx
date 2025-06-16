@@ -1,6 +1,6 @@
 import { Button, Modal, RadioControl } from '@wordpress/components';
 import { useSeoTitleOptionsModal, hideSeoTitleOptionsModal, setSeoTitleOptionsModal } from './store';
-import { createRoot, useState } from '@wordpress/element';
+import { createRoot, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import InfoIcon from '@/assets/info';
 import CloseIcon from '@/assets/close';
@@ -15,6 +15,7 @@ import { useSelect } from '@wordpress/data';
   }
 
   const SeoTiltleOptionsModalContainer = () => {
+    const disableRegenerate = useRef(false);
     const [choice, setChoice] = useState('');
     const [isRegenerating, setIsRegenerating] = useState(false);
 
@@ -39,6 +40,12 @@ import { useSelect } from '@wordpress/data';
     };
 
     const regenerate = async () => {
+      if (disableRegenerate.current) {
+        return;
+      }
+
+      disableRegenerate.current = true;
+
       setIsRegenerating(true);
       setChoice('');
 
@@ -66,6 +73,7 @@ import { useSelect } from '@wordpress/data';
         showNotice({ message: error?.message || error, type: 'error' });
       } finally {
         setIsRegenerating(false);
+        disableRegenerate.current = false;
       }
     };
 
@@ -103,7 +111,13 @@ import { useSelect } from '@wordpress/data';
             {__('AI generated titles may contain incorrect content, please double before continuing.', 'filter-ai')}
           </p>
           <div className="filter-ai-seo-title-options-modal-actions">
-            <Button variant="secondary" onClick={regenerate} icon={<ReloadIcon />} iconPosition="right">
+            <Button
+              variant="secondary"
+              onClick={regenerate}
+              icon={<ReloadIcon />}
+              iconPosition="right"
+              className={isRegenerating ? 'is-generating' : ''}
+            >
               {isRegenerating ? __('Generating...', 'filter-ai') : __('Regenerate Titles', 'filter-ai')}
             </Button>
             <div className="filter-ai-seo-title-options-modal-actions-group">
