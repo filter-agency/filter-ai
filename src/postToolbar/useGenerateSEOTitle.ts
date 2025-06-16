@@ -11,14 +11,11 @@ import {
   resetSeoTitleOptionsModal,
 } from '@/utils';
 import { useEffect } from '@wordpress/element';
-import {usePrompts} from "@/utils/ai/prompts/usePrompts";
 
 export const useGenerateSEOTitle = () => {
   const { settings } = useSettings();
 
   const { options, choice } = useSeoTitleOptionsModal();
-
-  const prompt = usePrompts('yoast_seo_title_prompt');
 
   const { content, getSeoTitleTemplate, oldSeoTitle } = useSelect((select) => {
     const { getEditedPostAttribute } = select('core/editor');
@@ -84,7 +81,7 @@ export const useGenerateSEOTitle = () => {
     let options = [];
 
     try {
-      const titles = await ai.getSeoTitleFromContent(content, oldSeoTitle, prompt);
+      const titles = await ai.getSeoTitleFromContent(content, oldSeoTitle, settings?.yoast_seo_title_prompt);
 
       if (!titles) {
         throw new Error(__('Sorry, there has been an issue while generating your SEO title.', 'filter-ai'));

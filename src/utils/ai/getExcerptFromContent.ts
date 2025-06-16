@@ -1,5 +1,5 @@
 import { generateText } from './services';
-import { prompts } from './prompts/index';
+import { prompts } from './prompts';
 import { __ } from '@wordpress/i18n';
 
 export const getExcerptFromContent = async (content: string, oldExcerpt?: string, customPrompt?: string) => {

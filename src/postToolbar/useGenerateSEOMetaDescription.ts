@@ -2,12 +2,9 @@ import { useSettings } from '@/settings';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { ai, hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils';
-import {usePrompts} from "@/utils/ai/prompts/usePrompts";
 
 export const useGenerateSEOMetaDescription = () => {
   const { settings } = useSettings();
-
-  const prompt = usePrompts('yoast_seo_meta_description_prompt');
 
   const { content, oldDescription } = useSelect((select) => {
     const { getEditedPostAttribute } = select('core/editor');
@@ -64,7 +61,7 @@ export const useGenerateSEOMetaDescription = () => {
       const description = await ai.getSeoMetaDescriptionFromContent(
         content,
         oldDescription,
-        prompt
+        settings?.yoast_seo_meta_description_prompt
       );
 
       if (!description) {
