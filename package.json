@@ -21,6 +21,7 @@
     "eslint-plugin-prettier": "^5.2.5",
     "globals": "^16.0.0",
     "husky": "^9.1.7",
+    "lint-staged": "^15.5.2",
     "prettier": "^3.5.3",
     "ts-loader": "^9.5.2",
     "typescript": "^5.8.2",
@@ -47,5 +48,8 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "underscore": "^1.13.7"
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
   }
 }

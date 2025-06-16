@@ -1,3 +1,4 @@
 composer run-script check-cs
+npx lint-staged
 npm run build
 git add filter-ai.zip
