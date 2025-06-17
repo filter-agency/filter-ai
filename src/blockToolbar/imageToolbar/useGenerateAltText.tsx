@@ -17,6 +17,8 @@ const urlKeys = ['url', 'mediaUrl'];
 export const useGenerateAltText = ({ attributes, setAttributes }: Props) => {
   const { settings } = useSettings();
 
+  const prompt = usePrompts('image_alt_text_prompt');
+
   const isEnabled = useMemo(() => {
     return settings?.image_alt_text_enabled && altTextKeys.some((key) => attributes.hasOwnProperty(key));
   }, [settings, attributes]);
@@ -70,7 +72,6 @@ export const useGenerateAltText = ({ attributes, setAttributes }: Props) => {
       const url = await getAttachmentUrl();
       const oldAltText = getAttribute(altTextKeys);
 
-      const prompt = usePrompts('image_alt_text_prompt');
       const altText = await ai.getAltTextFromUrl(url, oldAltText, prompt);
 
       if (!altText) {

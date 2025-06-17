@@ -4,6 +4,7 @@ import { ai, hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils'
 import { useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import _ from 'underscore';
+import {usePrompts} from "@/utils/ai/prompts/usePrompts";
 
 const maxPixelSize = 2000;
 
@@ -89,6 +90,8 @@ const Events = _.extend({}, window?.Backbone?.Events);
 
     const { settings } = useSettings();
 
+    const prompt = usePrompts('image_alt_text_prompt');
+
     const controls = useMemo(() => {
       const options = [];
 
@@ -96,7 +99,7 @@ const Events = _.extend({}, window?.Backbone?.Events);
         options.push({
           title: __('Generate Alt Text', 'filter-ai'),
           onClick: () => {
-            Events.trigger('filter-ai:generateAltText', settings?.image_alt_text_prompt, settings);
+            Events.trigger('filter-ai:generateAltText', prompt);
           },
           isDisabled: !generateAltTextEnabled,
         });

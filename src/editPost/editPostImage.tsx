@@ -10,6 +10,8 @@ const Toolbar = () => {
   const { settings } = useSettings();
   const { saveEntityRecord } = useDispatch('core');
 
+  const prompt = usePrompts('image_alt_text_prompt');
+
   const postId = useMemo(() => {
     const params = new URLSearchParams(location.search);
 
@@ -33,7 +35,6 @@ const Toolbar = () => {
 
     try {
 
-      const prompt = usePrompts('image_alt_text_prompt');
       const newAltText = await ai.getAltTextFromUrl(imageUrl, altText, prompt);
 
       if (!newAltText) {

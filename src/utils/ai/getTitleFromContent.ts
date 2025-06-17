@@ -1,5 +1,5 @@
 import { generateText } from './services';
-import { prompts } from './prompts/index';
+import { prompts } from './prompts';
 import { __ } from '@wordpress/i18n';
 
 export const getTitleFromContent = async (content: string, oldTitle?: string, customPrompt?: string) => {
@@ -9,10 +9,8 @@ export const getTitleFromContent = async (content: string, oldTitle?: string, cu
 
   const promptDifference = oldTitle ? `${prompts.common.different} "${oldTitle}".` : '';
 
-  const prompt = customPrompt || prompts.post_title_prompt;
-
   return generateText({
     feature: 'filter-ai-post-title',
-    prompt: `${prompts.common.prefix} ${promptDifference} ${prompt} ${content}`,
+    prompt: `${prompts.common.prefix} ${promptDifference} ${customPrompt} ${content}`,
   });
 };

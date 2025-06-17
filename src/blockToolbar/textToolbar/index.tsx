@@ -97,22 +97,30 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
       let prompt = (() => {
         switch (promptKey) {
           case 'customise_text_rewrite_prompt':
-            return rewritePrompt!;
+            return rewritePrompt;
           case 'customise_text_expand_prompt':
-            return expandPrompt!;
+            return expandPrompt;
           case 'customise_text_condense_prompt':
-            return condensePrompt!;
+            return condensePrompt;
           case 'customise_text_summarise_prompt':
-            return summarisePrompt!;
+            return summarisePrompt;
           case 'customise_text_change_tone_prompt':
-            return changeTonePrompt!;
+            return changeTonePrompt;
           default:
-            return ai.prompts[promptKey]!;
+            return null;
         }
       })();
 
       if (typeof prompt !== 'string') {
-        throw new Error('Prompt is not a string');
+        console.log(`Expected prompt to be a string for "${promptKey}", but got:`, prompt);
+        hideLoadingMessage();
+
+        showNotice({
+          message: __("There was an error preparing your prompt. Please make sure that in plugin 'Settings' your prompt is a valid string.", 'filter-ai'),
+          type: 'error',
+        });
+
+        return;
       }
 
       if (params) {
