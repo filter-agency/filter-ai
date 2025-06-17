@@ -5,6 +5,7 @@
 
   @media (min-width: 600px) {
     width: calc(100% - 32px);
+    max-height: calc(100% - 32px);
     border-radius: 8px;
   }
 
