@@ -35,7 +35,7 @@ export const sections: Section[] = [
         key: 'brand_voice',
         toggle: {
           key: 'brand_voice_enabled',
-          label: __('Brand Voice', 'filter-ai'),
+          label: __('Brand voice', 'filter-ai'),
           help: __('Set your global brand voice applied to all AI-generated outputs', 'filter-ai'),
         },
         prompt: {
@@ -48,15 +48,18 @@ export const sections: Section[] = [
         key: 'stop_words',
         toggle: {
           key: 'stop_words_enabled',
-          label: __('Stop Words', 'filter-ai'),
-          help: __('Enter stop words to prevent specific words from appearing in any AI-generated outputs.', 'filter-ai'),
+          label: __('Stop words', 'filter-ai'),
+          help: __(
+            'Enter stop words to prevent specific words from appearing in any AI-generated outputs.',
+            'filter-ai'
+          ),
         },
         prompt: {
           key: 'stop_words_prompt',
           label: __('Stop words prompt', 'filter-ai'),
           placeholder: ai.prompts.stop_words_prompt,
         },
-      }
+      },
     ],
   },
   {
@@ -67,7 +70,7 @@ export const sections: Section[] = [
         key: 'image_alt_text',
         toggle: {
           key: 'image_alt_text_enabled',
-          label: __('Image alt text', 'filter-ai'),
+          label: __('Auto-generate image alt text', 'filter-ai'),
           help: __('Generate descriptive text about the selected image for use as the alternative text.', 'filter-ai'),
         },
         prompt: {
