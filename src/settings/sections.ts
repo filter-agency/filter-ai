@@ -41,7 +41,7 @@ export const sections: Section[] = [
         prompt: {
           key: 'brand_voice_prompt',
           label: __('Brand voice prompt', 'filter-ai'),
-          placeholder: ai.prompts.brand_voice_prompt,
+          placeholder: 'Please apply this brand voice to all AI generated outputs: ',
         },
       },
       {
@@ -57,7 +57,7 @@ export const sections: Section[] = [
         prompt: {
           key: 'stop_words_prompt',
           label: __('Stop words prompt', 'filter-ai'),
-          placeholder: ai.prompts.stop_words_prompt,
+          placeholder: 'Please avoid using the following words in any generated response:',
         },
       },
     ],

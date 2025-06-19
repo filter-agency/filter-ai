@@ -30,11 +30,11 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
 
   const { settings } = useSettings();
 
-  const rewritePrompt : string = usePrompts('customise_text_rewrite_prompt');
-  const expandPrompt : string = usePrompts('customise_text_expand_prompt');
-  const condensePrompt : string = usePrompts('customise_text_condense_prompt');
-  const summarisePrompt: string = usePrompts('customise_text_summarise_prompt');
-  const changeTonePrompt: string = usePrompts('customise_text_change_tone_prompt');
+  const rewritePrompt = usePrompts('customise_text_rewrite_prompt');
+  const expandPrompt = usePrompts('customise_text_expand_prompt');
+  const condensePrompt = usePrompts('customise_text_condense_prompt');
+  const summarisePrompt = usePrompts('customise_text_summarise_prompt');
+  const changeTonePrompt = usePrompts('customise_text_change_tone_prompt');
 
   const { selectionStart, selectionEnd, hasMultiSelection } = useSelect(
     (select) => {
@@ -112,15 +112,8 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
       })();
 
       if (typeof prompt !== 'string') {
-        console.log(`Expected prompt to be a string for "${promptKey}", but got:`, prompt);
-        hideLoadingMessage();
-
-        showNotice({
-          message: __("There was an error preparing your prompt. Please make sure that in plugin 'Settings' your prompt is a valid string.", 'filter-ai'),
-          type: 'error',
-        });
-
-        return;
+          console.log(`Expected prompt to be a string for "${promptKey}", but got:`, prompt);
+          throw new Error(__("There was an error preparing your prompt. Please make sure that in plugin 'Settings' your prompt is a valid string.", 'filter-ai'));
       }
 
       if (params) {

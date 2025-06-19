@@ -189,13 +189,13 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 			$prompt = $settings['image_alt_text_prompt'];
 		}
 
-        $stop_words_prompt = ! empty( $settings['stop_words_prompt'] ) ? $settings['stop_words_prompt'] : '';
+		$stop_words_prompt = ! empty( $settings['stop_words_prompt'] ) ? $settings['stop_words_prompt'] : '';
 
-        $brand_voice_prompt = ! empty( $settings['brand_voice_prompt'] ) ? $settings['brand_voice_prompt'] : '';
+		$brand_voice_prompt = ! empty( $settings['brand_voice_prompt'] ) ? $settings['brand_voice_prompt'] : '';
 
 		$full_prompt = $pre_prompt . $brand_voice_prompt . ' ' . $stop_words_prompt . ' ' . $prompt;
 
-        $parts->add_text_part( $full_prompt );
+		$parts->add_text_part( $full_prompt );
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		$image_data = file_get_contents( $image_path );
