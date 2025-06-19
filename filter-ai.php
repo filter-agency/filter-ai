@@ -21,6 +21,8 @@ require_once plugin_dir_path( __FILE__ ) . '/vendor/woocommerce/action-scheduler
 
 require_once plugin_dir_path( __FILE__ ) . 'includes/batchImageAltText.php';
 
+require_once plugin_dir_path( __FILE__ ) . 'includes/autoGenerateAltText.php';
+
 /**
  *  Get option schema
  *
