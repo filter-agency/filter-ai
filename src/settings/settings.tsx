@@ -140,21 +140,32 @@ const Settings = () => {
                       <label htmlFor={feature.toggle.key}>{feature.toggle.label}</label>
                       {feature.toggle.help && <div>{feature.toggle.help}</div>}
                     </div>
-                    <FormToggle
-                      onChange={() => {
-                        onChange(feature.toggle.key, !formData?.[feature.toggle.key]);
-                      }}
-                      checked={isDisabled ? false : !!formData?.[feature.toggle.key]}
-                      id={feature.toggle.key}
-                      disabled={isDisabled}
-                    />
-                    <ShowButton
-                      disabled={!formData?.[feature.toggle.key] || isDisabled}
-                      extraKey={section.key}
-                      extraValue={feature.key}
-                    />
+                    <div style={feature.toggle.key === 'auto_alt_text_enabled' ? { marginRight: '34px' } : {}}>
+                      <FormToggle
+                        onChange={() => {
+                          const key = feature.toggle.key;
+                          const newValue = !formData?.[key];
+                          if (key === 'image_alt_text_enabled' || key === 'auto_alt_text_enabled') {
+                            onChange('image_alt_text_enabled', newValue);
+                            onChange('auto_alt_text_enabled', newValue);
+                          } else {
+                            onChange(key, newValue);
+                          }
+                        }}
+                        checked={isDisabled ? false : !!formData?.[feature.toggle.key]}
+                        id={feature.toggle.key}
+                        disabled={isDisabled}
+                      />
+                    </div>
+                    {feature.prompt && (
+                      <ShowButton
+                        disabled={!formData?.[feature.toggle.key] || isDisabled}
+                        extraKey={section.key}
+                        extraValue={feature.key}
+                      />
+                    )}
                   </PanelRow>
-                  {showExtra[section.key] === feature.key && (
+                  {feature.prompt && showExtra[section.key] === feature.key && (
                     <PanelRow>
                       <div style={{ flex: 1 }}>
                         <TextareaControl
@@ -162,14 +173,14 @@ const Settings = () => {
                           label={feature.prompt.label}
                           value={formData?.[feature.prompt.key]?.toString() || feature.prompt.placeholder}
                           onChange={(newValue) => {
-                            onChange(feature.prompt.key, newValue);
+                            onChange(feature.prompt?.key!, newValue);
                           }}
                           disabled={!formData?.[feature.toggle.key]}
                         />
                         <Button
                           className="filter-ai-settings-field-reset"
                           variant="link"
-                          onClick={() => onChange(feature.prompt.key, '')}
+                          onClick={() => onChange(feature.prompt?.key!, '')}
                         >
                           {__('Reset to default', 'filter-ai')}
                         </Button>

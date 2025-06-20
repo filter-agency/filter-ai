@@ -21,8 +21,6 @@ require_once plugin_dir_path( __FILE__ ) . '/vendor/woocommerce/action-scheduler
 
 require_once plugin_dir_path( __FILE__ ) . 'includes/batchImageAltText.php';
 
-require_once plugin_dir_path( __FILE__ ) . 'includes/autoGenerateAltText.php';
-
 /**
  *  Get option schema
  *
@@ -32,6 +30,14 @@ function filter_ai_get_option_schema() {
 	return array(
 		'type'       => 'object',
 		'properties' => array(
+			'brand_voice_enabled'                => array( 'type' => 'boolean' ),
+			'brand_voice_prompt'                 => array( 'type' => 'string' ),
+
+			'stop_words_enabled'                 => array( 'type' => 'boolean' ),
+			'stop_words_prompt'                  => array( 'type' => 'string' ),
+
+			'auto_alt_text_enabled'              => array( 'type' => 'boolean' ),
+
 			'image_alt_text_enabled'             => array( 'type' => 'boolean' ),
 			'image_alt_text_prompt'              => array( 'type' => 'string' ),
 
