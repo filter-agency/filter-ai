@@ -140,7 +140,7 @@ const Settings = () => {
                       <label htmlFor={feature.toggle.key}>{feature.toggle.label}</label>
                       {feature.toggle.help && <div>{feature.toggle.help}</div>}
                     </div>
-                    <div style={feature.toggle.key === 'auto_alt_text_enabled' ? { marginRight: '34px' } : {}}>
+                    <div style={!feature.prompt ? { marginRight: '34px' } : {}}>
                       <FormToggle
                         onChange={() => {
                           const key = feature.toggle.key;

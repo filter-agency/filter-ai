@@ -28,41 +28,6 @@ type Section = {
 
 export const sections: Section[] = [
   {
-    header: __('Global', 'filter-ai'),
-    key: 'global',
-    features: [
-      {
-        key: 'brand_voice',
-        toggle: {
-          key: 'brand_voice_enabled',
-          label: __('Brand voice', 'filter-ai'),
-          help: __('Set your global brand voice applied to all AI-generated outputs', 'filter-ai'),
-        },
-        prompt: {
-          key: 'brand_voice_prompt',
-          label: __('Brand voice prompt', 'filter-ai'),
-          placeholder: 'Please apply this brand voice to all AI generated outputs: ',
-        },
-      },
-      {
-        key: 'stop_words',
-        toggle: {
-          key: 'stop_words_enabled',
-          label: __('Stop words', 'filter-ai'),
-          help: __(
-            'Enter stop words to prevent specific words from appearing in any AI-generated outputs.',
-            'filter-ai'
-          ),
-        },
-        prompt: {
-          key: 'stop_words_prompt',
-          label: __('Stop words prompt', 'filter-ai'),
-          placeholder: 'Please avoid using the following words in any generated response:',
-        },
-      },
-    ],
-  },
-  {
     header: __('Images', 'filter-ai'),
     key: 'image',
     features: [
