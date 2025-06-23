@@ -423,3 +423,28 @@ function filter_ai_api_cancel_batch_image_alt_text() {
 }
 
 add_action( 'wp_ajax_filter_ai_api_cancel_batch_image_alt_text', 'filter_ai_api_cancel_batch_image_alt_text' );
+
+/**
+ * Function to generate alt text for images on upload
+ *
+ * @param int $attachment_id The ID of the image attachment.
+ */
+function filter_ai_generate_alt_text_on_upload( $attachment_id ) {
+
+	$settings         = get_option( 'filter_ai_settings', [] );
+	$auto_img_enabled = isset( $settings['auto_alt_text_enabled'] ) ? $settings['auto_alt_text_enabled'] : false;
+	if ( ! $auto_img_enabled ) {
+		return;
+	}
+
+	$user_id = get_current_user_id(); // You could also pass a different user if needed
+
+	$args = array(
+		'image_id' => $attachment_id,
+		'user_id'  => $user_id,
+	);
+
+	filter_ai_process_batch_image_alt_text( $args );
+}
+
+add_action( 'add_attachment', 'filter_ai_generate_alt_text_on_upload', 10, 1 );

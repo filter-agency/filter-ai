@@ -30,6 +30,8 @@ function filter_ai_get_option_schema() {
 	return array(
 		'type'       => 'object',
 		'properties' => array(
+			'auto_alt_text_enabled'              => array( 'type' => 'boolean' ),
+
 			'image_alt_text_enabled'             => array( 'type' => 'boolean' ),
 			'image_alt_text_prompt'              => array( 'type' => 'string' ),
 

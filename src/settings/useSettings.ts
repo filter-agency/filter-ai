@@ -1,6 +1,8 @@
 import { useDispatch, useSelect } from '@wordpress/data';
 
 const defaultSettings = {
+  auto_alt_text_enabled: true,
+
   image_alt_text_enabled: true,
   image_alt_text_prompt: '',
 

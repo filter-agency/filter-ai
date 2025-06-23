@@ -17,7 +17,7 @@ type Prompt = {
 type Feature = {
   key: string;
   toggle: Toggle;
-  prompt: Prompt;
+  prompt?: Prompt;
 };
 
 type Section = {
@@ -42,6 +42,14 @@ export const sections: Section[] = [
           key: 'image_alt_text_prompt',
           label: __('Image alt text prompt', 'filter-ai'),
           placeholder: ai.prompts.image_alt_text_prompt,
+        },
+      },
+      {
+        key: 'auto_alt_text',
+        toggle: {
+          key: 'auto_alt_text_enabled',
+          label: __('Auto-generate image alt text', 'filter-ai'),
+          help: __('Automatically generate alt text when you upload your file.', 'filter-ai'),
         },
       },
     ],
