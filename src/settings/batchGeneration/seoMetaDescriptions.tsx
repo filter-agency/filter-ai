@@ -1,35 +1,39 @@
-import { useMemo } from 'react';
 import { Button, Spinner, Panel, PanelBody, ProgressBar } from '@wordpress/components';
-import { useEffect, useCallback, useState } from '@wordpress/element';
-import { mimeTypes } from '@/utils';
-import { useSettings } from '../useSettings';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { useSettings } from '../useSettings';
 
 const defaultCount = {
-  images: 0,
-  imagesWithoutAltText: 0,
+  posts: 0,
+  postsWithout: 0,
   actions: 0,
   completeActions: 0,
   pendingActions: 0,
   runningActions: 0,
   failedActions: 0,
+  postTypes: [],
 };
 
 type FailedAction = {
-  image_id: number;
+  post_id: number;
   message: string;
 };
 
-const ImageAltText = () => {
+type PostType = {
+  label: string;
+  total: number;
+  missing: number;
+};
+
+const SEOMetaDescriptions = () => {
   const [count, setCount] = useState(defaultCount);
   const [failedActions, setFailedActions] = useState<FailedAction[]>([]);
   const [isCancelling, setIsCancelling] = useState(false);
   const [isGenerateButtonDisabled, setIsGenerateButtonDisabled] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [postTypes, setPostTypes] = useState<PostType[]>([]);
 
   const { settings } = useSettings();
-
-  const types = useMemo(() => [...new Set(mimeTypes.values())], [mimeTypes]);
 
   const inProgress = useMemo(() => {
     return !!count.pendingActions || !!count.runningActions;
@@ -38,7 +42,7 @@ const ImageAltText = () => {
   const getCount = useCallback(async () => {
     try {
       const { data } = await fetch(
-        `${window.filter_ai_api.url}?action=filter_ai_api_get_image_count&nonce=${window.filter_ai_api.nonce}`
+        `${window.filter_ai_api.url}?action=filter_ai_api_get_seo_meta_description_count&nonce=${window.filter_ai_api.nonce}`
       )
         .then((r) => r.json())
         .catch(() => ({}));
@@ -50,8 +54,8 @@ const ImageAltText = () => {
       setCount((prevCount) => {
         return {
           ...prevCount,
-          images: data.images_count,
-          imagesWithoutAltText: data.images_without_alt_text_count,
+          posts: data.total_count,
+          postsWithout: data.total_missing_count,
           actions: data.actions_count,
           completeActions: data.complete_actions_count,
           pendingActions: data.pending_actions_count,
@@ -61,6 +65,14 @@ const ImageAltText = () => {
       });
 
       setFailedActions(Object.values(data.failed_actions || {}));
+
+      setPostTypes(
+        data.post_types?.sort((a: PostType, b: PostType) => {
+          if (a.label < b.label) return -1;
+          if (a.label > b.label) return 1;
+          return 0;
+        }) || []
+      );
 
       if (!!data.pending_actions_count || !!data.running_actions_count) {
         setTimeout(getCount, 1000);
@@ -74,12 +86,12 @@ const ImageAltText = () => {
     }
   }, []);
 
-  const generateAltText = useCallback(async () => {
+  const generateSEOMetaDescriptions = useCallback(async () => {
     setIsGenerateButtonDisabled(true);
 
     try {
       await fetch(
-        `${window.filter_ai_api.url}?action=filter_ai_api_batch_image_alt_text&nonce=${window.filter_ai_api.nonce}`,
+        `${window.filter_ai_api.url}?action=filter_ai_api_batch_seo_meta_description&nonce=${window.filter_ai_api.nonce}`,
         {
           method: 'POST',
         }
@@ -94,7 +106,7 @@ const ImageAltText = () => {
 
     try {
       await fetch(
-        `${window.filter_ai_api.url}?action=filter_ai_api_cancel_batch_image_alt_text&nonce=${window.filter_ai_api.nonce}`,
+        `${window.filter_ai_api.url}?action=filter_ai_api_cancel_batch_seo_meta_description&nonce=${window.filter_ai_api.nonce}`,
         {
           method: 'POST',
         }
@@ -113,38 +125,58 @@ const ImageAltText = () => {
       {isLoading && <Spinner className="filter-ai-settings-spinner" />}
 
       {!isLoading && (
-        <Panel header={__('Image Alt Text', 'filter-ai')} className="filter-ai-settings-panel">
+        <Panel header={__('Yoast SEO Meta Descriptions', 'filter-ai')} className="filter-ai-settings-panel">
           <PanelBody>
             <p>
               {sprintf(
-                __(
-                  'Generate alt text for images in the media library that are missing alt text. Supported image types include: %s.',
-                  'filter-ai'
-                ),
-                types
-                  .map((type) => type.replace(/image\//, ''))
-                  .sort()
-                  .join(', ')
+                __('Generate missing SEO meta descriptions for the following post types: %s.', 'filter-ai'),
+                postTypes
+                  ?.slice(0, -1)
+                  .map((type) => type.label)
+                  .join(', ') +
+                  (postTypes?.length > 1 ? ' & ' : '') +
+                  postTypes?.slice(-1).map((type) => type.label)
               )}
             </p>
-            <p>{sprintf(__('Total images: %s', 'filter-ai'), count.images)}</p>
-            <p>{sprintf(__('Images missing alt text: %s', 'filter-ai'), count.imagesWithoutAltText)}</p>
+            <p>{sprintf(__('Total posts: %s', 'filter-ai'), count.posts)}</p>
+            <p>{sprintf(__('Posts missing SEO meta descriptions: %s', 'filter-ai'), count.postsWithout)}</p>
+            <table>
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>{__('Total', 'filter-ai')}</th>
+                  <th>{__('Missing', 'filter-ai')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {postTypes.map((type) => (
+                  <tr>
+                    <td>{type.label}</td>
+                    <td>{type.total}</td>
+                    <td>{type.missing}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </PanelBody>
           {!inProgress && count.actions > 0 && (
             <PanelBody title={__('Previous run stats', 'filter-ai')}>
-              <p>{sprintf(__('Images processed: %s', 'filter-ai'), count.actions)}</p>
-              <p>{sprintf(__('Completed images: %s', 'filter-ai'), count.completeActions)}</p>
-              <p>{sprintf(__('Failed images %s', 'filter-ai'), count.failedActions)}</p>
+              <p>{sprintf(__('SEO meta descriptions processed: %s', 'filter-ai'), count.actions)}</p>
+              <p>{sprintf(__('Completed SEO meta descriptions: %s', 'filter-ai'), count.completeActions)}</p>
+              <p>{sprintf(__('Failed SEO meta descriptions %s', 'filter-ai'), count.failedActions)}</p>
             </PanelBody>
           )}
 
           {!!count.failedActions && (
-            <PanelBody title={sprintf(__('Failed images: %s', 'filter-ai'), count.failedActions)} initialOpen={false}>
+            <PanelBody
+              title={sprintf(__('Failed SEO meta descriptions: %s', 'filter-ai'), count.failedActions)}
+              initialOpen={false}
+            >
               {failedActions?.map((action) => {
                 return (
                   <p>
-                    <a href={`/wp-admin/post.php?post=${action.image_id}&action=edit`} target="_blank">
-                      {action.image_id}
+                    <a href={`/wp-admin/post.php?post=${action.post_id}&action=edit`} target="_blank">
+                      {action.post_id}
                     </a>
                     {': '}
                     {action.message ? action.message : 'Unknown'}
@@ -154,14 +186,19 @@ const ImageAltText = () => {
             </PanelBody>
           )}
 
-          {!inProgress && count.imagesWithoutAltText > 0 && (
+          {!inProgress && count.postsWithout > 0 && (
             <PanelBody>
               <Button
                 variant="primary"
-                onClick={generateAltText}
-                disabled={inProgress || !settings?.image_alt_text_enabled || isGenerateButtonDisabled}
+                onClick={generateSEOMetaDescriptions}
+                disabled={
+                  inProgress ||
+                  !settings?.yoast_seo_meta_description_enabled ||
+                  isGenerateButtonDisabled ||
+                  !window.filter_ai_dependencies.yoast_seo
+                }
               >
-                {__('Generate Alt Text', 'filter-ai')}
+                {__('Generate SEO Meta Descriptions', 'filter-ai')}
               </Button>
             </PanelBody>
           )}
@@ -171,16 +208,16 @@ const ImageAltText = () => {
               <p style={{ fontWeight: 'bold' }}>{__('Generating', 'filter-ai')}</p>
               <p>{__('Your batch generation will continue to run in the background if you move away.', 'filter-ai')}</p>
               <ProgressBar value={(count.completeActions / count.actions) * 100} className="filter-ai-progress-bar" />
-              <p>{`${count.completeActions} / ${count.actions} ${__('images processed', 'filter-ai')}`}</p>
+              <p>{`${count.completeActions} / ${count.actions} ${__('SEO meta descriptions processed', 'filter-ai')}`}</p>
               <Button variant="secondary" onClick={cancel} disabled={isCancelling}>
                 {__('Cancel', 'filter-ai')}
               </Button>
             </PanelBody>
           )}
 
-          {!count.images && (
+          {!count.posts && (
             <PanelBody>
-              <p>{__('No images could be found', 'filter-ai')}</p>
+              <p>{__('No posts could be found', 'filter-ai')}</p>
             </PanelBody>
           )}
         </Panel>
@@ -189,4 +226,4 @@ const ImageAltText = () => {
   );
 };
 
-export default ImageAltText;
+export default SEOMetaDescriptions;

@@ -127,3 +127,67 @@ function filter_ai_get_action_count( $hook ) {
 		'failed'   => count( $failed_actions ),
 	);
 }
+
+/**
+ * Get count for a specific post_type
+ *
+ * @param string $post_type (optional) post type name
+ *
+ * @return number Number of posts
+ */
+function filter_ai_get_posts_count( $post_type = 'any' ) {
+	if ( empty( $post_type ) ) {
+		return 0;
+	}
+
+	$query = new WP_Query(
+		array(
+			'post_type'              => $post_type,
+			'public'                 => true,
+			'posts_per_page'         => 1,
+			'paged'                  => 1,
+			'update_post_term_cache' => false,
+			'fields'                 => 'ids',
+		)
+	);
+
+	return $query->found_posts;
+}
+
+/**
+ * Get posts for a specific post_type that is missing a specific meta query
+ *
+ * @param int    $paged Page number
+ * @param int    $posts_per_page Number of posts per page
+ * @param string $post_type Post type
+ * @param string $query_key Query key
+ *
+ * @return WP_Query Return WP_Query
+ */
+function filter_ai_get_posts_missing_meta_query( $paged = 1, $posts_per_page = 500, $post_type = 'any', $query_key ) {
+	$query = new WP_Query(
+		array(
+			'post_type'              => $post_type,
+			'public'                 => true,
+			'posts_per_page'         => $posts_per_page,
+			'paged'                  => $paged,
+			'meta_query'             => array(
+				'relation' => 'OR',
+				array(
+					'key'     => $query_key,
+					'value'   => '',
+					'compare' => 'NOT EXISTS',
+				),
+				array(
+					'key'     => $query_key,
+					'value'   => '',
+					'compare' => '=',
+				),
+			),
+			'update_post_term_cache' => false,
+			'fields'                 => 'ids',
+		)
+	);
+
+	return $query;
+}

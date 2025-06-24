@@ -1,9 +1,10 @@
+import { ReactNode } from 'react';
 import { filterLogo } from '@/assets/filter-logo';
 import { createRoot, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import ImageAltText from './imageAltText';
 import SEOTitles from './seoTitles';
-import { ReactNode } from 'react';
+import SEOMetaDescriptions from './seoMetaDescriptions';
 
 type Tab = {
   label: string;
@@ -22,6 +23,10 @@ const tabs: Tabs = {
   seo_titles: {
     label: __('SEO Titles', 'filter-ai'),
     Component: SEOTitles,
+  },
+  seo_meta_descriptions: {
+    label: __('SEO Meta Descriptions', 'filter-ai'),
+    Component: SEOMetaDescriptions,
   },
 };
 
