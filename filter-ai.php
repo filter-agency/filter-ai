@@ -20,6 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 require_once plugin_dir_path( __FILE__ ) . '/vendor/woocommerce/action-scheduler/action-scheduler.php';
 
 require_once plugin_dir_path( __FILE__ ) . 'includes/batchImageAltText.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/batchSEOTitle.php';
 
 /**
  *  Get option schema
@@ -266,22 +267,26 @@ function filter_ai_enqueue_assets() {
 		get_plugin_data( __FILE__ )['Version']
 	);
 
-	wp_localize_script(
+	wp_add_inline_script(
 		'filter-ai-script',
-		'filter_ai_api',
-		array(
-			'url'   => admin_url( 'admin-ajax.php' ),
-			'nonce' => wp_create_nonce( 'filter_ai_api' ),
-		)
+		'window.filter_ai_api = ' . wp_json_encode(
+			array(
+				'url'   => admin_url( 'admin-ajax.php' ),
+				'nonce' => wp_create_nonce( 'filter_ai_api' ),
+			)
+		) . ';',
+		'before'
 	);
 
-	wp_localize_script(
+	wp_add_inline_script(
 		'filter-ai-script',
-		'filter_ai_dependencies',
-		array(
-			'wc'        => is_plugin_active( 'woocommerce/woocommerce.php' ),
-			'yoast_seo' => is_plugin_active( 'wordpress-seo/wp-seo.php' ) || is_plugin_active( 'wordpress-seo-premium/wp-seo-premium.php' ),
-		)
+		'window.filter_ai_dependencies = ' . wp_json_encode(
+			array(
+				'wc'        => is_plugin_active( 'woocommerce/woocommerce.php' ),
+				'yoast_seo' => is_plugin_active( 'wordpress-seo/wp-seo.php' ) || is_plugin_active( 'wordpress-seo-premium/wp-seo-premium.php' ),
+			)
+		) . ';',
+		'before'
 	);
 }
 

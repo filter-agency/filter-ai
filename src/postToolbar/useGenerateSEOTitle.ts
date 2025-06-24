@@ -107,7 +107,7 @@ export const useGenerateSEOTitle = () => {
     }
   }, [choice, options]);
 
-  if (!settings?.yoast_seo_title_enabled || !window.YoastSEO) {
+  if (!settings?.yoast_seo_title_enabled || !window.filter_ai_dependencies.yoast_seo || !window.YoastSEO) {
     return;
   }
 

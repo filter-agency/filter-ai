@@ -79,7 +79,7 @@ export const useGenerateSEOMetaDescription = () => {
     }
   };
 
-  if (!settings?.yoast_seo_meta_description_enabled || !window.YoastSEO) {
+  if (!settings?.yoast_seo_meta_description_enabled || !window.filter_ai_dependencies.yoast_seo || !window.YoastSEO) {
     return;
   }
 
