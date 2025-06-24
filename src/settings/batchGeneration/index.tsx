@@ -1,5 +1,5 @@
 import { filterLogo } from '@/assets/filter-logo';
-import { createRoot, useMemo } from '@wordpress/element';
+import { createRoot, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import ImageAltText from './imageAltText';
 import SEOTitles from './seoTitles';
@@ -25,16 +25,38 @@ const tabs: Tabs = {
   },
 };
 
-const BatchGeneration = () => {
-  const params = new URLSearchParams(window.location.search);
+const getKey = () => {
+  const key = window.location.hash.replace('#', '');
 
-  const currentTabKey = useMemo(() => {
-    return params.get('tab') || 'image_alt_text';
-  }, [params]);
+  if (key in tabs) {
+    return key;
+  }
+
+  return 'image_alt_text';
+};
+
+const BatchGeneration = () => {
+  const [currentTabKey, setCurrentTabKey] = useState(getKey());
 
   const Content = useMemo(() => {
     return tabs[currentTabKey].Component;
   }, [currentTabKey]);
+
+  useEffect(() => {
+    const abortController = new AbortController();
+
+    window.addEventListener(
+      'hashchange',
+      () => {
+        setCurrentTabKey(getKey());
+      },
+      { signal: abortController.signal }
+    );
+
+    return () => {
+      abortController.abort();
+    };
+  }, []);
 
   return (
     <div className="filter-ai-settings">
@@ -50,7 +72,7 @@ const BatchGeneration = () => {
             const isActive = currentTabKey === key;
 
             return (
-              <a href={`${baseUrl}&tab=${key}`} className={`nav-tab ${isActive ? 'nav-tab-active' : ''}`}>
+              <a href={`${baseUrl}#${key}`} className={`nav-tab ${isActive ? 'nav-tab-active' : ''}`}>
                 {tabs[key].label}
               </a>
             );
