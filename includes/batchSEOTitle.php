@@ -233,15 +233,6 @@ function filter_ai_api_batch_seo_title() {
 					),
 					'filter-ai-current'
 				);
-
-				// call action instantly (user needs to stay on the page)
-				// do_action(
-				// 'filter_ai_batch_seo_title',
-				// array(
-				// 'post_id' => $post_id,
-				// 'user_id' => get_current_user_id()
-				// )
-				// );
 			}
 		}
 	}
