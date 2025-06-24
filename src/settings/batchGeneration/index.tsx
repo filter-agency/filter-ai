@@ -1,0 +1,80 @@
+import { filterLogo } from '@/assets/filter-logo';
+import { createRoot, useMemo } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import ImageAltText from './imageAltText';
+import SEOTitles from './seoTitles';
+import { ReactNode } from 'react';
+
+type Tab = {
+  label: string;
+  Component: () => ReactNode;
+};
+
+type Tabs = Record<string, Tab>;
+
+const baseUrl = '?page=filter_ai_submenu_page_batch';
+
+const tabs: Tabs = {
+  image_alt_text: {
+    label: __('Image Alt Text', 'filter-ai'),
+    Component: ImageAltText,
+  },
+  seo_titles: {
+    label: __('SEO Titles', 'filter-ai'),
+    Component: SEOTitles,
+  },
+};
+
+const BatchGeneration = () => {
+  const params = new URLSearchParams(window.location.search);
+
+  const currentTabKey = useMemo(() => {
+    return params.get('tab') || 'image_alt_text';
+  }, [params]);
+
+  const Content = useMemo(() => {
+    return tabs[currentTabKey].Component;
+  }, [currentTabKey]);
+
+  return (
+    <div className="filter-ai-settings">
+      <header className="filter-ai-settings-header">
+        <div className="filter-ai-settings-header-content">
+          <div>
+            <h1 style={{ margin: 0 }}>{__('Filter AI Batch Generation', 'filter-ai')}</h1>
+          </div>
+          <img src={filterLogo} alt={__('Filter AI logo', 'filter-ai')} />
+        </div>
+        <nav className="nav-tab-wrapper">
+          {Object.keys(tabs).map((key) => {
+            const isActive = currentTabKey === key;
+
+            return (
+              <a href={`${baseUrl}&tab=${key}`} className={`nav-tab ${isActive ? 'nav-tab-active' : ''}`}>
+                {tabs[key].label}
+              </a>
+            );
+          })}
+        </nav>
+      </header>
+      <div className="filter-ai-settings-content">
+        <Content />
+        <div>
+          <a href="/wp-admin/tools.php?page=action-scheduler">{__('View batch generation log', 'filter-ai')}</a>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+(function () {
+  const container = document.getElementById('filter-ai-batch-container');
+
+  if (!container) {
+    return;
+  }
+
+  const root = createRoot(container);
+
+  root.render(<BatchGeneration />);
+})();

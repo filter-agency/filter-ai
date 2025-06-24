@@ -52,6 +52,33 @@
   & #leadin-disconnected-banner {
     display: none;
   }
+
+  &:has(.nav-tab-wrapper) {
+    padding-bottom: 0;
+  }
+
+  & .nav-tab-wrapper {
+    padding-top: 16px;
+    border-bottom: 0;
+    max-width: 760px;
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  & .nav-tab {
+    margin: 0 0 -1px;
+  }
+
+  & .nav-tab:not(.nav-tab-active) {
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  & .nav-tab-active {
+    border-bottom: 1px solid #f0f0f1;
+  }
 }
 
 @media (max-width: 782px) {
@@ -103,6 +130,18 @@
 
     &:last-child {
       margin-bottom: 0;
+    }
+  }
+
+  & .components-panel__body table {
+    & th:first-child,
+    & td:first-child {
+      padding: 4px 16px 4px 0;
+    }
+
+    & th:nth-child(n + 2),
+    & td:nth-child(n + 2) {
+      padding: 4px 16px;
     }
   }
 

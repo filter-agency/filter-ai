@@ -9,6 +9,8 @@ use Felix_Arntz\AI_Services\Services\API\Types\Content;
 use Felix_Arntz\AI_Services\Services\API\Types\Parts;
 use Felix_Arntz\AI_Services\Services\API\Helpers;
 
+require_once 'helpers.php';
+
 /**
  * Get list of supported image mime types
  *
@@ -38,6 +40,8 @@ function filter_ai_get_images_count() {
 		'post_type'              => 'attachment',
 		'post_mime_type'         => filter_ai_mime_types(),
 		'post_status'            => 'inherit',
+		'posts_per_page'         => 1,
+		'paged'                  => 1,
 		'update_post_meta_cache' => false,
 		'update_post_term_cache' => false,
 		'fields'                 => 'ids',
@@ -49,46 +53,14 @@ function filter_ai_get_images_count() {
 }
 
 /**
- * Get number of all images without alt text
- *
- * @return int Return number of images without alt text
- */
-function filter_ai_get_images_without_alt_text_count() {
-	$args = array(
-		'post_type'              => 'attachment',
-		'post_mime_type'         => filter_ai_mime_types(),
-		'post_status'            => 'inherit',
-		'meta_query'             => array(
-			'relation' => 'OR',
-			array(
-				'key'     => '_wp_attachment_image_alt',
-				'value'   => '',
-				'compare' => 'NOT EXISTS',
-			),
-			array(
-				'key'     => '_wp_attachment_image_alt',
-				'value'   => '',
-				'compare' => '=',
-			),
-		),
-		'update_post_term_cache' => false,
-		'fields'                 => 'ids',
-	);
-
-	$attachments = new WP_Query( $args );
-
-	return $attachments->found_posts;
-}
-
-/**
- * Get all images without alt text
+ * Get all images without alt text query
  *
  * @param int $paged Page number
  * @param int $posts_per_page Number of posts per page
  *
- * @return int[] Returns array of image ids
+ * @return WP_Query Returns WP_Query
  */
-function filter_ai_get_images_without_alt_text( $paged = 1, $posts_per_page = 500 ) {
+function filter_ai_get_images_without_alt_text_query( $paged = 1, $posts_per_page = 500 ) {
 	$args = array(
 		'post_type'              => 'attachment',
 		'post_mime_type'         => filter_ai_mime_types(),
@@ -112,9 +84,34 @@ function filter_ai_get_images_without_alt_text( $paged = 1, $posts_per_page = 50
 		'fields'                 => 'ids',
 	);
 
-	$attachments = new WP_Query( $args );
+	$query = new WP_Query( $args );
 
-	return $attachments->get_posts();
+	return $query;
+}
+
+/**
+ * Get all images without alt text
+ *
+ * @param int $paged Page number
+ * @param int $posts_per_page Number of posts per page
+ *
+ * @return int[] Returns array of image ids
+ */
+function filter_ai_get_images_without_alt_text( $paged, $posts_per_page ) {
+	$query = filter_ai_get_images_without_alt_text_query( $paged, $posts_per_page );
+
+	return $query->get_posts();
+}
+
+/**
+ * Get number of all images without alt text
+ *
+ * @return int Return number of images without alt text
+ */
+function filter_ai_get_images_without_alt_text_count() {
+	$query = filter_ai_get_images_without_alt_text_query( 1, 1 );
+
+	return $query->found_posts;
 }
 
 /**
@@ -230,57 +227,12 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 add_action( 'filter_ai_batch_image_alt_text', 'filter_ai_process_batch_image_alt_text' );
 
 /**
- * Reset group_id for scheduled actions to help us track the current actions
- */
-function filter_ai_reset_batch_image_alt_text() {
-	$actions = as_get_scheduled_actions(
-		array(
-			'hook'     => 'filter_ai_batch_image_alt_text',
-			'group'    => 'filter-ai-current',
-			'per_page' => 1,
-		),
-		'ids'
-	);
-
-	$in_progress_actions = as_get_scheduled_actions(
-		array(
-			'hook'     => 'filter_ai_batch_image_alt_text',
-			'status'   => array(
-				ActionScheduler_Store::STATUS_PENDING,
-				ActionScheduler_Store::STATUS_RUNNING,
-			),
-			'group'    => 'filter-ai-current',
-			'per_page' => 1,
-		),
-		'ids'
-	);
-
-	if ( ! empty( $actions ) && empty( $in_progress_actions ) ) {
-		global $wpdb;
-
-		$wpdb->query(
-			$wpdb->prepare(
-				"UPDATE {$wpdb->prefix}actionscheduler_actions
-        SET `group_id` = (
-          SELECT group_id FROM {$wpdb->prefix}actionscheduler_groups WHERE slug = ''
-        )
-        WHERE `hook` = %s AND `group_id` = (
-          SELECT group_id FROM {$wpdb->prefix}actionscheduler_groups WHERE slug = %s
-        )",
-				'filter_ai_batch_image_alt_text',
-				'filter-ai-current'
-			)
-		);
-	}
-}
-
-/**
  * API handler to trigger batch generation of image alt text
  */
 function filter_ai_api_batch_image_alt_text() {
 	check_ajax_referer( 'filter_ai_api', 'nonce' );
 
-	filter_ai_reset_batch_image_alt_text();
+	filter_ai_reset_batch( 'filter_ai_batch_image_alt_text' );
 
 	$posts_per_page = 500;
 	$images_count   = filter_ai_get_images_without_alt_text_count();
@@ -307,7 +259,7 @@ function filter_ai_api_batch_image_alt_text() {
 				// do_action(
 				// 'filter_ai_batch_image_alt_text',
 				// array(
-				// 'image_id' => $image->ID,
+				// 'image_id' => $image_id,
 				// 'user_id' => get_current_user_id()
 				// )
 				// );
@@ -326,44 +278,7 @@ add_action( 'wp_ajax_filter_ai_api_batch_image_alt_text', 'filter_ai_api_batch_i
 function filter_ai_api_get_image_count() {
 	check_ajax_referer( 'filter_ai_api', 'nonce' );
 
-	$actions = as_get_scheduled_actions(
-		array(
-			'hook'     => 'filter_ai_batch_image_alt_text',
-			'group'    => 'filter-ai-current',
-			'per_page' => -1,
-		),
-		'ids'
-	);
-
-	$pending_actions = as_get_scheduled_actions(
-		array(
-			'hook'     => 'filter_ai_batch_image_alt_text',
-			'status'   => ActionScheduler_Store::STATUS_PENDING,
-			'group'    => 'filter-ai-current',
-			'per_page' => -1,
-		),
-		'ids'
-	);
-
-	$running_actions = as_get_scheduled_actions(
-		array(
-			'hook'     => 'filter_ai_batch_image_alt_text',
-			'status'   => ActionScheduler_Store::STATUS_RUNNING,
-			'group'    => 'filter-ai-current',
-			'per_page' => -1,
-		),
-		'ids'
-	);
-
-	$complete_actions = as_get_scheduled_actions(
-		array(
-			'hook'     => 'filter_ai_batch_image_alt_text',
-			'status'   => ActionScheduler_Store::STATUS_COMPLETE,
-			'group'    => 'filter-ai-current',
-			'per_page' => -1,
-		),
-		'id',
-	);
+	$action_count = filter_ai_get_action_count( 'filter_ai_batch_image_alt_text' );
 
 	$failed_actions_raw = as_get_scheduled_actions(
 		array(
@@ -399,11 +314,11 @@ function filter_ai_api_get_image_count() {
 		array(
 			'images_count'                  => filter_ai_get_images_count(),
 			'images_without_alt_text_count' => filter_ai_get_images_without_alt_text_count(),
-			'actions_count'                 => count( $actions ),
-			'pending_actions_count'         => count( $pending_actions ),
-			'running_actions_count'         => count( $running_actions ),
-			'complete_actions_count'        => count( $complete_actions ),
-			'failed_actions_count'          => count( $failed_actions ),
+			'actions_count'                 => $action_count->total,
+			'pending_actions_count'         => $action_count->pending,
+			'running_actions_count'         => $action_count->running,
+			'complete_actions_count'        => $action_count->complete,
+			'failed_actions_count'          => $action_count->failed,
 			'failed_actions'                => $failed_actions,
 		)
 	);
