@@ -2,11 +2,10 @@ import { Button, Spinner, Panel, PanelBody, ProgressBar } from '@wordpress/compo
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useSettings } from '../useSettings';
-import { useSelect } from '@wordpress/data';
 
 const defaultCount = {
   posts: 0,
-  postsWithoutSEOTitles: 0,
+  postsWithout: 0,
   actions: 0,
   completeActions: 0,
   pendingActions: 0,
@@ -56,7 +55,7 @@ const SEOTitles = () => {
         return {
           ...prevCount,
           posts: data.total_count,
-          postsWithoutSEOTitles: data.total_missing_count,
+          postsWithout: data.total_missing_count,
           actions: data.actions_count,
           completeActions: data.complete_actions_count,
           pendingActions: data.pending_actions_count,
@@ -140,7 +139,7 @@ const SEOTitles = () => {
               )}
             </p>
             <p>{sprintf(__('Total posts: %s', 'filter-ai'), count.posts)}</p>
-            <p>{sprintf(__('Posts missing SEO titles: %s', 'filter-ai'), count.postsWithoutSEOTitles)}</p>
+            <p>{sprintf(__('Posts missing SEO titles: %s', 'filter-ai'), count.postsWithout)}</p>
             <table>
               <thead>
                 <tr>
@@ -187,7 +186,7 @@ const SEOTitles = () => {
             </PanelBody>
           )}
 
-          {!inProgress && count.postsWithoutSEOTitles > 0 && (
+          {!inProgress && count.postsWithout > 0 && (
             <PanelBody>
               <Button
                 variant="primary"

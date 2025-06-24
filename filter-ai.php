@@ -21,6 +21,7 @@ require_once plugin_dir_path( __FILE__ ) . '/vendor/woocommerce/action-scheduler
 
 require_once plugin_dir_path( __FILE__ ) . 'includes/batchImageAltText.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/batchSEOTitle.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/batchSEOMetaDescription.php';
 
 /**
  *  Get option schema

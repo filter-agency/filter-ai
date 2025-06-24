@@ -1,6 +1,6 @@
 <?php
 /**
- * Batch SEO title functions
+ * Batch SEO meta description functions
  */
 
 use Felix_Arntz\AI_Services\Services\API\Enums\AI_Capability;
@@ -12,34 +12,34 @@ use Felix_Arntz\AI_Services\Services\API\Helpers;
 require_once 'helpers.php';
 
 /**
- * Get posts for a specific post_type that is missing _yoast_wpseo_title meta
+ * Get posts for a specific post_type that is missing _yoast_wpseo_metadesc meta
  *
  * @param int $paged Page number
  * @param int $posts_per_page Number of posts per page
  *
  * @return int[] Returns array of post ids
  */
-function filter_ai_get_posts_missing_seo_title( $paged, $posts_per_page ) {
-	$query = filter_ai_get_posts_missing_meta_query( $paged, $posts_per_page, 'any', '_yoast_wpseo_title' );
+function filter_ai_get_posts_missing_seo_meta_description( $paged, $posts_per_page ) {
+	$query = filter_ai_get_posts_missing_meta_query( $paged, $posts_per_page, 'any', '_yoast_wpseo_metadesc' );
 
 	return $query->get_posts();
 }
 
 /**
- * Get count for a specific post_type that is missing _yoast_wpseo_title meta
+ * Get count for a specific post_type that is missing _yoast_wpseo_metadesc meta
  *
  * @param string $post_type Post type
  *
  * @return number Number of posts
  */
-function filter_ai_get_posts_missing_seo_title_count( $post_type = 'any' ) {
-	$query = filter_ai_get_posts_missing_meta_query( 1, 1, $post_type, '_yoast_wpseo_title' );
+function filter_ai_get_posts_missing_seo_meta_description_count( $post_type = 'any' ) {
+	$query = filter_ai_get_posts_missing_meta_query( 1, 1, $post_type, '_yoast_wpseo_metadesc' );
 
 	return $query->found_posts;
 }
 
 /**
- * Generate post SEO title
+ * Generate post SEO meta_description
  *
  * @param array $args Object containing post_id and user_id
  *
@@ -47,9 +47,9 @@ function filter_ai_get_posts_missing_seo_title_count( $post_type = 'any' ) {
  * @throws Exception If no ai services are available
  * @throws Exception If $text is empty
  *
- * @return void Returns early if the post already has a SEO title
+ * @return void Returns early if the post already has a SEO meta_description
  */
-function filter_ai_process_batch_seo_title( $args ) {
+function filter_ai_process_batch_seo_meta_description( $args ) {
 	$post_id = $args['post_id'];
 	$user_id = $args['user_id'];
 
@@ -61,13 +61,13 @@ function filter_ai_process_batch_seo_title( $args ) {
 		throw new Exception( esc_html__( 'Missing user', 'filter-ai' ) );
 	}
 
-	$post_type       = get_post_type( $post_id );
-	$current_user_id = get_current_user_id();
-	$seo_title       = get_post_meta( $post_id, '_yoast_wpseo_title', true );
-	$post            = get_post( $post_id );
-	$post_content    = $post->post_content;
+	$post_type            = get_post_type( $post_id );
+	$current_user_id      = get_current_user_id();
+	$seo_meta_description = get_post_meta( $post_id, '_yoast_wpseo_metadesc', true );
+	$post                 = get_post( $post_id );
+	$post_content         = $post->post_content;
 
-	if ( ! empty( $seo_title ) ) {
+	if ( ! empty( $seo_meta_description ) ) {
 		return;
 	}
 
@@ -94,12 +94,12 @@ function filter_ai_process_batch_seo_title( $args ) {
 
 		$pre_prompt = 'The response should only contain the answer and in plain text, so no <br> tags for line breaks.';
 
-		$prompt = 'Please generate an SEO-friendly title for this page that is between 40 and 60 characters based on the following content:';
+		$prompt = 'Please generate an SEO-friendly description for this page that is between 120 and 150 characters based on the following content:';
 
 		$settings = get_option( 'filter_ai_settings' );
 
-		if ( ! empty( $settings['yoast_seo_title_prompt'] ) ) {
-			$prompt = $settings['yoast_seo_title_prompt'];
+		if ( ! empty( $settings['yoast_seo_meta_description_prompt'] ) ) {
+			$prompt = $settings['yoast_seo_meta_description_prompt'];
 		}
 
 		$parts->add_text_part( $pre_prompt . ' ' . $prompt . ' ' . $post_content );
@@ -109,7 +109,7 @@ function filter_ai_process_batch_seo_title( $args ) {
 		$candidates = $service->get_model(
 			array_merge(
 				array(
-					'feature' => 'filter-ai-seo-title',
+					'feature' => 'filter-ai-seo-meta-description',
 				),
 				$required_capabilities,
 			)
@@ -120,48 +120,37 @@ function filter_ai_process_batch_seo_title( $args ) {
 		);
 
 		if ( empty( $text ) ) {
-			throw new Exception( esc_html__( 'Issue generating SEO title', 'filter-ai' ) );
+			throw new Exception( esc_html__( 'Issue generating SEO meta description', 'filter-ai' ) );
 		}
 
-		$wpseo_titles = get_option( 'wpseo_titles', [] );
-		$yoast_title  = isset( $wpseo_titles[ 'title-' . $post_type ] ) ? $wpseo_titles[ 'title-' . $post_type ] : null;
-
-		if ( ! empty( $yoast_title ) ) {
-			if ( str_contains( $yoast_title, '%%title%%' ) ) {
-				$text = str_replace( '%%title%%', $text, $yoast_title );
-			} else {
-				$text = $text . ' ' . $yoast_title;
-			}
-		}
-
-		update_post_meta( $post_id, '_yoast_wpseo_title', $text );
+		update_post_meta( $post_id, '_yoast_wpseo_metadesc', $text );
 	} finally {
 		wp_set_current_user( $current_user_id );
 	}
 }
 
-add_action( 'filter_ai_batch_seo_title', 'filter_ai_process_batch_seo_title' );
+add_action( 'filter_ai_batch_seo_meta_description', 'filter_ai_process_batch_seo_meta_description' );
 
 /**
- * API handler to trigger batch generation of SEO title
+ * API handler to trigger batch generation of SEO meta description
  */
-function filter_ai_api_batch_seo_title() {
+function filter_ai_api_batch_seo_meta_description() {
 	check_ajax_referer( 'filter_ai_api', 'nonce' );
 
-	filter_ai_reset_batch( 'filter_ai_batch_seo_title' );
+	filter_ai_reset_batch( 'filter_ai_batch_seo_meta_description' );
 
 	$posts_per_page = 500;
-	$posts_count    = filter_ai_get_posts_missing_seo_title_count();
+	$posts_count    = filter_ai_get_posts_missing_seo_meta_description_count();
 	$total_pages    = ceil( $posts_count / $posts_per_page );
 
 	for ( $current_page = 1; $current_page <= $total_pages; $current_page++ ) {
-		$posts = filter_ai_get_posts_missing_seo_title( $current_page, $posts_per_page );
+		$posts = filter_ai_get_posts_missing_seo_meta_description( $current_page, $posts_per_page );
 
 		if ( ! empty( $posts ) ) {
 			foreach ( $posts as $post_id ) {
 				// call action through a scheduled action
 				as_enqueue_async_action(
-					'filter_ai_batch_seo_title',
+					'filter_ai_batch_seo_meta_description',
 					array(
 						array(
 							'post_id' => $post_id,
@@ -177,12 +166,12 @@ function filter_ai_api_batch_seo_title() {
 	wp_send_json_success();
 }
 
-add_action( 'wp_ajax_filter_ai_api_batch_seo_title', 'filter_ai_api_batch_seo_title' );
+add_action( 'wp_ajax_filter_ai_api_batch_seo_meta_description', 'filter_ai_api_batch_seo_meta_description' );
 
 /**
- * API handler to get the SEO title counts
+ * API handler to get the SEO meta description counts
  */
-function filter_ai_api_get_seo_title_count() {
+function filter_ai_api_get_seo_meta_description_count() {
 	check_ajax_referer( 'filter_ai_api', 'nonce' );
 
 	$post_types =
@@ -205,16 +194,16 @@ function filter_ai_api_get_seo_title_count() {
 			$post_type_count[] = array(
 				'label'   => $value->label,
 				'total'   => filter_ai_get_posts_count( $key ),
-				'missing' => filter_ai_get_posts_missing_seo_title_count( $key ),
+				'missing' => filter_ai_get_posts_missing_seo_meta_description_count( $key ),
 			);
 		}
 	}
 
-	$action_count = filter_ai_get_action_count( 'filter_ai_batch_seo_title' );
+	$action_count = filter_ai_get_action_count( 'filter_ai_batch_seo_meta_description' );
 
 	$failed_actions_raw = as_get_scheduled_actions(
 		array(
-			'hook'     => 'filter_ai_batch_seo_title',
+			'hook'     => 'filter_ai_batch_seo_meta_description',
 			'status'   => ActionScheduler_Store::STATUS_FAILED,
 			'group'    => 'filter-ai-current',
 			'per_page' => -1,
@@ -246,7 +235,7 @@ function filter_ai_api_get_seo_title_count() {
 		array(
 			'post_types'             => $post_type_count,
 			'total_count'            => filter_ai_get_posts_count(),
-			'total_missing_count'    => filter_ai_get_posts_missing_seo_title_count(),
+			'total_missing_count'    => filter_ai_get_posts_missing_seo_meta_description_count(),
 			'actions_count'          => $action_count->total,
 			'pending_actions_count'  => $action_count->pending,
 			'running_actions_count'  => $action_count->running,
@@ -257,17 +246,17 @@ function filter_ai_api_get_seo_title_count() {
 	);
 }
 
-add_action( 'wp_ajax_filter_ai_api_get_seo_title_count', 'filter_ai_api_get_seo_title_count' );
+add_action( 'wp_ajax_filter_ai_api_get_seo_meta_description_count', 'filter_ai_api_get_seo_meta_description_count' );
 
 /**
  * API handler to cancel pending scheduled actions
  */
-function filter_ai_api_cancel_batch_seo_title() {
+function filter_ai_api_cancel_batch_seo_meta_description() {
 	check_ajax_referer( 'filter_ai_api', 'nonce' );
 
-	as_unschedule_all_actions( 'filter_ai_batch_seo_title' );
+	as_unschedule_all_actions( 'filter_ai_batch_seo_meta_description' );
 
 	wp_send_json_success();
 }
 
-add_action( 'wp_ajax_filter_ai_api_cancel_batch_seo_title', 'filter_ai_api_cancel_batch_seo_title' );
+add_action( 'wp_ajax_filter_ai_api_cancel_batch_seo_meta_description', 'filter_ai_api_cancel_batch_seo_meta_description' );
