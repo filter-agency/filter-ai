@@ -85,6 +85,39 @@ const Settings = () => {
   }, [settings]);
 
   useEffect(() => {
+
+      const brandVoiceSection = sections.find(section =>
+        section.features.some(feature => feature.toggle.key === 'brand_voice_enabled')
+      );
+
+      if (!brandVoiceSection) {
+        console.log('No brandVoiceSection found');
+        return;
+      }
+
+      const brandVoiceFeature = brandVoiceSection.features.find(
+        feature => feature.toggle.key === 'brand_voice_enabled'
+      );
+
+      if (!brandVoiceFeature) {
+        console.log('No brandVoiceFeature found');
+        return;
+      }
+
+      const defaultPrompt = brandVoiceFeature.prompt.defaultValue || '';
+
+      if (
+        formData.brand_voice_enabled &&
+        (formData.brand_voice_prompt === '' || formData.brand_voice_prompt === defaultPrompt)
+      ) {
+        setShowExtra((prevState) => ({
+          ...prevState,
+          [brandVoiceSection.key]: brandVoiceFeature.key,
+        }));
+      }
+    }, [formData.brand_voice_enabled, formData.brand_voice_prompt]);
+
+  useEffect(() => {
     const abortController = new AbortController();
 
     window.addEventListener(
@@ -101,10 +134,6 @@ const Settings = () => {
       abortController.abort();
     };
   }, [isMatch]);
-
-  if (!Object.keys(formData).length) {
-    return null;
-  }
 
   return (
     <div className="filter-ai-settings">
@@ -171,11 +200,21 @@ const Settings = () => {
                         <TextareaControl
                           __nextHasNoMarginBottom
                           label={feature.prompt.label}
-                          value={formData?.[feature.prompt.key]?.toString() || feature.prompt.placeholder}
                           onChange={(newValue) => {
                             onChange(feature.prompt?.key!, newValue);
                           }}
                           disabled={!formData?.[feature.toggle.key]}
+                          placeholder={feature.prompt.placeholder || undefined}
+                          value={(() => {
+                            const rawValue = formData?.[feature.prompt.key];
+                            const hasUserInput = typeof rawValue === 'string' && rawValue.length > 0;
+
+                            if (feature.prompt.placeholder) {
+                              return hasUserInput ? rawValue : '';
+                            } else {
+                              return hasUserInput ? rawValue : feature.prompt.defaultValue || '';
+                            }
+                          })()}
                         />
                         <Button
                           className="filter-ai-settings-field-reset"

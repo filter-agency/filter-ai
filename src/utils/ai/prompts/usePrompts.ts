@@ -1,22 +1,28 @@
+import { buildPrompt } from './buildPrompt';
 import { useSettings } from '@/settings';
-import { prompts } from '.'
+import { prompts } from '.';
 
 export const usePrompts = (key: keyof typeof prompts) => {
   const { settings } = useSettings();
+  const parts: string[] = [];
 
-  const prompt = [settings?.[key] || prompts?.[key]];
+  const hasValue = (val: unknown): val is string => typeof val === 'string' && val.trim().length > 0;
 
-  if (settings?.stop_words_enabled) {
-    const stopWordsPrompt = settings?.stop_words_prompt || prompts.stop_words_prompt;
-
-    prompt.unshift(stopWordsPrompt);
+  if (
+    settings?.brand_voice_enabled &&
+    hasValue(settings.brand_voice_prompt)
+  ) {
+    parts.push(buildPrompt('brand_voice_prompt', settings));
   }
 
-  if (settings?.brand_voice_enabled) {
-    const brandVoicePrompt = settings?.brand_voice_prompt || prompts.brand_voice_prompt;
-
-    prompt.unshift(brandVoicePrompt);
+  if (
+    settings?.stop_words_enabled &&
+    hasValue(settings.stop_words_prompt)
+  ) {
+    parts.push(buildPrompt('stop_words_prompt', settings));
   }
 
-  return prompt.join('\n\n');
+  parts.push(buildPrompt(key, settings));
+
+  return parts.join('\n\n');
 };
