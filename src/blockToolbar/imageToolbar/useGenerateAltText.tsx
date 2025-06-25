@@ -3,7 +3,7 @@ import { BlockEditProps } from '@/types';
 import { showNotice, ai, hideLoadingMessage, showLoadingMessage } from '@/utils';
 import { useMemo, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import {usePrompts} from "@/utils/ai/prompts/usePrompts";
+import { usePrompts } from '@/utils/ai/prompts/usePrompts';
 
 type Props = {
   attributes: BlockEditProps['attributes'];
@@ -47,12 +47,13 @@ export const useGenerateAltText = ({ attributes, setAttributes }: Props) => {
 
   const getAttachmentUrl = useCallback(async () => {
     let url = getAttribute(urlKeys);
+    const id = getAttribute(['id']);
 
     if (!window.wp?.media?.attachment) {
       return url;
     }
 
-    const attachment = await window.wp.media.attachment(attributes.id).fetch();
+    const attachment = await window.wp.media.attachment(id).fetch();
 
     if (attachment?.sizes?.medium?.url) {
       url = attachment.sizes.medium.url;
@@ -63,9 +64,9 @@ export const useGenerateAltText = ({ attributes, setAttributes }: Props) => {
     }
 
     return url;
-  }, []);
+  }, [getAttribute]);
 
-  const generateAltText = async () => {
+  const generateAltText = useCallback(async () => {
     showLoadingMessage(__('Alt Text', 'filter-ai'));
 
     try {
@@ -89,7 +90,7 @@ export const useGenerateAltText = ({ attributes, setAttributes }: Props) => {
     } finally {
       hideLoadingMessage();
     }
-  };
+  }, [getAttachmentUrl, getAttribute, setAttribute]);
 
   if (!isEnabled) {
     return;
