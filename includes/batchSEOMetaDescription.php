@@ -96,7 +96,7 @@ function filter_ai_process_batch_seo_meta_description( $args ) {
 
 		$prompt = 'Please generate an SEO-friendly description for this page that is between 120 and 150 characters based on the following content:';
 
-		$settings = get_option( 'filter_ai_settings' );
+		$settings = get_option( 'filter_ai_settings', [] );
 
 		if ( ! empty( $settings['yoast_seo_meta_description_prompt'] ) ) {
 			$prompt = $settings['yoast_seo_meta_description_prompt'];

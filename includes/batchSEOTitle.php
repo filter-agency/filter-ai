@@ -96,7 +96,7 @@ function filter_ai_process_batch_seo_title( $args ) {
 
 		$prompt = 'Please generate an SEO-friendly title for this page that is between 40 and 60 characters based on the following content:';
 
-		$settings = get_option( 'filter_ai_settings' );
+		$settings = get_option( 'filter_ai_settings', [] );
 
 		if ( ! empty( $settings['yoast_seo_title_prompt'] ) ) {
 			$prompt = $settings['yoast_seo_title_prompt'];

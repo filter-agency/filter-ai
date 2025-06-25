@@ -161,6 +161,12 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 		throw new Exception( esc_html__( 'Missing image mime type', 'filter-ai' ) );
 	}
 
+	$mime_types = filter_ai_mime_types();
+
+	if ( ! strpos( $mime_types, $image_mime_type ) ) {
+		throw new Exception( esc_html__( 'Sorry, that image type is not supported.', 'filter-ai' ) );
+	}
+
 	$required_capabilities = array(
 		'capabilities' => array(
 			AI_Capability::MULTIMODAL_INPUT,
@@ -183,7 +189,7 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 
 		$prompt = 'Please generate a short description no more than 50 words for the following image that can be used as its alternative text. The description should be clear, succinct, and provide a sense of what the image portrays, ensuring that it is accessible to individuals using screen readers.';
 
-		$settings = get_option( 'filter_ai_settings' );
+		$settings = get_option( 'filter_ai_settings', [] );
 
 		if ( ! empty( $settings['image_alt_text_prompt'] ) ) {
 			$prompt = $settings['image_alt_text_prompt'];
@@ -345,24 +351,29 @@ add_action( 'wp_ajax_filter_ai_api_cancel_batch_image_alt_text', 'filter_ai_api_
 /**
  * Function to generate alt text for images on upload
  *
- * @param int $attachment_id The ID of the image attachment.
+ * @param array $metadata An array of attachment meta data
+ * @param int   $attachment_id Current attachment ID
+ *
+ * @return array $metadata An array of attachment meta data
  */
-function filter_ai_generate_alt_text_on_upload( $attachment_id ) {
-
+function filter_ai_generate_alt_text_on_upload( $metadata, $attachment_id ) {
 	$settings         = get_option( 'filter_ai_settings', [] );
 	$auto_img_enabled = isset( $settings['auto_alt_text_enabled'] ) ? $settings['auto_alt_text_enabled'] : false;
-	if ( ! $auto_img_enabled ) {
-		return;
+
+	if ( $auto_img_enabled && $attachment_id ) {
+		$args = array(
+			'image_id' => $attachment_id,
+			'user_id'  => get_current_user_id(),
+		);
+
+		try {
+			filter_ai_process_batch_image_alt_text( $args );
+		} catch ( error ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			// error silently
+		}
 	}
 
-	$user_id = get_current_user_id(); // You could also pass a different user if needed
-
-	$args = array(
-		'image_id' => $attachment_id,
-		'user_id'  => $user_id,
-	);
-
-	filter_ai_process_batch_image_alt_text( $args );
+	return $metadata;
 }
 
-add_action( 'add_attachment', 'filter_ai_generate_alt_text_on_upload', 10, 1 );
+add_action( 'wp_generate_attachment_metadata', 'filter_ai_generate_alt_text_on_upload', 10, 2 );
