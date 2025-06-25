@@ -4,10 +4,13 @@ import { ai, hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils'
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createRoot, useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import {usePrompts} from "@/utils/ai/prompts/usePrompts";
 
 const Toolbar = () => {
   const { settings } = useSettings();
   const { saveEntityRecord } = useDispatch('core');
+
+  const prompt = usePrompts('image_alt_text_prompt');
 
   const postId = useMemo(() => {
     const params = new URLSearchParams(location.search);
@@ -31,7 +34,8 @@ const Toolbar = () => {
     showLoadingMessage(__('Alt Text', 'filter-ai'));
 
     try {
-      const newAltText = await ai.getAltTextFromUrl(imageUrl, altText, settings?.image_alt_text_prompt);
+
+      const newAltText = await ai.getAltTextFromUrl(imageUrl, altText, prompt);
 
       if (!newAltText) {
         throw new Error(__('Sorry, there has been an issue while generating your alt text.', 'filter-ai'));

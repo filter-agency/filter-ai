@@ -31,7 +31,7 @@ export const getTagsFromContent = async (content: string, oldTags = [], customPr
     ? `Making sure they are different to the following tags: "${oldTags.join(', ')}".`
     : '';
 
-  const prompt = customPrompt || prompts.post_tags_prompt.replace('{{number}}', number.toString());
+  const prompt = customPrompt?.replace('{{number}}', number.toString());
 
   const response = await generateText({
     feature: 'filter-ai-post-tags',

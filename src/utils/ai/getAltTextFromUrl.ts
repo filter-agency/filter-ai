@@ -3,7 +3,7 @@ import { generateText, aiCapability } from './services';
 import { prompts } from './prompts';
 import { __, sprintf } from '@wordpress/i18n';
 
-export const getAltTextFromUrl = async (url: string, oldAltText?: string, customPrompt?: string) => {
+export const getAltTextFromUrl = async (url: string, oldAltText?: string, prompt?: string) => {
   if (!url) {
     throw new Error(__('Please select an image.', 'filter-ai'));
   }
@@ -22,8 +22,6 @@ export const getAltTextFromUrl = async (url: string, oldAltText?: string, custom
   const base64Image = await getBase64Image(url);
 
   const promptDifference = oldAltText ? `${prompts.common.different} "${oldAltText}".` : '';
-
-  const prompt = customPrompt || prompts.image_alt_text_prompt;
 
   return generateText({
     feature: 'filter-ai-image-alt-text',

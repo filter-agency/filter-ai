@@ -12,10 +12,8 @@ export const getSeoTitleFromContent = async (content: string, oldTitle?: string,
 
   const promptDifference = oldTitle ? `${prompts.common.different} "${oldTitle}".` : '';
 
-  const prompt = customPrompt || prompts.yoast_seo_title_prompt;
-
   return generateText({
     feature: 'filter-ai-seo-title',
-    prompt: `${prePrompt} ${promptDifference} ${prompt} ${content}`,
+    prompt: `${prePrompt} ${promptDifference} ${customPrompt} ${content}`,
   });
 };

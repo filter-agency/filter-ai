@@ -102,7 +102,11 @@ function filter_ai_process_batch_seo_title( $args ) {
 			$prompt = $settings['yoast_seo_title_prompt'];
 		}
 
-		$parts->add_text_part( $pre_prompt . ' ' . $prompt . ' ' . $post_content );
+		$stop_words_prompt = ! empty( $settings['stop_words_prompt'] ) ? $settings['stop_words_prompt'] : '';
+
+		$brand_voice_prompt = ! empty( $settings['brand_voice_prompt'] ) ? $settings['brand_voice_prompt'] : '';
+
+		$parts->add_text_part( $pre_prompt . ' ' . $brand_voice_prompt . ' ' . $stop_words_prompt . ' ' . $prompt . ' ' . $post_content );
 
 		$content = new Content( Content_Role::USER, $parts );
 

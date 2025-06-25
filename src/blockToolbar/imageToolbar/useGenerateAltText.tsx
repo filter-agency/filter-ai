@@ -3,6 +3,7 @@ import { BlockEditProps } from '@/types';
 import { showNotice, ai, hideLoadingMessage, showLoadingMessage } from '@/utils';
 import { useMemo, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import {usePrompts} from "@/utils/ai/prompts/usePrompts";
 
 type Props = {
   attributes: BlockEditProps['attributes'];
@@ -15,6 +16,8 @@ const urlKeys = ['url', 'mediaUrl'];
 
 export const useGenerateAltText = ({ attributes, setAttributes }: Props) => {
   const { settings } = useSettings();
+
+  const prompt = usePrompts('image_alt_text_prompt');
 
   const isEnabled = useMemo(() => {
     return settings?.image_alt_text_enabled && altTextKeys.some((key) => attributes.hasOwnProperty(key));
@@ -69,7 +72,7 @@ export const useGenerateAltText = ({ attributes, setAttributes }: Props) => {
       const url = await getAttachmentUrl();
       const oldAltText = getAttribute(altTextKeys);
 
-      const altText = await ai.getAltTextFromUrl(url, oldAltText, settings?.image_alt_text_prompt);
+      const altText = await ai.getAltTextFromUrl(url, oldAltText, prompt);
 
       if (!altText) {
         throw new Error(__('Sorry, there has been an issue while generating your alt text.', 'filter-ai'));

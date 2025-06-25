@@ -7,6 +7,7 @@ import { insert, toHTMLString, slice, create } from '@wordpress/rich-text';
 import { useSelect } from '@wordpress/data';
 import { ToolbarButton } from '@/components/toolbarButton';
 import { __, sprintf } from '@wordpress/i18n';
+import {usePrompts} from "@/utils/ai/prompts/usePrompts";
 
 const tones = [
   {
@@ -28,6 +29,12 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
   const [showChangeToneOptions, setShowChangeToneOptions] = useState(false);
 
   const { settings } = useSettings();
+
+  const rewritePrompt = usePrompts('customise_text_rewrite_prompt');
+  const expandPrompt = usePrompts('customise_text_expand_prompt');
+  const condensePrompt = usePrompts('customise_text_condense_prompt');
+  const summarisePrompt = usePrompts('customise_text_summarise_prompt');
+  const changeTonePrompt = usePrompts('customise_text_change_tone_prompt');
 
   const { selectionStart, selectionEnd, hasMultiSelection } = useSelect(
     (select) => {
@@ -87,7 +94,27 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
         value: hasSelection ? slice(content, selectionStart.offset, selectionEnd.offset) : content,
       });
 
-      let prompt = settings?.[promptKey] || ai.prompts[promptKey];
+      let prompt = (() => {
+        switch (promptKey) {
+          case 'customise_text_rewrite_prompt':
+            return rewritePrompt;
+          case 'customise_text_expand_prompt':
+            return expandPrompt;
+          case 'customise_text_condense_prompt':
+            return condensePrompt;
+          case 'customise_text_summarise_prompt':
+            return summarisePrompt;
+          case 'customise_text_change_tone_prompt':
+            return changeTonePrompt;
+          default:
+            return null;
+        }
+      })();
+
+      if (typeof prompt !== 'string') {
+          console.log(`Expected prompt to be a string for "${promptKey}", but got:`, prompt);
+          throw new Error(__("There was an error preparing your prompt. Please make sure that in plugin 'Settings' your prompt is a valid string.", 'filter-ai'));
+      }
 
       if (params) {
         for (const key in params) {

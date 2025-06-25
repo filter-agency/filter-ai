@@ -59,6 +59,30 @@ const Settings = () => {
       ...prevState,
       [key]: value,
     }));
+
+    const section = sections.find((s) => !!s.features.find((f) => f.toggle.key === key));
+
+    if (section) {
+      if (value) {
+        const featureWithoutDefaultValue = section.features.find(
+          (f) => f.toggle.key === key && f.prompt && !f.prompt.defaultValue
+        );
+
+        if (featureWithoutDefaultValue) {
+          // show extra section if feature doesn't have a default value
+          setShowExtra((prevState) => ({
+            ...prevState,
+            [section.key]: featureWithoutDefaultValue.key,
+          }));
+        }
+      } else {
+        // hide extra section when disabling feature
+        setShowExtra((prevState) => ({
+          ...prevState,
+          [section.key]: '',
+        }));
+      }
+    }
   };
 
   const ShowButton = ({ extraKey, extraValue, disabled }: ShowButtonProps) => {
@@ -171,19 +195,22 @@ const Settings = () => {
                         <TextareaControl
                           __nextHasNoMarginBottom
                           label={feature.prompt.label}
-                          value={formData?.[feature.prompt.key]?.toString() || feature.prompt.placeholder}
+                          value={formData?.[feature.prompt.key]?.toString() || feature.prompt.defaultValue}
                           onChange={(newValue) => {
                             onChange(feature.prompt?.key!, newValue);
                           }}
                           disabled={!formData?.[feature.toggle.key]}
+                          placeholder={feature.prompt.placeholder}
                         />
-                        <Button
-                          className="filter-ai-settings-field-reset"
-                          variant="link"
-                          onClick={() => onChange(feature.prompt?.key!, '')}
-                        >
-                          {__('Reset to default', 'filter-ai')}
-                        </Button>
+                        {feature.prompt.defaultValue && (
+                          <Button
+                            className="filter-ai-settings-field-reset"
+                            variant="link"
+                            onClick={() => onChange(feature.prompt!.key, '')}
+                          >
+                            {__('Reset to default', 'filter-ai')}
+                          </Button>
+                        )}
                       </div>
                     </PanelRow>
                   )}
