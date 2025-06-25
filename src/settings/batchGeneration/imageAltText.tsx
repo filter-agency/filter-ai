@@ -47,18 +47,16 @@ const ImageAltText = () => {
         throw new Error('no data');
       }
 
-      setCount((prevCount) => {
-        return {
-          ...prevCount,
-          images: data.images_count,
-          imagesWithoutAltText: data.images_without_alt_text_count,
-          actions: data.actions_count,
-          completeActions: data.complete_actions_count,
-          pendingActions: data.pending_actions_count,
-          runningActions: data.running_actions_count,
-          failedActions: data.failed_actions_count,
-        };
-      });
+      setCount((prevCount) => ({
+        ...prevCount,
+        images: data.images_count,
+        imagesWithoutAltText: data.images_without_alt_text_count,
+        actions: data.actions_count,
+        completeActions: data.complete_actions_count,
+        pendingActions: data.pending_actions_count,
+        runningActions: data.running_actions_count,
+        failedActions: data.failed_actions_count,
+      }));
 
       setFailedActions(Object.values(data.failed_actions || {}));
 
@@ -76,6 +74,12 @@ const ImageAltText = () => {
 
   const generateAltText = useCallback(async () => {
     setIsGenerateButtonDisabled(true);
+
+    setCount((prevCount) => ({
+      ...prevCount,
+      runningActions: 1,
+      completeActions: 0,
+    }));
 
     try {
       await fetch(

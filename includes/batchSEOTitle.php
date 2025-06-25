@@ -157,6 +157,7 @@ function filter_ai_api_batch_seo_title() {
 	$posts_per_page = 500;
 	$posts_count    = filter_ai_get_posts_missing_seo_title_count();
 	$total_pages    = ceil( $posts_count / $posts_per_page );
+	$action_ids     = array();
 
 	for ( $current_page = 1; $current_page <= $total_pages; $current_page++ ) {
 		$posts = filter_ai_get_posts_missing_seo_title( $current_page, $posts_per_page );
@@ -164,7 +165,7 @@ function filter_ai_api_batch_seo_title() {
 		if ( ! empty( $posts ) ) {
 			foreach ( $posts as $post_id ) {
 				// call action through a scheduled action
-				as_enqueue_async_action(
+				$action_ids[] = as_enqueue_async_action(
 					'filter_ai_batch_seo_title',
 					array(
 						array(
@@ -176,6 +177,11 @@ function filter_ai_api_batch_seo_title() {
 				);
 			}
 		}
+	}
+
+	if ( class_exists( 'ActionScheduler' ) && ! empty( $action_ids ) ) {
+			// trigger the first action rather than waiting on the queue
+		ActionScheduler::runner()->process_action( $action_ids[0] );
 	}
 
 	wp_send_json_success();

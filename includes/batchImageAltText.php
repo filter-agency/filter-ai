@@ -243,6 +243,7 @@ function filter_ai_api_batch_image_alt_text() {
 	$posts_per_page = 500;
 	$images_count   = filter_ai_get_images_without_alt_text_count();
 	$total_pages    = ceil( $images_count / $posts_per_page );
+	$action_ids     = array();
 
 	for ( $current_page = 1; $current_page <= $total_pages; $current_page++ ) {
 		$images = filter_ai_get_images_without_alt_text( $current_page, $posts_per_page );
@@ -250,7 +251,7 @@ function filter_ai_api_batch_image_alt_text() {
 		if ( ! empty( $images ) ) {
 			foreach ( $images as $image_id ) {
 				// call action through a scheduled action
-				as_enqueue_async_action(
+				$action_ids[] = as_enqueue_async_action(
 					'filter_ai_batch_image_alt_text',
 					array(
 						array(
@@ -262,6 +263,11 @@ function filter_ai_api_batch_image_alt_text() {
 				);
 			}
 		}
+	}
+
+	if ( class_exists( 'ActionScheduler' ) && ! empty( $action_ids ) ) {
+		// trigger the first action rather than waiting on the queue
+		ActionScheduler::runner()->process_action( $action_ids[0] );
 	}
 
 	wp_send_json_success();
