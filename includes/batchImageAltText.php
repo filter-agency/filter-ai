@@ -164,7 +164,8 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 	$mime_types = filter_ai_mime_types();
 
 	if ( ! strpos( $mime_types, $image_mime_type ) ) {
-		throw new Exception( esc_html__( 'Sorry, that image type is not supported.', 'filter-ai' ) );
+		// return rather throw so we don't cause lots of errors with the auto generation
+		return;
 	}
 
 	$required_capabilities = array(
