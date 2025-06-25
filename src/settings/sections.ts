@@ -6,6 +6,7 @@ type Toggle = {
   key: keyof FilterAISettings;
   label: string;
   help?: string;
+  dependency?: keyof FilterAISettings;
 };
 
 type Prompt = {
@@ -91,6 +92,7 @@ export const sections: Section[] = [
           key: 'auto_alt_text_enabled',
           label: __('Auto-generate image alt text', 'filter-ai'),
           help: __('Automatically generate alt text when you upload your file.', 'filter-ai'),
+          dependency: 'image_alt_text_enabled',
         },
       },
     ],

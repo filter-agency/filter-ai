@@ -140,7 +140,7 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 
 	$current_user_id = get_current_user_id();
 	$metadata        = wp_get_attachment_metadata( $image_id );
-	$image_alt_text  = $metadata['_wp_attachment_image_alt'];
+	$image_alt_text  = get_post_meta( $image_id, '_wp_attachment_image_alt', true );
 	$image_file      = get_attached_file( $image_id );
 	$image_mime_type = get_post_mime_type( $image_id );
 	$image_path      = $image_file;
@@ -159,6 +159,13 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 
 	if ( empty( $image_mime_type ) ) {
 		throw new Exception( esc_html__( 'Missing image mime type', 'filter-ai' ) );
+	}
+
+	$mime_types = filter_ai_mime_types();
+
+	if ( ! strpos( $mime_types, $image_mime_type ) ) {
+		// return rather throw so we don't cause lots of errors with the auto generation
+		return;
 	}
 
 	$required_capabilities = array(
@@ -183,7 +190,7 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 
 		$prompt = 'Please generate a short description no more than 50 words for the following image that can be used as its alternative text. The description should be clear, succinct, and provide a sense of what the image portrays, ensuring that it is accessible to individuals using screen readers.';
 
-		$settings = get_option( 'filter_ai_settings' );
+		$settings = get_option( 'filter_ai_settings', [] );
 
 		if ( ! empty( $settings['image_alt_text_prompt'] ) ) {
 			$prompt = $settings['image_alt_text_prompt'];
@@ -243,6 +250,7 @@ function filter_ai_api_batch_image_alt_text() {
 	$posts_per_page = 500;
 	$images_count   = filter_ai_get_images_without_alt_text_count();
 	$total_pages    = ceil( $images_count / $posts_per_page );
+	$action_ids     = array();
 
 	for ( $current_page = 1; $current_page <= $total_pages; $current_page++ ) {
 		$images = filter_ai_get_images_without_alt_text( $current_page, $posts_per_page );
@@ -250,7 +258,7 @@ function filter_ai_api_batch_image_alt_text() {
 		if ( ! empty( $images ) ) {
 			foreach ( $images as $image_id ) {
 				// call action through a scheduled action
-				as_enqueue_async_action(
+				$action_ids[] = as_enqueue_async_action(
 					'filter_ai_batch_image_alt_text',
 					array(
 						array(
@@ -262,6 +270,11 @@ function filter_ai_api_batch_image_alt_text() {
 				);
 			}
 		}
+	}
+
+	if ( class_exists( 'ActionScheduler' ) && ! empty( $action_ids ) ) {
+		// trigger the first action rather than waiting on the queue
+		ActionScheduler::runner()->process_action( $action_ids[0] );
 	}
 
 	wp_send_json_success();
@@ -339,24 +352,29 @@ add_action( 'wp_ajax_filter_ai_api_cancel_batch_image_alt_text', 'filter_ai_api_
 /**
  * Function to generate alt text for images on upload
  *
- * @param int $attachment_id The ID of the image attachment.
+ * @param array $metadata An array of attachment meta data
+ * @param int   $attachment_id Current attachment ID
+ *
+ * @return array $metadata An array of attachment meta data
  */
-function filter_ai_generate_alt_text_on_upload( $attachment_id ) {
-
+function filter_ai_generate_alt_text_on_upload( $metadata, $attachment_id ) {
 	$settings         = get_option( 'filter_ai_settings', [] );
 	$auto_img_enabled = isset( $settings['auto_alt_text_enabled'] ) ? $settings['auto_alt_text_enabled'] : false;
-	if ( ! $auto_img_enabled ) {
-		return;
+
+	if ( $auto_img_enabled && $attachment_id ) {
+		$args = array(
+			'image_id' => $attachment_id,
+			'user_id'  => get_current_user_id(),
+		);
+
+		try {
+			filter_ai_process_batch_image_alt_text( $args );
+		} catch ( error ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			// error silently
+		}
 	}
 
-	$user_id = get_current_user_id(); // You could also pass a different user if needed
-
-	$args = array(
-		'image_id' => $attachment_id,
-		'user_id'  => $user_id,
-	);
-
-	filter_ai_process_batch_image_alt_text( $args );
+	return $metadata;
 }
 
-add_action( 'add_attachment', 'filter_ai_generate_alt_text_on_upload', 10, 1 );
+add_action( 'wp_generate_attachment_metadata', 'filter_ai_generate_alt_text_on_upload', 10, 2 );

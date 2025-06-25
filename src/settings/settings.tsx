@@ -81,6 +81,16 @@ const Settings = () => {
           ...prevState,
           [section.key]: '',
         }));
+
+        // check for dependants and disable those as well
+        const dependant = section.features.find((f) => f.toggle.dependency === key);
+
+        if (dependant) {
+          setFormData((prevState) => ({
+            ...prevState,
+            [dependant.toggle.key]: value,
+          }));
+        }
       }
     }
   };
@@ -167,14 +177,7 @@ const Settings = () => {
                     <div style={!feature.prompt ? { marginRight: '34px' } : {}}>
                       <FormToggle
                         onChange={() => {
-                          const key = feature.toggle.key;
-                          const newValue = !formData?.[key];
-                          if (key === 'image_alt_text_enabled' || key === 'auto_alt_text_enabled') {
-                            onChange('image_alt_text_enabled', newValue);
-                            onChange('auto_alt_text_enabled', newValue);
-                          } else {
-                            onChange(key, newValue);
-                          }
+                          onChange(feature.toggle.key, !formData?.[feature.toggle.key]);
                         }}
                         checked={isDisabled ? false : !!formData?.[feature.toggle.key]}
                         id={feature.toggle.key}
