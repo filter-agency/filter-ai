@@ -59,6 +59,28 @@ const Settings = () => {
       ...prevState,
       [key]: value,
     }));
+
+    const section = sections.find((s) => !!s.features.find((f) => f.toggle.key === key));
+
+    if (section) {
+      if (value) {
+        const featureWithoutDefaultValue = section.features.find((f) => f.toggle.key === key && !f.prompt.defaultValue);
+
+        if (featureWithoutDefaultValue) {
+          // show extra section if feature doesn't have a default value
+          setShowExtra((prevState) => ({
+            ...prevState,
+            [section.key]: featureWithoutDefaultValue.key,
+          }));
+        }
+      } else {
+        // hide extra section when disabling feature
+        setShowExtra((prevState) => ({
+          ...prevState,
+          [section.key]: '',
+        }));
+      }
+    }
   };
 
   const ShowButton = ({ extraKey, extraValue, disabled }: ShowButtonProps) => {
@@ -83,39 +105,6 @@ const Settings = () => {
       setFormData(settings);
     }
   }, [settings]);
-
-  useEffect(() => {
-
-      const brandVoiceSection = sections.find(section =>
-        section.features.some(feature => feature.toggle.key === 'brand_voice_enabled')
-      );
-
-      if (!brandVoiceSection) {
-        console.log('No brandVoiceSection found');
-        return;
-      }
-
-      const brandVoiceFeature = brandVoiceSection.features.find(
-        feature => feature.toggle.key === 'brand_voice_enabled'
-      );
-
-      if (!brandVoiceFeature) {
-        console.log('No brandVoiceFeature found');
-        return;
-      }
-
-      const defaultPrompt = brandVoiceFeature.prompt.defaultValue || '';
-
-      if (
-        formData.brand_voice_enabled &&
-        (formData.brand_voice_prompt === '' || formData.brand_voice_prompt === defaultPrompt)
-      ) {
-        setShowExtra((prevState) => ({
-          ...prevState,
-          [brandVoiceSection.key]: brandVoiceFeature.key,
-        }));
-      }
-    }, [formData.brand_voice_enabled, formData.brand_voice_prompt]);
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -200,29 +189,22 @@ const Settings = () => {
                         <TextareaControl
                           __nextHasNoMarginBottom
                           label={feature.prompt.label}
+                          value={formData?.[feature.prompt.key]?.toString() || feature.prompt.defaultValue}
                           onChange={(newValue) => {
                             onChange(feature.prompt?.key!, newValue);
                           }}
                           disabled={!formData?.[feature.toggle.key]}
-                          placeholder={feature.prompt.placeholder || undefined}
-                          value={(() => {
-                            const rawValue = formData?.[feature.prompt.key];
-                            const hasUserInput = typeof rawValue === 'string' && rawValue.length > 0;
-
-                            if (feature.prompt.placeholder) {
-                              return hasUserInput ? rawValue : '';
-                            } else {
-                              return hasUserInput ? rawValue : feature.prompt.defaultValue || '';
-                            }
-                          })()}
+                          placeholder={feature.prompt.placeholder}
                         />
-                        <Button
-                          className="filter-ai-settings-field-reset"
-                          variant="link"
-                          onClick={() => onChange(feature.prompt?.key!, '')}
-                        >
-                          {__('Reset to default', 'filter-ai')}
-                        </Button>
+                        {feature.prompt.defaultValue && (
+                          <Button
+                            className="filter-ai-settings-field-reset"
+                            variant="link"
+                            onClick={() => onChange(feature.prompt.key, '')}
+                          >
+                            {__('Reset to default', 'filter-ai')}
+                          </Button>
+                        )}
                       </div>
                     </PanelRow>
                   )}

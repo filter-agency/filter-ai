@@ -42,8 +42,8 @@ export const sections: Section[] = [
         prompt: {
           key: 'brand_voice_prompt',
           label: __('Brand voice prompt', 'filter-ai'),
-          defaultValue: 'Please write the content with the following tone and writing style in mind. Match the phrasing, sentence structure, and word choice to reflect: ',
-          placeholder: 'Specify the tone and writing style to match AI outputs with your brand voice. ',
+          defaultValue: ai.prompts.brand_voice_prompt,
+          placeholder: __('Enter your own custom prompt to set your global brand voice.', 'filter-ai'),
         },
       },
       {
@@ -59,8 +59,11 @@ export const sections: Section[] = [
         prompt: {
           key: 'stop_words_prompt',
           label: __('Stop words prompt', 'filter-ai'),
-          defaultValue: 'Please avoid using the following words in any generated response:',
-          placeholder: 'Enter stop words to prevent them from appearing in any AI outputs. ',
+          defaultValue: ai.prompts.stop_words_prompt,
+          placeholder: __(
+            'Enter a list of comma-separated words that should not appear in any generated text.',
+            'filter-ai'
+          ),
         },
       },
     ],
@@ -73,7 +76,7 @@ export const sections: Section[] = [
         key: 'image_alt_text',
         toggle: {
           key: 'image_alt_text_enabled',
-          label: __('Auto-generate image alt text', 'filter-ai'),
+          label: __('Image alt text', 'filter-ai'),
           help: __('Generate descriptive text about the selected image for use as the alternative text.', 'filter-ai'),
         },
         prompt: {

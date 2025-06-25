@@ -4,11 +4,10 @@ export const prompts = {
     prefix: 'The response should only contain the answer and in plain text, so no <br> tags for line breaks.',
   },
 
-  brand_voice_prompt:
-    'Please write the content with the following tone and writing style in mind. Match the phrasing, sentence structure, and word choice to reflect: ',
+  brand_voice_prompt: '',
 
-  stop_words_prompt:
-    'Please avoid using the following words in any generated response: ',
+  stop_words_pre_prompt: 'Please avoid using the following words in any generated response:',
+  stop_words_prompt: '',
 
   image_alt_text_prompt:
     'Please generate a short description no more than 50 words for the following image that can be used as its alternative text. The description should be clear, succinct, and provide a sense of what the image portrays, ensuring that it is accessible to individuals using screen readers.',

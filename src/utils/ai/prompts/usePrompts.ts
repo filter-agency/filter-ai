@@ -1,28 +1,18 @@
-import { buildPrompt } from './buildPrompt';
 import { useSettings } from '@/settings';
 import { prompts } from '.';
 
 export const usePrompts = (key: keyof typeof prompts) => {
   const { settings } = useSettings();
-  const parts: string[] = [];
 
-  const hasValue = (val: unknown): val is string => typeof val === 'string' && val.trim().length > 0;
+  const prompt = [settings?.[key] || prompts?.[key]];
 
-  if (
-    settings?.brand_voice_enabled &&
-    hasValue(settings.brand_voice_prompt)
-  ) {
-    parts.push(buildPrompt('brand_voice_prompt', settings));
+  if (settings?.stop_words_enabled && (settings?.stop_words_prompt || prompts.stop_words_prompt)) {
+    prompt.unshift(`${prompts.stop_words_pre_prompt} ${settings.stop_words_prompt || prompts.stop_words_prompt}`);
   }
 
-  if (
-    settings?.stop_words_enabled &&
-    hasValue(settings.stop_words_prompt)
-  ) {
-    parts.push(buildPrompt('stop_words_prompt', settings));
+  if (settings?.brand_voice_enabled && (settings?.brand_voice_prompt || prompts.brand_voice_prompt)) {
+    prompt.unshift(settings?.brand_voice_prompt || prompts.brand_voice_prompt);
   }
 
-  parts.push(buildPrompt(key, settings));
-
-  return parts.join('\n\n');
+  return prompt.join('\n\n');
 };

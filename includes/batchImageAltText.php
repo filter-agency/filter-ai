@@ -179,7 +179,7 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 
 		$parts = new Parts();
 
-		$pre_prompt = 'The response should only contain the answer and in plain text, so no <br> tags for line breaks. ';
+		$pre_prompt = 'The response should only contain the answer and in plain text, so no <br> tags for line breaks.';
 
 		$prompt = 'Please generate a short description no more than 50 words for the following image that can be used as its alternative text. The description should be clear, succinct, and provide a sense of what the image portrays, ensuring that it is accessible to individuals using screen readers.';
 
@@ -193,7 +193,7 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 
 		$brand_voice_prompt = ! empty( $settings['brand_voice_prompt'] ) ? $settings['brand_voice_prompt'] : '';
 
-		$full_prompt = $pre_prompt . $brand_voice_prompt . ' ' . $stop_words_prompt . ' ' . $prompt;
+		$full_prompt = $pre_prompt . ' ' . $brand_voice_prompt . ' ' . $stop_words_prompt . ' ' . $prompt;
 
 		$parts->add_text_part( $full_prompt );
 
