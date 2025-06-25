@@ -3,7 +3,7 @@ Contributors: filterdigital, paulfhalfpenny, ianharrisfilter, davecpage
 Tags: ai, content generation, artificial intelligence, openai, anthropic
 Requires at least: 6.3 
 Tested up to: 6.8
-Stable tag: 1.1.0 
+Stable tag: 1.2.0 
 Requires PHP: 7.4 
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -86,6 +86,22 @@ If you need help with Filter AI, you can visit our support forum or [contact us 
 5. Rewriting existing content with AI assistance
 
 == Changelog ==
+
+= 1.2.0 =
+
+**Enhancements:**
+
+* Add features to generate Yoast SEO title and meta descriptions including batch generation
+* Add feature to generate image ALT text on upload
+* Add option to add stop words to the AI prompt
+* Add option to add a brand voice to the AI prompt
+* Generating modal UI improvements
+
+**Bug fixes:**
+
+* Update settings page features to respond to status of required plugins
+* Code stability improvements
+
 
 = 1.1.0 =
 
