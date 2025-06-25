@@ -64,7 +64,9 @@ const Settings = () => {
 
     if (section) {
       if (value) {
-        const featureWithoutDefaultValue = section.features.find((f) => f.toggle.key === key && !f.prompt.defaultValue);
+        const featureWithoutDefaultValue = section.features.find(
+          (f) => f.toggle.key === key && f.prompt && !f.prompt.defaultValue
+        );
 
         if (featureWithoutDefaultValue) {
           // show extra section if feature doesn't have a default value
@@ -200,7 +202,7 @@ const Settings = () => {
                           <Button
                             className="filter-ai-settings-field-reset"
                             variant="link"
-                            onClick={() => onChange(feature.prompt.key, '')}
+                            onClick={() => onChange(feature.prompt!.key, '')}
                           >
                             {__('Reset to default', 'filter-ai')}
                           </Button>
