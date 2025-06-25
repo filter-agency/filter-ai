@@ -140,7 +140,7 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 
 	$current_user_id = get_current_user_id();
 	$metadata        = wp_get_attachment_metadata( $image_id );
-	$image_alt_text  = $metadata['_wp_attachment_image_alt'];
+	$image_alt_text  = get_post_meta( $image_id, '_wp_attachment_image_alt', true );
 	$image_file      = get_attached_file( $image_id );
 	$image_mime_type = get_post_mime_type( $image_id );
 	$image_path      = $image_file;
