@@ -2,13 +2,13 @@ import { ai } from '@/utils';
 import { FilterAISettings } from './useSettings';
 import { __ } from '@wordpress/i18n';
 
-export type Toggle = {
+type Toggle = {
   key: keyof FilterAISettings;
   label: string;
   help?: string;
 };
 
-export type Prompt = {
+type Prompt = {
   key: keyof FilterAISettings;
   label: string;
   defaultValue: string;
