@@ -359,7 +359,7 @@ add_action( 'wp_ajax_filter_ai_api_cancel_batch_image_alt_text', 'filter_ai_api_
  */
 function filter_ai_generate_alt_text_on_upload( $metadata, $attachment_id ) {
 	$settings         = get_option( 'filter_ai_settings', [] );
-	$auto_img_enabled = isset( $settings['auto_alt_text_enabled'] ) ? $settings['auto_alt_text_enabled'] : false;
+	$auto_img_enabled = isset( $settings['auto_alt_text_enabled'] ) ? $settings['auto_alt_text_enabled'] : true;
 
 	if ( $auto_img_enabled && $attachment_id ) {
 		$args = array(
