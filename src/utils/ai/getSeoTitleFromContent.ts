@@ -1,5 +1,5 @@
+import { getSettings } from '@/settings';
 import { generateText } from './services';
-import { prompts } from './prompts';
 import { __ } from '@wordpress/i18n';
 
 export const getSeoTitleFromContent = async (content: string, oldTitle?: string, customPrompt?: string) => {
@@ -7,10 +7,12 @@ export const getSeoTitleFromContent = async (content: string, oldTitle?: string,
     throw new Error(__('Please add some content first.', 'filter-ai'));
   }
 
-  const prePrompt =
-    'Please provide 5 options separated by 2 pipes "||", do not return anything other than your answer.';
+  const settings = await getSettings();
 
-  const promptDifference = oldTitle ? `${prompts.common.different} "${oldTitle}".` : '';
+  const prePrompt = settings?.yoast_seo_title_pre_prompt || '';
+
+  const promptDifference =
+    oldTitle && settings?.common_prompt_different ? `${settings.common_prompt_different} "${oldTitle}".` : '';
 
   return generateText({
     feature: 'filter-ai-seo-title',
