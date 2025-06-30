@@ -61,9 +61,6 @@ function filter_ai_get_default_settings() {
 
 		'yoast_seo_meta_description_enabled' => true,
 		'yoast_seo_meta_description_prompt'  => esc_html__( 'Please generate an SEO-friendly description for this page that is between 120 and 150 characters based on the following content:', 'filter-ai' ),
-
-		'test_setting_enabled'               => false,
-		'test_setting_prompt'                => '',
 	);
 }
 
