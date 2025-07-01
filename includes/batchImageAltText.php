@@ -347,7 +347,7 @@ add_action( 'wp_ajax_filter_ai_api_cancel_batch_image_alt_text', 'filter_ai_api_
 function filter_ai_generate_alt_text_on_upload( $metadata, $attachment_id ) {
 	$settings = filter_ai_get_settings();
 
-	if ( $settings->auto_alt_text_enabled && $attachment_id ) {
+	if ( $settings['auto_alt_text_enabled'] && $attachment_id ) {
 		$args = array(
 			'image_id' => $attachment_id,
 			'user_id'  => get_current_user_id(),
