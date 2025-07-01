@@ -130,15 +130,14 @@ function filter_ai_enqueue_assets() {
 		return;
 	}
 
-	$script          = plugin_dir_url( __FILE__ ) . 'build/index.js';
-	$script_metadata = require plugin_dir_path( __FILE__ ) . 'build/index.asset.php';
-		array_push( $script_metadata['dependencies'], 'ais-ai', 'underscore', 'wp-block-editor', 'wp-core-data', 'wp-i18n' );
+	$asset_metadata = require plugin_dir_path( __FILE__ ) . 'build/index.asset.php';
+	array_push( $asset_metadata['dependencies'], 'ais-ai', 'underscore', 'wp-block-editor', 'wp-core-data', 'wp-i18n' );
 
 	wp_enqueue_script(
 		'filter-ai-script',
-		$script,
-		$script_metadata['dependencies'],
-		get_plugin_data( __FILE__ )['Version'],
+		plugin_dir_url( __FILE__ ) . 'build/index.js',
+		$asset_metadata['dependencies'],
+		$asset_metadata['version'],
 		[ 'strategy' => 'defer' ]
 	);
 
@@ -149,7 +148,7 @@ function filter_ai_enqueue_assets() {
 		'filter-ai-styles',
 		plugin_dir_url( __FILE__ ) . 'build/index.css',
 		array(),
-		get_plugin_data( __FILE__ )['Version']
+		$asset_metadata['version'],
 	);
 
 	wp_add_inline_script(
