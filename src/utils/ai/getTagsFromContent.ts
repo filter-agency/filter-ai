@@ -1,8 +1,8 @@
 import { generateText } from './services';
-import { prompts } from './prompts';
 import { capitalize } from '@/utils/capitalize';
 import _ from 'underscore';
 import { __ } from '@wordpress/i18n';
+import { getSettings } from '@/settings';
 
 const maxNumber = 10;
 
@@ -27,15 +27,18 @@ export const getTagsFromContent = async (content: string, oldTags = [], customPr
     );
   }
 
-  const promptDifference = oldTags.length
-    ? `Making sure they are different to the following tags: "${oldTags.join(', ')}".`
-    : '';
+  const settings = await getSettings();
+
+  const promptDifference =
+    oldTags.length && settings?.common_prompt_different
+      ? `${settings.common_prompt_different} ${oldTags.join(', ')}".`
+      : '';
 
   const prompt = customPrompt?.replace('{{number}}', number.toString());
 
   const response = await generateText({
     feature: 'filter-ai-post-tags',
-    prompt: `${prompts.common.prefix} ${promptDifference} ${prompt} ${content}`,
+    prompt: `${settings?.common_prompt_prefix || ''} ${promptDifference} ${prompt} ${content}`,
   });
 
   const tags = formatTags(response);

@@ -1,13 +1,13 @@
 import { MenuItem, Popover, NavigableMenu } from '@wordpress/components';
 import { useMemo, useState } from '@wordpress/element';
-import { capitalize, hideLoadingMessage, showLoadingMessage, showNotice, ai, removeWrappingQuotes } from '@/utils';
+import { hideLoadingMessage, showLoadingMessage, showNotice, ai, removeWrappingQuotes } from '@/utils';
 import { BlockEditProps } from '@/types';
 import { useSettings } from '@/settings';
 import { insert, toHTMLString, slice, create } from '@wordpress/rich-text';
 import { useSelect } from '@wordpress/data';
 import { ToolbarButton } from '@/components/toolbarButton';
 import { __, sprintf } from '@wordpress/i18n';
-import {usePrompts} from "@/utils/ai/prompts/usePrompts";
+import { usePrompts } from '@/utils/ai/prompts/usePrompts';
 
 const tones = [
   {
@@ -22,7 +22,7 @@ const tones = [
   { key: 'helpful', label: __('Helpful', 'filter-ai') },
 ];
 
-type OnClick = (promptKey: keyof typeof ai.prompts, params?: Record<string, string>) => Promise<void>;
+type OnClick = (promptKey: string, params?: Record<string, string>) => Promise<void>;
 
 export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps) => {
   const [changeToneAnchor, setChangeToneAnchor] = useState<HTMLButtonElement | null>(null);
@@ -112,8 +112,12 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
       })();
 
       if (typeof prompt !== 'string') {
-          console.log(`Expected prompt to be a string for "${promptKey}", but got:`, prompt);
-          throw new Error(__("There was an error preparing your prompt. Please make sure that in plugin 'Settings' your prompt is a valid string.", 'filter-ai'));
+        throw new Error(
+          __(
+            "There was an error preparing your prompt. Please make sure that in plugin 'Settings' your prompt is a valid string.",
+            'filter-ai'
+          )
+        );
       }
 
       if (params) {
@@ -178,7 +182,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
             <MenuItem
               onClick={() => {
                 onClose();
-                onClick('customise_text_rewrite_prompt', { type });
+                onClick('customise_text_rewrite_prompt', { type: label.toLowerCase() });
               }}
             >
               {__('Rewrite', 'filter-ai')}
@@ -188,7 +192,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
             <MenuItem
               onClick={() => {
                 onClose();
-                onClick('customise_text_expand_prompt', { type });
+                onClick('customise_text_expand_prompt', { type: label.toLowerCase() });
               }}
             >
               {__('Expand', 'filter-ai')}
@@ -198,7 +202,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
             <MenuItem
               onClick={() => {
                 onClose();
-                onClick('customise_text_condense_prompt', { type });
+                onClick('customise_text_condense_prompt', { type: label.toLowerCase() });
               }}
             >
               {__('Condense', 'filter-ai')}
@@ -208,7 +212,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
             <MenuItem
               onClick={() => {
                 onClose();
-                onClick('customise_text_summarise_prompt', { type });
+                onClick('customise_text_summarise_prompt', { type: label.toLowerCase() });
               }}
             >
               {__('Summarise', 'filter-ai')}
@@ -241,7 +245,10 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
                       <MenuItem
                         onClick={() => {
                           onClose();
-                          onClick('customise_text_change_tone_prompt', { tone: tone.key, type });
+                          onClick('customise_text_change_tone_prompt', {
+                            tone: tone.label.toLowerCase(),
+                            type: label.toLowerCase(),
+                          });
                         }}
                       >
                         {tone.label}

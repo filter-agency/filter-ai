@@ -1,5 +1,5 @@
+import { getSettings } from '@/settings';
 import { generateText } from './services';
-import { prompts } from './prompts';
 import { __ } from '@wordpress/i18n';
 
 export const getSeoMetaDescriptionFromContent = async (
@@ -11,10 +11,15 @@ export const getSeoMetaDescriptionFromContent = async (
     throw new Error(__('Please add some content first.', 'filter-ai'));
   }
 
-  const promptDifference = oldDescription ? `${prompts.common.different} "${oldDescription}".` : '';
+  const settings = await getSettings();
+
+  const promptDifference =
+    oldDescription && settings?.common_prompt_different
+      ? `${settings.common_prompt_different} "${oldDescription}".`
+      : '';
 
   return generateText({
     feature: 'filter-ai-seo-meta-description',
-    prompt: `${prompts.common.prefix} ${promptDifference} ${customPrompt} ${content}`,
+    prompt: `${settings?.common_prompt_prefix || ''} ${promptDifference} ${customPrompt} ${content}`,
   });
 };

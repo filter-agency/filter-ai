@@ -1,4 +1,3 @@
-import { ai } from '@/utils';
 import { FilterAISettings } from './useSettings';
 import { __ } from '@wordpress/i18n';
 
@@ -28,6 +27,8 @@ type Section = {
   features: Feature[];
 };
 
+const defaultSettings = window?.filter_ai_default_settings || {};
+
 export const sections: Section[] = [
   {
     header: __('Global', 'filter-ai'),
@@ -43,7 +44,7 @@ export const sections: Section[] = [
         prompt: {
           key: 'brand_voice_prompt',
           label: __('Brand voice prompt', 'filter-ai'),
-          defaultValue: ai.prompts.brand_voice_prompt,
+          defaultValue: defaultSettings.brand_voice_prompt,
           placeholder: __('Enter your own custom prompt to set your global brand voice.', 'filter-ai'),
         },
       },
@@ -60,7 +61,7 @@ export const sections: Section[] = [
         prompt: {
           key: 'stop_words_prompt',
           label: __('Stop words prompt', 'filter-ai'),
-          defaultValue: ai.prompts.stop_words_prompt,
+          defaultValue: defaultSettings.stop_words_prompt,
           placeholder: __(
             'Enter a list of comma-separated words that should not appear in any generated text.',
             'filter-ai'
@@ -83,7 +84,7 @@ export const sections: Section[] = [
         prompt: {
           key: 'image_alt_text_prompt',
           label: __('Image alt text prompt', 'filter-ai'),
-          defaultValue: ai.prompts.image_alt_text_prompt,
+          defaultValue: defaultSettings.image_alt_text_prompt,
         },
       },
       {
@@ -111,7 +112,7 @@ export const sections: Section[] = [
         prompt: {
           key: 'post_title_prompt',
           label: __('Post title prompt', 'filter-ai'),
-          defaultValue: ai.prompts.post_title_prompt,
+          defaultValue: defaultSettings.post_title_prompt,
         },
       },
       {
@@ -124,7 +125,7 @@ export const sections: Section[] = [
         prompt: {
           key: 'post_excerpt_prompt',
           label: __('Post excerpt prompt', 'filter-ai'),
-          defaultValue: ai.prompts.post_excerpt_prompt,
+          defaultValue: defaultSettings.post_excerpt_prompt,
         },
       },
       {
@@ -137,7 +138,7 @@ export const sections: Section[] = [
         prompt: {
           key: 'post_tags_prompt',
           label: __('Post tags prompt', 'filter-ai'),
-          defaultValue: ai.prompts.post_tags_prompt,
+          defaultValue: defaultSettings.post_tags_prompt,
         },
       },
     ],
@@ -156,7 +157,7 @@ export const sections: Section[] = [
         prompt: {
           key: 'customise_text_rewrite_prompt',
           label: __('Rewrite text prompt', 'filter-ai'),
-          defaultValue: ai.prompts.customise_text_rewrite_prompt,
+          defaultValue: defaultSettings.customise_text_rewrite_prompt,
         },
       },
       {
@@ -169,7 +170,7 @@ export const sections: Section[] = [
         prompt: {
           key: 'customise_text_expand_prompt',
           label: __('Expand text prompt', 'filter-ai'),
-          defaultValue: ai.prompts.customise_text_expand_prompt,
+          defaultValue: defaultSettings.customise_text_expand_prompt,
         },
       },
       {
@@ -182,7 +183,7 @@ export const sections: Section[] = [
         prompt: {
           key: 'customise_text_condense_prompt',
           label: __('Condense text prompt', 'filter-ai'),
-          defaultValue: ai.prompts.customise_text_condense_prompt,
+          defaultValue: defaultSettings.customise_text_condense_prompt,
         },
       },
       {
@@ -195,7 +196,7 @@ export const sections: Section[] = [
         prompt: {
           key: 'customise_text_summarise_prompt',
           label: __('Summarise text prompt', 'filter-ai'),
-          defaultValue: ai.prompts.customise_text_summarise_prompt,
+          defaultValue: defaultSettings.customise_text_summarise_prompt,
         },
       },
       {
@@ -208,7 +209,7 @@ export const sections: Section[] = [
         prompt: {
           key: 'customise_text_change_tone_prompt',
           label: __('Change tone of text prompt', 'filter-ai'),
-          defaultValue: ai.prompts.customise_text_change_tone_prompt,
+          defaultValue: defaultSettings.customise_text_change_tone_prompt,
         },
       },
     ],
@@ -227,7 +228,7 @@ export const sections: Section[] = [
         prompt: {
           key: 'wc_product_description_prompt',
           label: __('Product description prompt', 'filter-ai'),
-          defaultValue: ai.prompts.wc_product_description_prompt,
+          defaultValue: defaultSettings.wc_product_description_prompt,
         },
       },
       {
@@ -240,7 +241,7 @@ export const sections: Section[] = [
         prompt: {
           key: 'wc_product_excerpt_prompt',
           label: __('Product short description prompt', 'filter-ai'),
-          defaultValue: ai.prompts.wc_product_excerpt_prompt,
+          defaultValue: defaultSettings.wc_product_excerpt_prompt,
         },
       },
     ],
@@ -259,7 +260,7 @@ export const sections: Section[] = [
         prompt: {
           key: 'yoast_seo_title_prompt',
           label: __('Yoast SEO title prompt', 'filter-ai'),
-          defaultValue: ai.prompts.yoast_seo_title_prompt,
+          defaultValue: defaultSettings.yoast_seo_title_prompt,
         },
       },
       {
@@ -272,7 +273,7 @@ export const sections: Section[] = [
         prompt: {
           key: 'yoast_seo_meta_description_prompt',
           label: __('Yoast SEO meta description prompt', 'filter-ai'),
-          defaultValue: ai.prompts.yoast_seo_meta_description_prompt,
+          defaultValue: defaultSettings.yoast_seo_meta_description_prompt,
         },
       },
     ],

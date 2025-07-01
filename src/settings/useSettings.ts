@@ -1,55 +1,7 @@
-import { useDispatch, useSelect } from '@wordpress/data';
+import { resolveSelect, useDispatch, useSelect } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 
-const defaultSettings = {
-  brand_voice_enabled: false,
-  brand_voice_prompt: '',
-
-  stop_words_enabled: false,
-  stop_words_prompt: '',
-
-  auto_alt_text_enabled: true,
-
-  image_alt_text_enabled: true,
-  image_alt_text_prompt: '',
-
-  post_title_enabled: true,
-  post_title_prompt: '',
-
-  post_excerpt_enabled: true,
-  post_excerpt_prompt: '',
-
-  post_tags_enabled: true,
-  post_tags_prompt: '',
-
-  customise_text_rewrite_enabled: true,
-  customise_text_rewrite_prompt: '',
-
-  customise_text_expand_enabled: true,
-  customise_text_expand_prompt: '',
-
-  customise_text_condense_enabled: true,
-  customise_text_condense_prompt: '',
-
-  customise_text_summarise_enabled: true,
-  customise_text_summarise_prompt: '',
-
-  customise_text_change_tone_enabled: true,
-  customise_text_change_tone_prompt: '',
-
-  wc_product_description_enabled: true,
-  wc_product_description_prompt: '',
-
-  wc_product_excerpt_enabled: true,
-  wc_product_excerpt_prompt: '',
-
-  yoast_seo_title_enabled: true,
-  yoast_seo_title_prompt: '',
-
-  yoast_seo_meta_description_enabled: true,
-  yoast_seo_meta_description_prompt: '',
-};
-
-export type FilterAISettings = Partial<typeof defaultSettings>;
+export type FilterAISettings = Record<string, string | boolean>;
 
 const settingsKey = 'filter_ai_settings';
 
@@ -60,19 +12,8 @@ export const useSettings = () => {
     // @ts-expect-error Property 'useEntityRecord' does not exist on type '{}'
     const record = getEntityRecord('root', 'site') || {};
 
-    const storedSettings = record?.[settingsKey];
-
-    if (!storedSettings) {
-      return {
-        settings: undefined,
-      };
-    }
-
     return {
-      settings: {
-        ...defaultSettings,
-        ...storedSettings,
-      },
+      settings: record?.[settingsKey],
     };
   }, []);
 
@@ -89,4 +30,14 @@ export const useSettings = () => {
   };
 
   return { settings, saveSettings };
+};
+
+export const getSettings = async () => {
+  const settings = (await resolveSelect('core').getEntityRecord('root', 'site'))?.filter_ai_settings;
+
+  if (!settings) {
+    throw new Error(__('There is was an issue retrieving the settings.', 'filter-ai'));
+  }
+
+  return settings;
 };
