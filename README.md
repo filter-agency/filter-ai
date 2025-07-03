@@ -45,6 +45,16 @@ Throughout the WordPress admin look for the Filter AI button within the content 
 
 <img src="data:image/svg+xml;charset=utf-8,%3Csvg%20width%3D%2293%22%20height%3D%22162%22%20viewBox%3D%220%200%2093%20162%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Cpath%20d%3D%22M14%20122H0V37H54V51H14V73H48V86H14V122Z%22%20fill%3D%22%23012F5F%22%2F%3E%0A%3Cpath%20d%3D%22M0%20162V150H54V162H0Z%22%20fill%3D%22%23012F5F%22%2F%3E%0A%3Cpath%20d%3D%22M85%200L82.48%205.5L77%208L82.48%2010.52L85%2016L87.5%2010.52L93%208L87.5%205.5M65%206L60%2017L49%2022L60%2027L65%2038L70%2027L81%2022L70%2017M85%2028L82.48%2033.48L77%2036L82.48%2038.5L85%2044L87.5%2038.5L93%2036L87.5%2033.48%22%20fill%3D%22%23012F5F%22%2F%3E%0A%3C%2Fsvg%3E%0A" alt="Filter AI button" style="width: 20px; background-color: white; padding: 10px" />
 
+## Feedback
+
+We welcome feedback whether you have a question, found a bug or thought of a great new feature. Please [open an issue](https://github.com/filter-agency/filter-ai/issues/new) to let us know.
+
+## Contributing
+
+First off, thank you for your interest in contributing to Filter AI.
+
+If you do decide to contribute to this plugin, please abide by the [WordPress Code of Conduct](https://make.wordpress.org/handbook/community-code-of-conduct/) and follow the [WordPress Coding Standards and best practices](https://developer.wordpress.org/coding-standards/). Anything that you do submit will be released under the [GPLv3 license](LICENSE).
+
 ## About Filter
 
 [Filter](https://filter.agency/) is a leading digital agency dedicated to creating innovative solutions that help businesses leverage technology effectively. We're deeply invested in helping businesses leverage AI effectively, developing custom solutions that solve real business challenges.
