@@ -142,28 +142,6 @@ function filter_ai_pre_filter_option( $option ) {
 add_filter( 'option_filter_ai_settings', 'filter_ai_pre_filter_option' );
 
 /**
- * Add setting option on plugin activation
- */
-function filter_ai_activate() {
-	$option_value_default = filter_ai_get_default_settings();
-
-	if ( ! empty( $option_value_default ) ) {
-		add_option( 'filter_ai_settings', $option_value_default );
-	}
-}
-
-register_activation_hook( __FILE__, 'filter_ai_activate' );
-
-/**
- * Remove setting option when the plugin in uninstalled
- */
-function filter_ai_uninstall() {
-	delete_option( 'filter_ai_settings' );
-}
-
-register_uninstall_hook( __FILE__, 'filter_ai_uninstall' );
-
-/**
  * Get prompt
  *
  * @param string $key Key for the prompt
