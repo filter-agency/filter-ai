@@ -9,8 +9,8 @@ use Felix_Arntz\AI_Services\Services\API\Types\Content;
 use Felix_Arntz\AI_Services\Services\API\Types\Parts;
 use Felix_Arntz\AI_Services\Services\API\Helpers;
 
-require_once 'settings.php';
-require_once 'helpers.php';
+require_once __DIR__ . '/settings.php';
+require_once __DIR__ . '/helpers.php';
 
 /**
  * Get posts for a specific post_type that is missing _yoast_wpseo_metadesc meta
