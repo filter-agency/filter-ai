@@ -123,6 +123,28 @@ function filter_ai_add_admin_menu() {
 add_action( 'admin_menu', 'filter_ai_add_admin_menu' );
 
 /**
+ * Add setting option on plugin activation
+ */
+function filter_ai_activate() {
+	$option_value_default = filter_ai_get_default_settings();
+
+	if ( ! empty( $option_value_default ) ) {
+		add_option( 'filter_ai_settings', $option_value_default );
+	}
+}
+
+register_activation_hook( __FILE__, 'filter_ai_activate' );
+
+/**
+ * Remove setting option when the plugin in uninstalled
+ */
+function filter_ai_uninstall() {
+	delete_option( 'filter_ai_settings' );
+}
+
+register_uninstall_hook( __FILE__, 'filter_ai_uninstall' );
+
+/**
  *  Add scripts and styles
  */
 function filter_ai_enqueue_assets() {
