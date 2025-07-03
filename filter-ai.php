@@ -216,19 +216,3 @@ function filter_ai_enqueue_assets() {
 }
 
 add_action( 'admin_enqueue_scripts', 'filter_ai_enqueue_assets', -1 );
-
-add_action( 'print_media_templates', 'add_media_templates' );
-
-/**
- *  Add new tab UI template to Media Library.
- */
-function add_media_templates() {
-	?>
-	<script type="text/html" id="tmpl-generateImg">
-
-		<div>
-			<h1>Generate Image is working</h1>
-			</div>
-	</script>
-	<?php
-}

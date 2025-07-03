@@ -1,9 +1,15 @@
 import { createRoot } from 'react-dom/client';
-import GenerateImgTab from './GenerateImgTab';
+import GenerateImgTabView from './generateImgTabView';
+import { __ } from '@wordpress/i18n';
 
 declare const wp: any;
 
-if (wp && wp.media) {
+export function addGenerateImageTab() {
+  if (!(wp && wp.media)) {
+    console.warn('[GenerateImgTab] wp.media not available.');
+    return;
+  }
+
   const MediaFrame = wp.media.view.MediaFrame.Select;
 
   wp.media.view.MediaFrame.Select = MediaFrame.extend({
@@ -12,7 +18,6 @@ if (wp && wp.media) {
 
       const State = wp.media.controller.State.extend({
         insert: function () {
-          console.log('Custom Tab');
           this.MediaFrame.close();
         },
       });
@@ -20,7 +25,7 @@ if (wp && wp.media) {
       this.states.add([
         new State({
           id: 'generateImg',
-          title: 'Generate AI Image',
+          title: __('Generate AI Image', 'filter-ai'),
           search: false,
         }),
       ]);
@@ -33,12 +38,12 @@ if (wp && wp.media) {
           text: wp.media.view.l10n.uploadFilesTitle,
           priority: 20,
         },
-        browse: {
-          text: wp.media.view.l10n.mediaLibraryTitle,
+        generateImg: {
+          text: __('Generate AI Image', 'filter-ai'),
           priority: 30,
         },
-        generateImg: {
-          text: 'Generate Img',
+        browse: {
+          text: wp.media.view.l10n.mediaLibraryTitle,
           priority: 40,
         },
       });
@@ -52,12 +57,17 @@ if (wp && wp.media) {
         className: 'generateImg-wrapper',
         render: function () {
           this.$el.append(container);
-          renderGenerateImgReact(container);
+          try {
+            renderGenerateImgReact(container);
+          } catch (err) {
+            console.error('[GenerateImgTab] React render error:', err);
+          }
+
           return this;
         },
 
         remove: function () {
-          unmountGenerateImgReact(container);
+          unmountGenerateImgReact();
           wp.Backbone.View.prototype.remove.call(this);
         },
       });
@@ -68,15 +78,14 @@ if (wp && wp.media) {
   });
 }
 
-// Use createRoot to mount React content
 let root: any = null;
 
 function renderGenerateImgReact(container: HTMLElement) {
   root = createRoot(container);
-  root.render(<GenerateImgTab />);
+  root.render(<GenerateImgTabView />);
 }
 
-function unmountGenerateImgReact(container: HTMLElement) {
+function unmountGenerateImgReact() {
   if (root) {
     root.unmount();
     root = null;
