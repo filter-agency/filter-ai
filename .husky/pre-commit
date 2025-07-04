@@ -1,4 +1,8 @@
+# Check WordPress coding standards: https://github.com/WordPress/WordPress-Coding-Standards
 composer run-script check-cs
+
+# Type check
+npm run typecheck
+
+# Prettify staged files
 npx lint-staged
-npm run build
-git add filter-ai.zip
