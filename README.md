@@ -55,6 +55,13 @@ First off, thank you for your interest in contributing to Filter AI.
 
 If you do decide to contribute to this plugin, please abide by the [WordPress Code of Conduct](https://make.wordpress.org/handbook/community-code-of-conduct/) and follow the [WordPress Coding Standards and best practices](https://developer.wordpress.org/coding-standards/). Anything that you do submit will be released under the [GPLv3 license](LICENSE).
 
+When you commit a change, Husky will run the following:
+
+- WordPress coding standards check
+- lint-staged will prettify the staged files
+- build script will run
+- generated build zip is added to the commit
+
 ## About Filter
 
 [Filter](https://filter.agency/) is a leading digital agency dedicated to creating innovative solutions that help businesses leverage technology effectively. We're deeply invested in helping businesses leverage AI effectively, developing custom solutions that solve real business challenges.
