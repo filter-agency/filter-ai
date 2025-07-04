@@ -1,5 +1,5 @@
 {
-  "name": "filter/filter-ai",
+  "name": "filter-agency/filter-ai",
   "description": "Powerful AI content creation tools integrated directly into the WordPress editor for effortless content generation.",
   "require": {
     "php": ">=7.4",
