@@ -1,6 +1,7 @@
 {
   "name": "filter-agency/filter-ai",
   "description": "Powerful AI content creation tools integrated directly into the WordPress editor for effortless content generation.",
+  "license": "GPL-3.0",
   "require": {
     "php": ">=7.4",
     "woocommerce/action-scheduler": "^3.9"
