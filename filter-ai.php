@@ -23,6 +23,7 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/settings.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/batchImageAltText.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/batchSEOTitle.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/batchSEOMetaDescription.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/dynamicReplaceAltText.php';
 
 /**
  *  Add settings link to the plugin action links

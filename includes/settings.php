@@ -20,10 +20,11 @@ function filter_ai_get_default_settings() {
 		'stop_words_prompt'                  => '',
 		'stop_words_pre_prompt'              => esc_html__( 'Please avoid using the following words in any generated response:', 'filter-ai' ),
 
-		'auto_alt_text_enabled'              => true,
-
 		'image_alt_text_enabled'             => true,
 		'image_alt_text_prompt'              => esc_html__( 'Please generate a short description no more than 50 words for the following image that can be used as its alternative text. The description should be clear, succinct, and provide a sense of what the image portrays, ensuring that it is accessible to individuals using screen readers.', 'filter-ai' ),
+
+		'auto_alt_text_enabled'              => true,
+		'dynamic_add_alt_text_enabled'       => true,
 
 		'post_title_enabled'                 => true,
 		'post_title_prompt'                  => esc_html__( 'Please generate an SEO-friendly title for this page that is between 40 and 60 characters based on the following content:', 'filter-ai' ),

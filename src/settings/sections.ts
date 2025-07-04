@@ -96,6 +96,18 @@ export const sections: Section[] = [
           dependency: 'image_alt_text_enabled',
         },
       },
+      {
+        key: 'dynamic_add_alt_text',
+        toggle: {
+          key: 'dynamic_add_alt_text_enabled',
+          label: __('Dynamically add missing image alt text in existing posts', 'filter-ai'),
+          help: __(
+            `Core WordPress doesn't update the alt text in existing content by default when updated via the media library.`,
+            'filter-ai'
+          ),
+          dependency: 'image_alt_text_enabled',
+        },
+      },
     ],
   },
   {
