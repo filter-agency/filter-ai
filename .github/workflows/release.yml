@@ -8,6 +8,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Install Composer dependencies
+        uses: php-actions/composer@v6
       - name: Setup Node
         uses: actions/setup-node@4
         with:
