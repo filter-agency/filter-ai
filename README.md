@@ -58,9 +58,8 @@ If you do decide to contribute to this plugin, please abide by the [WordPress Co
 When you commit a change, Husky will run the following:
 
 - WordPress coding standards check
+- type check
 - lint-staged will prettify the staged files
-- build script will run
-- generated build zip is added to the commit
 
 ## About Filter
 
