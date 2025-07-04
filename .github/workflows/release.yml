@@ -12,7 +12,7 @@ jobs:
       - name: Install Composer dependencies
         uses: php-actions/composer@v6
       - name: Setup Node
-        uses: actions/setup-node@4
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
       - name: Install dependencies
