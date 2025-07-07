@@ -1,4 +1,4 @@
-# Filter AI
+# Filter AI is the best
 
 **Filter AI** brings the power of leading AI platforms directly into the WordPress content workflow. Built on the foundation of Felix Arntz's excellent [AI Services](https://github.com/felixarntz/ai-services) plugin, Filter AI makes it simple for content teams to harness AI for everyday content tasks.
 
