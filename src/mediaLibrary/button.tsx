@@ -10,13 +10,11 @@ const maxPixelSize = 2000;
 
 const Events = _.extend({}, window?.Backbone?.Events);
 
-export function overrideAttachmentDetails() {
+(() => {
   const AttachmentDetails =
     window.wp?.media?.view?.Attachment?.Details?.TwoColumn || window.wp?.media?.view?.Attachment?.Details;
 
-  if (!AttachmentDetails) {
-    return;
-  }
+  if (!AttachmentDetails) return;
 
   const OverrideAttachmentDetails = AttachmentDetails.extend({
     render: function () {
@@ -74,14 +72,12 @@ export function overrideAttachmentDetails() {
   } else if (window.wp?.media.view.Attachment.Details) {
     window.wp.media.view.Attachment.Details = OverrideAttachmentDetails;
   }
-}
+})();
 
-export function overrideModalButton() {
+(() => {
   const Modal = window.wp?.media?.view?.Modal;
 
-  if (!Modal) {
-    return;
-  }
+  if (!Modal) return;
 
   const { createRoot } = window.wp?.element || {};
 
@@ -143,4 +139,4 @@ export function overrideModalButton() {
   });
 
   window.wp.media.view.Modal = OverrideModal;
-}
+})();

@@ -1,9 +1,6 @@
-import { dispatch } from '@wordpress/data';
 import { uploadMedia } from '@wordpress/media-utils';
-import { __, sprintf, _x } from '@wordpress/i18n';
-import { store as noticesStore } from '@wordpress/notices';
-
-const UPLOAD_ATTACHMENT_NOTICE_ID = 'ai-upload-notice';
+import { __, sprintf } from '@wordpress/i18n';
+import { showNotice } from '@/utils';
 
 export const uploadGeneratedImageToMediaLibrary = async (dataUrl: string, filename: string, promptText?: string) => {
   const { helpers } = window.aiServices.ai;
@@ -28,7 +25,7 @@ export const uploadGeneratedImageToMediaLibrary = async (dataUrl: string, filena
     } = {};
 
     if (promptText) {
-      const captionString = sprintf(_x('Generated for prompt: %s', 'attachment caption', 'ai-services'), promptText);
+      const captionString = sprintf(__('Generated for prompt: %s', 'filter-ai'), promptText);
 
       attachmentData.caption = {
         rendered: captionString,
@@ -42,41 +39,35 @@ export const uploadGeneratedImageToMediaLibrary = async (dataUrl: string, filena
         additionalData: attachmentData,
         onFileChange: ([attachment]) => {
           if (!attachment) {
-            dispatch(noticesStore).createErrorNotice(__('Saving file failed.', 'ai-services'), {
-              id: UPLOAD_ATTACHMENT_NOTICE_ID,
-              type: 'snackbar',
-              speak: true,
+            showNotice({
+              message: __('Saving file failed.', 'filter-ai'),
+              type: 'error',
             });
             resolve(null);
             return;
           }
 
-          dispatch(noticesStore).createSuccessNotice(__('File saved to media library.', 'ai-services'), {
-            id: UPLOAD_ATTACHMENT_NOTICE_ID,
-            type: 'snackbar',
-            speak: true,
+          showNotice({
+            message: __('File saved to media library.', 'filter-ai'),
           });
 
           resolve(attachment);
         },
         onError: (err) => {
-          dispatch(noticesStore).createErrorNotice(
-            sprintf(__('Saving file failed with error: %s', 'ai-services'), err.message || err),
-            {
-              id: UPLOAD_ATTACHMENT_NOTICE_ID,
-              type: 'snackbar',
-              speak: true,
-            }
-          );
+          showNotice({
+            message: sprintf(__('Saving file failed with error: %s', 'filter-ai'), err.message),
+            type: 'error',
+          });
           resolve(null);
         },
       });
     });
   } catch (err) {
-    dispatch(noticesStore).createErrorNotice(__('Unexpected error during upload.', 'ai-services'), {
-      id: UPLOAD_ATTACHMENT_NOTICE_ID,
-      type: 'snackbar',
-      speak: true,
+    const message = err instanceof Error ? err.message : String(err);
+
+    showNotice({
+      message: sprintf(__('Unexpected error during upload: %s', 'filter-ai'), message),
+      type: 'error',
     });
     return null;
   }
