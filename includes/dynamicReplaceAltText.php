@@ -4,7 +4,7 @@
  */
 
 // require settings
-require_once 'settings.php';
+require_once __DIR__ . '/settings.php';
 
 /**
  * Render block filter to replace empty alt text
