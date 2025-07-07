@@ -91,3 +91,18 @@ function unmountGenerateImgReact() {
     root = null;
   }
 }
+
+function tryAddGenerateImageTab() {
+  if (wp?.media?.view?.MediaFrame?.Select) {
+    addGenerateImageTab();
+  }
+}
+
+const observer = new MutationObserver(() => {
+  tryAddGenerateImageTab();
+});
+
+observer.observe(document.body, {
+  childList: true,
+  subtree: true,
+});

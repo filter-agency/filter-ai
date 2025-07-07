@@ -4,7 +4,7 @@ export const prompts = {
     prefix: 'The response should only contain the answer and in plain text, so no <br> tags for line breaks.',
   },
 
-  image_prompt: 'Please generate an image based on the following user input:',
+  generate_image_pre_prompt: 'Please generate an image based on the following user input:',
 
   brand_voice_prompt: '',
 

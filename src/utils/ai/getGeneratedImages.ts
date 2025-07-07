@@ -7,8 +7,12 @@ export const getGeneratedImages = async (feature: string, prompt: string) => {
     throw new Error(__('Prompt missing, please check settings', 'filter-ai'));
   }
 
+  if (!feature) {
+    throw new Error(__('Feature missing, please check settings', 'filter-ai'));
+  }
+
   const images = await generateImage({
-    prompt: `${prompts.image_prompt} ${prompt}`,
+    prompt: `${prompts.generate_image_pre_prompt} ${prompt}`,
     feature,
     candidateCount: 3,
     aspectRatio: '1:1',
