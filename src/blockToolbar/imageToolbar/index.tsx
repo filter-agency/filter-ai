@@ -2,10 +2,9 @@ import { ToolbarButton } from '@/components/toolbarButton';
 import { useGenerateAltText } from './useGenerateAltText';
 import { BlockEditProps } from '@/types';
 import _ from 'underscore';
-import { useCallback, useEffect, useMemo } from 'react';
 import { useSelect } from '@wordpress/data';
 import { useSettings } from '@/settings';
-import { createRoot } from '@wordpress/element';
+import { createInterpolateElement, createRoot, useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
 
@@ -24,7 +23,7 @@ export const ImageToolbar = ({ attributes, setAttributes, isSelected }: Props) =
     return (isSelected && settings?.dynamic_add_alt_text_enabled && (attributes?.mediaId || attributes?.id)) || false;
   }, [attributes, isSelected, settings]);
 
-  const alt_text = useSelect(
+  const altText = useSelect(
     (select) => {
       if (!dynamicAddAltTextEnabled) {
         return null;
@@ -35,32 +34,41 @@ export const ImageToolbar = ({ attributes, setAttributes, isSelected }: Props) =
     [dynamicAddAltTextEnabled]
   );
 
-  const addAltTextMessage = useCallback(() => {
-    const link = document.querySelector('[href*="https://www.w3.org/WAI/tutorials/images/decision-tree/"]');
-
-    if (!link?.parentElement || link.parentElement.classList.contains('filter-ai-alt-text-help')) {
-      return;
-    }
-
-    link.parentElement.classList.add('filter-ai-alt-text-help');
-
-    const container = createRoot(link.parentElement);
-
-    const Message = () => (
+  const Message = useCallback(
+    () => (
       <>
         <ExternalLink href={__('https://www.w3.org/WAI/tutorials/images/decision-tree/')}>
           {__('Describe the purpose of the image.')}
         </ExternalLink>
         <br />
-        {sprintf(
-          __('Missing alt text will be automatically replaced with the current global alt text: "%s"', 'filter-ai'),
-          alt_text
+        {createInterpolateElement(
+          sprintf(
+            __(
+              'Missing alt text will be automatically replaced with the current global alt text from the Media Library%s',
+              'filter-ai'
+            ),
+            altText ? `: "<i>${altText}</i>"` : '.'
+          ),
+          { i: <i /> }
         )}
       </>
-    );
+    ),
+    [altText]
+  );
+
+  const addAltTextContainer = useCallback(() => {
+    const link = document.querySelector('[href*="https://www.w3.org/WAI/tutorials/images/decision-tree/"]');
+
+    if (!link?.parentElement || document.querySelector('.filter-ai-alt-text-container')) {
+      return;
+    }
+
+    link.parentElement.classList.add('filter-ai-alt-text-container');
+
+    const container = createRoot(link.parentElement);
 
     container.render(<Message />);
-  }, [alt_text]);
+  }, [Message]);
 
   useEffect(() => {
     if (!dynamicAddAltTextEnabled) {
@@ -69,7 +77,7 @@ export const ImageToolbar = ({ attributes, setAttributes, isSelected }: Props) =
 
     const tabpanel = document.querySelector('[id^="tabs-"][id$="-edit-post/block-view"]');
 
-    const observer = new MutationObserver(addAltTextMessage);
+    const observer = new MutationObserver(addAltTextContainer);
 
     if (tabpanel) {
       observer.observe(tabpanel, { childList: true, subtree: true });
@@ -78,7 +86,7 @@ export const ImageToolbar = ({ attributes, setAttributes, isSelected }: Props) =
     return () => {
       observer.disconnect();
     };
-  }, [dynamicAddAltTextEnabled]);
+  }, [dynamicAddAltTextEnabled, addAltTextContainer]);
 
   return <ToolbarButton controls={_.compact([generateAltText])} />;
 };
