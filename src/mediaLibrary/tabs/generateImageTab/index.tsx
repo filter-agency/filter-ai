@@ -5,8 +5,10 @@ import { __ } from '@wordpress/i18n';
 declare const wp: any;
 
 export function addGenerateImageTab() {
-  if (!(wp && wp.media)) {
-    console.warn('[GenerateImgTab] wp.media not available.');
+  const MediaFrameSelect = wp?.media?.view?.MediaFrame?.Select;
+
+  if (!MediaFrameSelect) {
+    console.warn('[GenerateImgTab] wp.media.view.MediaFrame.Select not available.');
     return;
   }
 
@@ -92,14 +94,8 @@ function unmountGenerateImgReact() {
   }
 }
 
-function tryAddGenerateImageTab() {
-  if (wp?.media?.view?.MediaFrame?.Select) {
-    addGenerateImageTab();
-  }
-}
-
 const observer = new MutationObserver(() => {
-  tryAddGenerateImageTab();
+  addGenerateImageTab();
 });
 
 observer.observe(document.body, {
