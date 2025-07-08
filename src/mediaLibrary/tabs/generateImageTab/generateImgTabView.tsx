@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getGeneratedImages } from '@/utils/ai/getGeneratedImages';
 import { uploadGeneratedImageToMediaLibrary } from '@/utils/ai/uploadGeneratedImage';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Button, Card, CardBody, TextareaControl } from '@wordpress/components';
 import { __experimentalGrid as Grid } from '@wordpress/components';
+import { showNotice } from '@/utils';
+import { getService } from '@/utils/ai/services/getService';
 
 const GenerateImgTabView = () => {
   const [prompt, setPrompt] = useState('');
@@ -11,13 +13,39 @@ const GenerateImgTabView = () => {
   const [selectedIndexes, setSelectedIndexes] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [isServiceConfigured, setIsServiceConfigured] = useState<boolean>(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const service = await getService();
+        if (!service || !service.slug) {
+          console.log('No API key configured');
+          setIsServiceConfigured(false);
+          const settingsUrl = `${window.location.origin}/wp-admin/plugins.php`;
+          showNotice({
+            message: __(
+              `No AI service is configured. Please add an API key in the AI Services plugin settings: ${settingsUrl}`,
+              'filter-ai'
+            ),
+            type: 'error',
+          });
+        }
+      } catch (err) {
+        console.error('[AI] getService failed:', err);
+        setIsServiceConfigured(false);
+        showNotice({
+          message: __('Failed to check AI service configuration.', 'filter-ai'),
+          type: 'error',
+        });
+      }
+    })();
+  }, []);
 
   const handleGenerate = async () => {
     setLoading(true);
-    setError(null);
     try {
-      const generateImages = await getGeneratedImages('generate-ai-img-feature', prompt);
+      const generateImages = await getGeneratedImages(prompt);
       setGeneratedImages(generateImages);
       setSelectedIndexes([]);
     } catch (err) {
@@ -30,7 +58,10 @@ const GenerateImgTabView = () => {
       } else if (err && typeof err === 'object' && 'message' in err && typeof (err as any).message === 'string') {
         message = (err as any).message;
       }
-      setError(message);
+      showNotice({
+        message: sprintf(__('Error: %s', 'filter-ai'), message),
+        type: 'error',
+      });
     } finally {
       setLoading(false);
     }
@@ -42,26 +73,38 @@ const GenerateImgTabView = () => {
 
   const handleUploadSelected = async () => {
     if (selectedIndexes.length === 0) {
-      setError(__('Please select at least one image to upload', 'filter-ai'));
+      showNotice({
+        message: __('Please select at least one image to upload', 'filter-ai'),
+        type: 'error',
+      });
       return;
     }
+
     setUploading(true);
-    setError(null);
 
     try {
+      await new Promise((res) => setTimeout(res, 1000));
+
       const uploaded = await Promise.all(
         selectedIndexes.map((index) =>
           uploadGeneratedImageToMediaLibrary(generatedImages[index], `aiImage${index + 1}`, prompt)
         )
       );
-      alert(__(`Successfully uploaded ${uploaded.length} images.`, 'filter-ai'));
+      showNotice({
+        message: sprintf(__(`Successfully uploaded %d images.`, 'filter-ai'), uploaded.length),
+        type: 'notice',
+      });
     } catch (err) {
-      console.error('Upload failed:', err);
-      setError(__('Failed to upload images. Please check the console for details.', 'filter-ai'));
+      showNotice({
+        message: sprintf(__('Upload failed: %s', 'filter-ai'), err),
+        type: 'error',
+      });
     } finally {
       setUploading(false);
     }
   };
+
+  console.log('Uploading state:', uploading);
 
   return (
     <Card>
@@ -80,18 +123,17 @@ const GenerateImgTabView = () => {
             placeholder={__('e.g. A sunset over the mountains', 'filter-ai')}
             value={prompt}
             onChange={setPrompt}
-            disabled={loading}
+            disabled={loading || !isServiceConfigured}
           />
 
-          <Button variant="secondary" onClick={handleGenerate} className="filter-ai-generate-button" disabled={loading}>
+          <Button
+            variant="secondary"
+            onClick={handleGenerate}
+            className="filter-ai-generate-button"
+            disabled={loading || !isServiceConfigured}
+          >
             {loading ? __('Generating...', 'filter-ai') : __('Generate Images', 'filter-ai')}
           </Button>
-
-          {error && (
-            <div className="filter-ai-error">
-              <strong>{__('Error', 'filter-ai')}:</strong> {error}
-            </div>
-          )}
 
           {generatedImages.length > 0 && (
             <>
@@ -100,16 +142,14 @@ const GenerateImgTabView = () => {
                 {generatedImages.map((img, i) => {
                   const isSelected = selectedIndexes.includes(i);
                   return (
-                    <div
+                    <button
                       key={i}
                       className={`filter-ai-image-wrapper ${isSelected ? 'selected' : ''}`}
                       onClick={() => toggleSelectImage(i)}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => (e.key === 'Enter' ? toggleSelectImage(i) : null)}
+                      disabled={uploading}
                     >
                       <img src={img} alt={`Generated ${i + 1}`} className="filter-ai-image" />
-                    </div>
+                    </button>
                   );
                 })}
               </Grid>

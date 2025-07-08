@@ -36,15 +36,17 @@
 }
 
 .filter-ai-image-wrapper {
-  width: 100%;
-  max-width: 450px;
-  border: 2px solid transparent;
-  border-radius: 4px;
-  overflow: hidden;
+  background: none;
+  border: none;
+  display: block;
   cursor: pointer;
-  transition: border-color 0.2s;
-  box-sizing: border-box;
-  position: relative;
+  border-radius: 4px;
+  padding: 0;
+}
+
+.filter-ai-image-wrapper.components-button:focus {
+  outline: none;
+  box-shadow: none;
 }
 
 .filter-ai-image-wrapper:hover {
@@ -53,6 +55,11 @@
 
 .filter-ai-image-wrapper.selected {
   border: 4px solid #2271b1;
+}
+
+.filter-ai-image-wrapper:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .filter-ai-image {
