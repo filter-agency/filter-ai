@@ -43,6 +43,7 @@
     "@wordpress/element": "^6.20.0",
     "@wordpress/hooks": "^4.20.0",
     "@wordpress/i18n": "^5.20.0",
+    "@wordpress/media-utils": "^5.26.0",
     "@wordpress/rich-text": "^7.22.0",
     "@wordpress/url": "^4.21.0",
     "react": "^18.3.1",

@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
 import { getGeneratedImages } from '@/utils/ai/getGeneratedImages';
 import { uploadGeneratedImageToMediaLibrary } from '@/utils/ai/uploadGeneratedImage';
-import { __, sprintf } from '@wordpress/i18n';
-import { Button, Card, CardBody, TextareaControl } from '@wordpress/components';
-import { __experimentalGrid as Grid } from '@wordpress/components';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import { Button, Notice, TextareaControl, __experimentalGrid as Grid } from '@wordpress/components';
 import { showNotice } from '@/utils';
 import { getService } from '@/utils/ai/services/getService';
+import { createInterpolateElement, useState, useEffect } from '@wordpress/element';
 
 const GenerateImgTabView = () => {
   const [prompt, setPrompt] = useState('');
@@ -14,33 +13,6 @@ const GenerateImgTabView = () => {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [isServiceConfigured, setIsServiceConfigured] = useState<boolean>(true);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const service = await getService();
-        if (!service || !service.slug) {
-          console.log('No API key configured');
-          setIsServiceConfigured(false);
-          const settingsUrl = `${window.location.origin}/wp-admin/plugins.php`;
-          showNotice({
-            message: __(
-              `No AI service is configured. Please add an API key in the AI Services plugin settings: ${settingsUrl}`,
-              'filter-ai'
-            ),
-            type: 'error',
-          });
-        }
-      } catch (err) {
-        console.error('[AI] getService failed:', err);
-        setIsServiceConfigured(false);
-        showNotice({
-          message: __('Failed to check AI service configuration.', 'filter-ai'),
-          type: 'error',
-        });
-      }
-    })();
-  }, []);
 
   const handleGenerate = async () => {
     setLoading(true);
@@ -83,15 +55,19 @@ const GenerateImgTabView = () => {
     setUploading(true);
 
     try {
-      await new Promise((res) => setTimeout(res, 1000));
-
       const uploaded = await Promise.all(
         selectedIndexes.map((index) =>
           uploadGeneratedImageToMediaLibrary(generatedImages[index], `aiImage${index + 1}`, prompt)
         )
-      );
+      ).catch((error) => {
+        throw new Error(error?.message || error);
+      });
+
       showNotice({
-        message: sprintf(__(`Successfully uploaded %d images.`, 'filter-ai'), uploaded.length),
+        message: sprintf(
+          _n(`Successfully uploaded %d image.`, `Successfully uploaded %d images.`, uploaded.length, 'filter-ai'),
+          uploaded.length
+        ),
         type: 'notice',
       });
     } catch (err) {
@@ -104,68 +80,108 @@ const GenerateImgTabView = () => {
     }
   };
 
-  console.log('Uploading state:', uploading);
+  useEffect(() => {
+    (async () => {
+      try {
+        const service = await getService();
+        if (!service || !service.slug) {
+          setIsServiceConfigured(false);
+        }
+      } catch (err) {
+        console.error('[AI] getService failed:', err);
+        setIsServiceConfigured(false);
+        showNotice({
+          message: __('Failed to check AI service configuration.', 'filter-ai'),
+          type: 'error',
+        });
+      }
+    })();
+
+    const toolbar = document.querySelector('.media-toolbar') as HTMLDivElement;
+
+    if (toolbar) {
+      toolbar.style.display = 'none';
+    }
+
+    return () => {
+      if (toolbar) {
+        toolbar.style.display = '';
+      }
+    };
+  }, []);
 
   return (
-    <Card>
-      <CardBody>
-        <h2>{__('Enter a prompt to generate Images', 'filter-ai')}</h2>
-        <p>
-          {__(
-            'Once images are generated, choose one or more of those to import into your Media Library, and then choose one image to insert.',
-            'filter-ai'
+    <>
+      {!isServiceConfigured && (
+        <Notice status="error" isDismissible={false}>
+          {createInterpolateElement(
+            sprintf(
+              __(`No AI service is configured. Please add an API key in the %s plugin settings.`, 'filter-ai'),
+              `<a>AI Services</a>`
+            ),
+            {
+              a: <a href="/wp-admin/options-general.php?page=ais_services" />,
+            }
           )}
-        </p>
+        </Notice>
+      )}
 
-        <div className="filter-ai-form">
-          <TextareaControl
-            className="filter-ai-textarea"
-            placeholder={__('e.g. A sunset over the mountains', 'filter-ai')}
-            value={prompt}
-            onChange={setPrompt}
-            disabled={loading || !isServiceConfigured}
-          />
+      <h2>{__('Enter a prompt to generate Images', 'filter-ai')}</h2>
+      <p>
+        {__(
+          'Once images are generated, choose one or more of those to import into your Media Library, and then choose one image to insert.',
+          'filter-ai'
+        )}
+      </p>
 
-          <Button
-            variant="secondary"
-            onClick={handleGenerate}
-            className="filter-ai-generate-button"
-            disabled={loading || !isServiceConfigured}
-          >
-            {loading ? __('Generating...', 'filter-ai') : __('Generate Images', 'filter-ai')}
-          </Button>
+      <div className="filter-ai-form">
+        <TextareaControl
+          className="filter-ai-textarea"
+          placeholder={__('e.g. A sunset over the mountains', 'filter-ai')}
+          value={prompt}
+          onChange={setPrompt}
+          disabled={loading || !isServiceConfigured}
+        />
 
-          {generatedImages.length > 0 && (
-            <>
-              <h3>Select images to upload</h3>
-              <Grid columns={3} gap={3} className="filter-ai-image-grid ">
-                {generatedImages.map((img, i) => {
-                  const isSelected = selectedIndexes.includes(i);
-                  return (
-                    <button
-                      key={i}
-                      className={`filter-ai-image-wrapper ${isSelected ? 'selected' : ''}`}
-                      onClick={() => toggleSelectImage(i)}
-                      disabled={uploading}
-                    >
-                      <img src={img} alt={`Generated ${i + 1}`} className="filter-ai-image" />
-                    </button>
-                  );
-                })}
-              </Grid>
-              <Button
-                variant="primary"
-                onClick={handleUploadSelected}
-                className="filter-ai-upload-button"
-                disabled={uploading || selectedIndexes.length === 0}
-              >
-                {uploading ? __('Uploading...', 'filter-ai') : __('Upload Selected', 'filter-ai')}
-              </Button>
-            </>
-          )}
-        </div>
-      </CardBody>
-    </Card>
+        <Button
+          variant="secondary"
+          onClick={handleGenerate}
+          className="filter-ai-generate-button"
+          disabled={loading || !isServiceConfigured}
+        >
+          {loading ? __('Generating...', 'filter-ai') : __('Generate Images', 'filter-ai')}
+        </Button>
+
+        {generatedImages.length > 0 && (
+          <>
+            <h3>Select images to upload</h3>
+            <Grid columns={3} gap={3} className="filter-ai-image-grid ">
+              {generatedImages.map((img, i) => {
+                const isSelected = selectedIndexes.includes(i);
+                return (
+                  <button
+                    key={i}
+                    className={`filter-ai-image-wrapper ${isSelected ? 'selected' : ''}`}
+                    onClick={() => toggleSelectImage(i)}
+                    disabled={uploading}
+                  >
+                    <img src={img} alt={`Generated ${i + 1}`} className="filter-ai-image" />
+                  </button>
+                );
+              })}
+            </Grid>
+            <Button
+              variant="primary"
+              onClick={handleUploadSelected}
+              className="filter-ai-upload-button"
+              disabled={uploading || selectedIndexes.length === 0}
+            >
+              {uploading ? __('Uploading...', 'filter-ai') : __('Upload Selected', 'filter-ai')}
+            </Button>
+          </>
+        )}
+      </div>
+    </>
   );
 };
 
