@@ -1,3 +1,7 @@
+.generateImg-content {
+  padding: 1rem;
+}
+
 .filter-ai-form {
   display: flex;
   flex-direction: column;
