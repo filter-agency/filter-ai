@@ -1,19 +1,19 @@
 import { uploadMedia } from '@wordpress/media-utils';
 import { __, sprintf } from '@wordpress/i18n';
-import { showNotice } from '@/utils';
 
 export const uploadGeneratedImageToMediaLibrary = async (dataUrl: string, filename: string, promptText?: string) => {
-  const { helpers } = window.aiServices.ai;
+  return new Promise(async (resolve, reject) => {
+    const { helpers } = window.aiServices.ai;
 
-  try {
     const blob = await helpers.base64DataUrlToBlob(dataUrl);
 
     if (!blob) {
-      throw new Error(__('Failed to convert base64 to Blob', 'filter-ai'));
+      reject(__('Failed to convert base64 to Blob', 'filter-ai'));
+      return;
     }
 
-    const file = new File([blob], filename, {
-      type: 'image/png',
+    const file = new File([blob], `${filename}.${blob.type.replace('image/', '')}`, {
+      type: blob.type,
       lastModified: new Date().getTime(),
     });
 
@@ -33,42 +33,23 @@ export const uploadGeneratedImageToMediaLibrary = async (dataUrl: string, filena
       };
     }
 
-    return new Promise((resolve) => {
-      uploadMedia({
-        filesList: [file],
-        additionalData: attachmentData,
-        onFileChange: ([attachment]) => {
-          if (!attachment) {
-            showNotice({
-              message: __('Saving file failed.', 'filter-ai'),
-              type: 'error',
-            });
-            resolve(null);
-            return;
-          }
+    uploadMedia({
+      filesList: [file],
+      additionalData: attachmentData,
+      onFileChange: ([attachment]) => {
+        if (!attachment) {
+          reject(__('Saving file failed.', 'filter-ai'));
+          return;
+        }
 
-          showNotice({
-            message: __('File saved to media library.', 'filter-ai'),
-          });
-
+        if (attachment.id) {
           resolve(attachment);
-        },
-        onError: (err) => {
-          showNotice({
-            message: sprintf(__('Saving file failed with error: %s', 'filter-ai'), err.message),
-            type: 'error',
-          });
-          resolve(null);
-        },
-      });
+        }
+      },
+      onError: (err) => {
+        reject(sprintf(__('Saving file failed with error: %s', 'filter-ai'), err?.message || err));
+        return;
+      },
     });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-
-    showNotice({
-      message: sprintf(__('Unexpected error during upload: %s', 'filter-ai'), message),
-      type: 'error',
-    });
-    return null;
-  }
+  });
 };
