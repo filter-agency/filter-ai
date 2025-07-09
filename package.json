@@ -32,9 +32,9 @@
     "filter-ai.php",
     "build",
     "includes",
-    "src",
     "composer.json",
-    "vendor/woocommerce/action-scheduler"
+    "vendor/woocommerce/action-scheduler",
+    "filter-ai.json"
   ],
   "dependencies": {
     "@lottiefiles/dotlottie-react": "^0.14.1",
