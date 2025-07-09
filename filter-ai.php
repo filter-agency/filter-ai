@@ -203,16 +203,6 @@ function filter_ai_enqueue_assets() {
 		) . ';',
 		'before'
 	);
-	
-	if ( is_admin() ) {
-		wp_enqueue_script(
-			'my-media-tab',
-			plugin_dir_url( __FILE__ ) . 'src/mediaLibrary/tabs/generate-image-tab/index.js',
-			array( 'media-views', 'wp-element' ),
-			'1.0.0',
-			true
-		);
-	}
 }
 
 add_action( 'admin_enqueue_scripts', 'filter_ai_enqueue_assets', -1 );
