@@ -17,25 +17,9 @@ export const uploadGeneratedImageToMediaLibrary = async (dataUrl: string, filena
       lastModified: new Date().getTime(),
     });
 
-    const attachmentData: {
-      caption?: {
-        rendered: string;
-        raw?: string;
-      };
-    } = {};
-
-    if (promptText) {
-      const captionString = sprintf(__('Generated for prompt: %s', 'filter-ai'), promptText);
-
-      attachmentData.caption = {
-        rendered: captionString,
-        raw: captionString,
-      };
-    }
-
     uploadMedia({
       filesList: [file],
-      additionalData: attachmentData,
+      additionalData: {},
       onFileChange: ([attachment]) => {
         if (!attachment) {
           reject(__('Saving file failed.', 'filter-ai'));
