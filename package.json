@@ -5,9 +5,10 @@
   "license": "GPL-3.0",
   "main": "build/scripts.js",
   "scripts": {
-    "build": "tsc && wp-scripts build && wp-scripts plugin-zip",
+    "build": "wp-scripts build && wp-scripts plugin-zip",
     "start": "wp-scripts start",
-    "prepare": "husky"
+    "prepare": "husky",
+    "typecheck": "tsc"
   },
   "devDependencies": {
     "@eslint/js": "^9.23.0",

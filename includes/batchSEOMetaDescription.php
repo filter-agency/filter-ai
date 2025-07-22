@@ -9,7 +9,8 @@ use Felix_Arntz\AI_Services\Services\API\Types\Content;
 use Felix_Arntz\AI_Services\Services\API\Types\Parts;
 use Felix_Arntz\AI_Services\Services\API\Helpers;
 
-require_once 'helpers.php';
+require_once __DIR__ . '/settings.php';
+require_once __DIR__ . '/helpers.php';
 
 /**
  * Get posts for a specific post_type that is missing _yoast_wpseo_metadesc meta
@@ -85,28 +86,16 @@ function filter_ai_process_batch_seo_meta_description( $args ) {
 		wp_set_current_user( $user_id );
 
 		if ( ai_services()->has_available_services( $required_capabilities ) === false ) {
-			throw new Exception( __( 'AI service not available', 'filter-ai' ) );
+			throw new Exception( esc_html__( 'AI service not available', 'filter-ai' ) );
 		}
 
 		$service = ai_services()->get_available_service( $required_capabilities );
 
 		$parts = new Parts();
 
-		$pre_prompt = 'The response should only contain the answer and in plain text, so no <br> tags for line breaks.';
+		$prompt = filter_ai_get_prompt( 'yoast_seo_meta_description_prompt' );
 
-		$prompt = 'Please generate an SEO-friendly description for this page that is between 120 and 150 characters based on the following content:';
-
-		$settings = get_option( 'filter_ai_settings', [] );
-
-		if ( ! empty( $settings['yoast_seo_meta_description_prompt'] ) ) {
-			$prompt = $settings['yoast_seo_meta_description_prompt'];
-		}
-
-		$stop_words_prompt = ! empty( $settings['stop_words_prompt'] ) ? $settings['stop_words_prompt'] : '';
-
-		$brand_voice_prompt = ! empty( $settings['brand_voice_prompt'] ) ? $settings['brand_voice_prompt'] : '';
-
-		$parts->add_text_part( $pre_prompt . ' ' . $brand_voice_prompt . ' ' . $stop_words_prompt . ' ' . $prompt . ' ' . $post_content );
+		$parts->add_text_part( $prompt . ' ' . $post_content );
 
 		$content = new Content( Content_Role::USER, $parts );
 

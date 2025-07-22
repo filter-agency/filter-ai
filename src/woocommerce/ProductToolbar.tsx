@@ -25,7 +25,7 @@ const useControl = ({ id }: Props) => {
       case 'excerpt':
         return {
           enabled: settings?.wc_product_excerpt_enabled,
-          promptPrefix: settings?.wc_product_excerpt_prompt || ai.prompts.wc_product_excerpt_prompt,
+          promptPrefix: settings?.wc_product_excerpt_prompt,
           loadingMessage: __('Short Description', 'filter-ai'),
           successMessage: __('Product short description has been updated', 'filter-ai'),
           errorMessage: __(
@@ -38,7 +38,7 @@ const useControl = ({ id }: Props) => {
       default:
         return {
           enabled: settings?.wc_product_description_enabled,
-          promptPrefix: settings?.wc_product_description_prompt || ai.prompts.wc_product_description_prompt,
+          promptPrefix: settings?.wc_product_description_prompt,
           loadingMessage: __('Description', 'filter-ai'),
           successMessage: __('Product description has been updated', 'filter-ai'),
           errorMessage: __('Sorry, there has been an issue while generating your product description.', 'filter-ai'),

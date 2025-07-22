@@ -8,7 +8,7 @@ export function addGenerateImageTab() {
   const MediaFrameSelect = wp?.media?.view?.MediaFrame?.Select;
 
   if (!MediaFrameSelect) {
-    console.warn('[GenerateImgTab] wp.media.view.MediaFrame.Select not available.');
+    //     console.warn('[GenerateImgTab] wp.media.view.MediaFrame.Select not available.');
     return;
   }
 

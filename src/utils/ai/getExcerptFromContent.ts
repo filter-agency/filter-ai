@@ -1,5 +1,5 @@
+import { getSettings } from '@/settings';
 import { generateText } from './services';
-import { prompts } from './prompts';
 import { __ } from '@wordpress/i18n';
 
 export const getExcerptFromContent = async (content: string, oldExcerpt?: string, customPrompt?: string) => {
@@ -7,10 +7,13 @@ export const getExcerptFromContent = async (content: string, oldExcerpt?: string
     throw new Error(__('Please add some content first.', 'filter-ai'));
   }
 
-  const promptDifference = oldExcerpt ? `${prompts.common.different} "${oldExcerpt}".` : '';
+  const settings = await getSettings();
+
+  const promptDifference =
+    oldExcerpt && settings?.common_prompt_different ? `${settings.common_prompt_different} "${oldExcerpt}".` : '';
 
   return generateText({
     feature: 'filter-ai-post-excerpt',
-    prompt: `${prompts.common.prefix} ${promptDifference} ${customPrompt} ${content}`,
+    prompt: `${settings?.common_prompt_prefix || ''} ${promptDifference} ${customPrompt} ${content}`,
   });
 };

@@ -9,7 +9,8 @@ use Felix_Arntz\AI_Services\Services\API\Types\Content;
 use Felix_Arntz\AI_Services\Services\API\Types\Parts;
 use Felix_Arntz\AI_Services\Services\API\Helpers;
 
-require_once 'helpers.php';
+require_once __DIR__ . '/settings.php';
+require_once __DIR__ . '/helpers.php';
 
 /**
  * Get list of supported image mime types
@@ -179,30 +180,16 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 		wp_set_current_user( $user_id );
 
 		if ( ai_services()->has_available_services( $required_capabilities ) === false ) {
-			throw new Exception( __( 'AI service not available', 'filter-ai' ) );
+			throw new Exception( esc_html__( 'AI service not available', 'filter-ai' ) );
 		}
 
 		$service = ai_services()->get_available_service( $required_capabilities );
 
 		$parts = new Parts();
 
-		$pre_prompt = 'The response should only contain the answer and in plain text, so no <br> tags for line breaks.';
+		$prompt = filter_ai_get_prompt( 'image_alt_text_prompt' );
 
-		$prompt = 'Please generate a short description no more than 50 words for the following image that can be used as its alternative text. The description should be clear, succinct, and provide a sense of what the image portrays, ensuring that it is accessible to individuals using screen readers.';
-
-		$settings = get_option( 'filter_ai_settings', [] );
-
-		if ( ! empty( $settings['image_alt_text_prompt'] ) ) {
-			$prompt = $settings['image_alt_text_prompt'];
-		}
-
-		$stop_words_prompt = ! empty( $settings['stop_words_prompt'] ) ? $settings['stop_words_prompt'] : '';
-
-		$brand_voice_prompt = ! empty( $settings['brand_voice_prompt'] ) ? $settings['brand_voice_prompt'] : '';
-
-		$full_prompt = $pre_prompt . ' ' . $brand_voice_prompt . ' ' . $stop_words_prompt . ' ' . $prompt;
-
-		$parts->add_text_part( $full_prompt );
+		$parts->add_text_part( $prompt );
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		$image_data = file_get_contents( $image_path );
@@ -358,10 +345,9 @@ add_action( 'wp_ajax_filter_ai_api_cancel_batch_image_alt_text', 'filter_ai_api_
  * @return array $metadata An array of attachment meta data
  */
 function filter_ai_generate_alt_text_on_upload( $metadata, $attachment_id ) {
-	$settings         = get_option( 'filter_ai_settings', [] );
-	$auto_img_enabled = isset( $settings['auto_alt_text_enabled'] ) ? $settings['auto_alt_text_enabled'] : true;
+	$settings = filter_ai_get_settings();
 
-	if ( $auto_img_enabled && $attachment_id ) {
+	if ( $settings['auto_alt_text_enabled'] && $attachment_id ) {
 		$args = array(
 			'image_id' => $attachment_id,
 			'user_id'  => get_current_user_id(),

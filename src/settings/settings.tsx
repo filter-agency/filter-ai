@@ -83,12 +83,12 @@ const Settings = () => {
         }));
 
         // check for dependants and disable those as well
-        const dependant = section.features.find((f) => f.toggle.dependency === key);
+        const dependants = section.features.filter((f) => f.toggle.dependency === key);
 
-        if (dependant) {
+        if (dependants) {
           setFormData((prevState) => ({
             ...prevState,
-            [dependant.toggle.key]: value,
+            ...dependants.reduce((a, d) => ({ ...a, [d.toggle.key]: value }), {}),
           }));
         }
       }

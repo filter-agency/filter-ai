@@ -63,7 +63,7 @@ const initGenerateImageButtonUI = () => {
 (() => {
   const AttachmentsBrowser = window?.wp?.media?.view?.AttachmentsBrowser;
   if (!AttachmentsBrowser) {
-    console.warn('[FilterAI] AttachmentsBrowser not found.');
+    //     console.warn('[FilterAI] AttachmentsBrowser not found.');
     return;
   }
 

@@ -1,10 +1,16 @@
 {
+  "name": "filter-agency/filter-ai",
+  "description": "Powerful AI content creation tools integrated directly into the WordPress editor for effortless content generation.",
+  "type": "wordpress-plugin",
+  "license": "GPL-3.0",
   "require": {
     "php": ">=7.4",
+    "composer/installers": "~1.0",
     "woocommerce/action-scheduler": "^3.9"
   },
   "config": {
     "allow-plugins": {
+      "composer/installers": true,
       "dealerdirect/phpcodesniffer-composer-installer": true
     }
   },

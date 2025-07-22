@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { generateText } from './services';
-import { prompts } from './prompts';
+import { getSettings } from '@/settings';
 
 export const customiseText = async (feature: string, text: string, prompt: string) => {
   if (!prompt) {
@@ -11,8 +11,10 @@ export const customiseText = async (feature: string, text: string, prompt: strin
     throw new Error(__('Please provide some text', 'filter-ai'));
   }
 
+  const settings = await getSettings();
+
   return generateText({
     feature,
-    prompt: `${prompts.common.prefix} ${prompt} \`${text}\``,
+    prompt: `${settings?.common_prompt_prefix || ''} ${prompt} \`${text}\``,
   });
 };
