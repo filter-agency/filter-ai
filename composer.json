@@ -24,5 +24,12 @@
     "fix-cs": [
       "@php ./vendor/bin/phpcbf"
     ]
+  },
+  "extra": {
+		"installer-paths": {
+			"packages/{$name}": [
+				"woocommerce/action-scheduler"
+			]
+		}
   }
 }
