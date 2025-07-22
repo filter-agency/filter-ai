@@ -3,7 +3,7 @@ Contributors: filterdigital, paulfhalfpenny, ianharrisfilter, davecpage
 Tags: ai, content generation, artificial intelligence, openai, anthropic
 Requires at least: 6.3 
 Tested up to: 6.8
-Stable tag: 1.2.1 
+Stable tag: 1.2.2
 Requires PHP: 7.4 
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -86,6 +86,13 @@ If you need help with Filter AI, you can visit our support forum or [contact us 
 5. Rewriting existing content with AI assistance
 
 == Changelog ==
+
+= 1.2.2 =
+
+**Bug fixes:**
+
+* Standardise location of composer/package files for WooCommerce Action Scheduler
+
 
 = 1.2.1 =
 
