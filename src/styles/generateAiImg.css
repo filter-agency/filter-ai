@@ -91,18 +91,23 @@
   overflow-y: auto;
 }
 
-.components-modal__frame.filter-ai-generator-modal {
-  width: 60vw;
+.filter-ai-generator-modal .filter-ai-textarea {
+  width: 100%;
+  max-width: 850px;
+}
+
+.filter-ai-generator-modal .filter-ai-image-grid {
+  width: 100%;
   max-width: 900px;
-  height: auto;
-  max-height: 90vh;
 }
 
 .filter-ai-generator-modal .components-button.filter-ai-generate-button.is-secondary {
   margin-top: 13px;
 }
 
-.filter-ai-generator-modal .filter-ai-image-grid {
-  width: 100%;
+.components-modal__frame.filter-ai-generator-modal {
+  width: 60vw;
   max-width: 900px;
+  height: auto;
+  max-height: 90vh;
 }
