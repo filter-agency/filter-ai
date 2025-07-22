@@ -70,3 +70,44 @@
   width: 100%;
   display: block;
 }
+
+.filter-ai-button-container {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 8px;
+  margin-top: -9px;
+}
+
+.filter-ai-media-lib-generate-btn {
+  height: 30px;
+  border-radius: 3px;
+  border-color: #0a4b78;
+  background: #f0f0f1;
+  color: #0a4b78;
+}
+
+.filter-ai-generator-modal {
+  padding-bottom: 15px;
+  overflow-y: auto;
+}
+
+.filter-ai-generator-modal .filter-ai-textarea {
+  width: 100%;
+  max-width: 850px;
+}
+
+.filter-ai-generator-modal .filter-ai-image-grid {
+  width: 100%;
+  max-width: 900px;
+}
+
+.filter-ai-generator-modal .components-button.filter-ai-generate-button.is-secondary {
+  margin-top: 13px;
+}
+
+.components-modal__frame.filter-ai-generator-modal {
+  width: 60vw;
+  max-width: 900px;
+  height: auto;
+  max-height: 90vh;
+}

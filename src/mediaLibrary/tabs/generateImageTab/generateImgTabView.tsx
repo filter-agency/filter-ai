@@ -2,7 +2,7 @@ import { getGeneratedImages } from '@/utils/ai/getGeneratedImages';
 import { uploadGeneratedImageToMediaLibrary } from '@/utils/ai/uploadGeneratedImage';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Button, Notice, TextareaControl, __experimentalGrid as Grid } from '@wordpress/components';
-import { showNotice } from '@/utils';
+import { hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils';
 import { getService } from '@/utils/ai/services/getService';
 import { createInterpolateElement, useState, useEffect } from '@wordpress/element';
 
@@ -16,6 +16,7 @@ const GenerateImgTabView = () => {
 
   const handleGenerate = async () => {
     setLoading(true);
+    showLoadingMessage(__('AI Image', 'filter-ai'));
     try {
       const generateImages = await getGeneratedImages(prompt);
       setGeneratedImages(generateImages);
@@ -36,6 +37,7 @@ const GenerateImgTabView = () => {
       });
     } finally {
       setLoading(false);
+      hideLoadingMessage();
     }
   };
 
@@ -53,6 +55,7 @@ const GenerateImgTabView = () => {
     }
 
     setUploading(true);
+    showLoadingMessage(__('Image', 'filter-ai'), 'uploading');
 
     try {
       const uploaded = await Promise.all(
@@ -77,6 +80,7 @@ const GenerateImgTabView = () => {
       });
     } finally {
       setUploading(false);
+      hideLoadingMessage();
     }
   };
 
@@ -126,7 +130,7 @@ const GenerateImgTabView = () => {
         </Notice>
       )}
 
-      <h2>{__('Enter a prompt to generate Images', 'filter-ai')}</h2>
+      <h2>{__('Enter a prompt to generate images', 'filter-ai')}</h2>
       <p>
         {__(
           'Once images are generated, choose one or more of those to import into your Media Library, and then choose one image to insert.',
