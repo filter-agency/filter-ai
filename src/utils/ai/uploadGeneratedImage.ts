@@ -1,6 +1,26 @@
 import { uploadMedia } from '@wordpress/media-utils';
 import { __, sprintf } from '@wordpress/i18n';
 
+let refreshTimeout: NodeJS.Timeout | null = null;
+
+export const refreshMediaLibrary = () => {
+  if (refreshTimeout) {
+    clearTimeout(refreshTimeout);
+  }
+
+  refreshTimeout = setTimeout(() => {
+    const mediaFrame = window?.wp?.media?.frame;
+
+    if (mediaFrame) {
+      const library = mediaFrame.content.get().collection;
+      if (library) {
+        library.props.set('ignore', Date.now());
+        library.more();
+      }
+    }
+  }, 500);
+};
+
 export const uploadGeneratedImageToMediaLibrary = async (dataUrl: string, filename: string, promptText?: string) => {
   return new Promise(async (resolve, reject) => {
     const { helpers } = window.aiServices.ai;

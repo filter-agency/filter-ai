@@ -1,5 +1,5 @@
 import { getGeneratedImages } from '@/utils/ai/getGeneratedImages';
-import { uploadGeneratedImageToMediaLibrary } from '@/utils/ai/uploadGeneratedImage';
+import { uploadGeneratedImageToMediaLibrary, refreshMediaLibrary } from '@/utils/ai/uploadGeneratedImage';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Button, Notice, TextareaControl, __experimentalGrid as Grid } from '@wordpress/components';
 import { hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils';
@@ -65,6 +65,8 @@ const GenerateImgTabView = () => {
       ).catch((error) => {
         throw new Error(error?.message || error);
       });
+
+      refreshMediaLibrary();
 
       showNotice({
         message: sprintf(
