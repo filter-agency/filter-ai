@@ -17,6 +17,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+define( 'FILTER_AI_PATH', plugin_dir_path( __FILE__ ) );
+
 require_once plugin_dir_path( __FILE__ ) . 'packages/action-scheduler/action-scheduler.php';
 
 require_once plugin_dir_path( __FILE__ ) . 'includes/settings.php';
@@ -24,6 +26,7 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/batchImageAltText.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/batchSEOTitle.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/batchSEOMetaDescription.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/dynamicReplaceAltText.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/updater.php';
 
 /**
  *  Add settings link to the plugin action links
