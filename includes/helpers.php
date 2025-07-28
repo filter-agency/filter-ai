@@ -157,14 +157,14 @@ function filter_ai_get_posts_count( $post_type = 'any' ) {
 /**
  * Get posts for a specific post_type that is missing a specific meta query
  *
+ * @param string $query_key Query key
  * @param int    $paged Page number
  * @param int    $posts_per_page Number of posts per page
  * @param string $post_type Post type
- * @param string $query_key Query key
  *
  * @return WP_Query Return WP_Query
  */
-function filter_ai_get_posts_missing_meta_query( $paged = 1, $posts_per_page = 500, $post_type = 'any', $query_key ) {
+function filter_ai_get_posts_missing_meta_query( $query_key, $paged = 1, $posts_per_page = 500, $post_type = 'any' ) {
 	$query = new WP_Query(
 		array(
 			'post_type'              => $post_type,
