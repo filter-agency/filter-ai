@@ -19,17 +19,17 @@
   },
   "scripts": {
     "check-cs": [
-      "@php ./vendor/bin/phpcs"
+      "@php ./vendor/bin/phpcs --ignore=*/packages/*,*/vendor/*"
     ],
     "fix-cs": [
-      "@php ./vendor/bin/phpcbf"
+      "@php ./vendor/bin/phpcbf --ignore=*/packages/*,*/vendor/*"
     ]
   },
   "extra": {
-		"installer-paths": {
-			"packages/{$name}": [
-				"woocommerce/action-scheduler"
-			]
-		}
+    "installer-paths": {
+      "packages/{$name}": [
+        "woocommerce/action-scheduler"
+      ]
+    }
   }
 }
