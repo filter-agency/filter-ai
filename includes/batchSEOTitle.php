@@ -21,7 +21,7 @@ require_once __DIR__ . '/helpers.php';
  * @return int[] Returns array of post ids
  */
 function filter_ai_get_posts_missing_seo_title( $paged, $posts_per_page ) {
-	$query = filter_ai_get_posts_missing_meta_query( $paged, $posts_per_page, 'any', '_yoast_wpseo_title' );
+	$query = filter_ai_get_posts_missing_meta_query( '_yoast_wpseo_title', $paged, $posts_per_page, 'any' );
 
 	return $query->get_posts();
 }
@@ -34,7 +34,7 @@ function filter_ai_get_posts_missing_seo_title( $paged, $posts_per_page ) {
  * @return number Number of posts
  */
 function filter_ai_get_posts_missing_seo_title_count( $post_type = 'any' ) {
-	$query = filter_ai_get_posts_missing_meta_query( 1, 1, $post_type, '_yoast_wpseo_title' );
+	$query = filter_ai_get_posts_missing_meta_query( '_yoast_wpseo_title', 1, 1, $post_type );
 
 	return $query->found_posts;
 }
