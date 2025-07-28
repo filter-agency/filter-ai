@@ -1,7 +1,7 @@
 {
   "name": "Filter AI",
   "slug": "filter-ai",
-  "version": "1.2.0",
+  "version": "1.2.2",
   "requires": "6.3",
   "tested": "6.8.1",
   "requires_php": "7.4",
