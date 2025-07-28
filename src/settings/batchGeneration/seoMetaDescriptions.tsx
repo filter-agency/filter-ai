@@ -96,6 +96,10 @@ const SEOMetaDescriptions = () => {
           method: 'POST',
         }
       );
+
+      fetch(`${window.filter_ai_api.url}?action=filter_ai_api_batch_queue_run&nonce=${window.filter_ai_api.nonce}`, {
+        method: 'POST',
+      });
     } finally {
       getCount();
     }
