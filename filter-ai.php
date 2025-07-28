@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Filter AI
  * Description: Meet your digital sidekick: Filter AI, a plugin that tackles your to-do list faster than you can say 'procrastination'!
- * Version: 1.2.0
+ * Version: 1.2.2
  * Author: Filter
  * Author URI: https://filter.agency
  * Requires at least: 6.3
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require_once plugin_dir_path( __FILE__ ) . '/vendor/woocommerce/action-scheduler/action-scheduler.php';
+require_once plugin_dir_path( __FILE__ ) . 'packages/action-scheduler/action-scheduler.php';
 
 require_once plugin_dir_path( __FILE__ ) . 'includes/settings.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/batchImageAltText.php';

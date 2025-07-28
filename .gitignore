@@ -1,6 +1,5 @@
 node_modules
 
 vendor/*
-!vendor/woocommerce/action-scheduler/
 build
 filter-ai.zip
