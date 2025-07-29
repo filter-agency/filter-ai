@@ -16,27 +16,41 @@
 }
 
 .filter-ai-settings-header {
-  background: #fff;
+  background-color: #012f5f;
+  background-image: url('../assets/fade-bg.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: bottom center;
   border-bottom: 1px solid #e0e0e0;
-  padding: 16px;
-  margin: -10px -20px 0;
+  padding: 24px 16px 24px 18px;
+  margin: -10px -20px 0 -22px;
   position: sticky;
   top: 32px;
   z-index: 1;
   flex-shrink: 0;
+  color: #fff;
 
   & h1,
   & p {
     margin: 0;
     padding: 0;
+    color: #fff;
   }
 
   & h1 {
     margin-bottom: 8px;
+    font-size: 20px;
+    line-height: 24px;
+  }
+
+  & p {
+    font-size: 13px;
+    line-height: 20px;
   }
 
   & img {
     width: 18px;
+    margin-top: -3px;
   }
 
   & .filter-ai-settings-header-content {
@@ -45,8 +59,9 @@
     margin: 0 auto;
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: flex-start;
+    gap: 24px;
   }
 
   & #leadin-disconnected-banner {
@@ -58,7 +73,7 @@
   }
 
   & .nav-tab-wrapper {
-    padding-top: 16px;
+    padding-top: 24px;
     border-bottom: 0;
     max-width: 760px;
     width: 100%;
@@ -70,13 +85,16 @@
 
   & .nav-tab {
     margin: 0 0 -1px;
+    background: #fff;
+    color: #012f5f;
   }
 
   & .nav-tab:not(.nav-tab-active) {
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid #f0f0f1;
   }
 
   & .nav-tab-active {
+    background: #f0f0f1;
     border-bottom: 1px solid #f0f0f1;
   }
 }
