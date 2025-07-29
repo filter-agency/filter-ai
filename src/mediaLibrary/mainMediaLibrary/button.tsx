@@ -1,4 +1,4 @@
-import { useState, useEffect, Fragment } from '@wordpress/element';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Modal } from '@wordpress/components';
 import GenerateImgTabView from '@/mediaLibrary/tabs/generateImageTab/generateImgTabView';
@@ -10,7 +10,7 @@ const GenerateImageButtonUI = () => {
   const closeModal = () => setIsOpen(false);
 
   return (
-    <Fragment>
+    <>
       <Button variant="secondary" onClick={openModal} className="filter-ai-media-lib-generate-btn">
         {__('Generate AI Image', 'filter-ai')}
       </Button>
@@ -25,18 +25,17 @@ const GenerateImageButtonUI = () => {
           <GenerateImgTabView />
         </Modal>
       )}
-    </Fragment>
+    </>
   );
 };
 
 const initGenerateImageButtonUI = () => {
   const { createRoot } = window.wp?.element || {};
   if (!createRoot) {
-    console.error('[FilterAI] createRoot not found.');
     return;
   }
 
-  const observer = new MutationObserver((mutations, obs) => {
+  const observer = new MutationObserver((_mutations, obs) => {
     const addNewButton = document.querySelector('#wp-media-grid .page-title-action');
     const mediaGrid = document.querySelector('#wp-media-grid');
 
@@ -49,8 +48,6 @@ const initGenerateImageButtonUI = () => {
       buttonRoot.render(<GenerateImageButtonUI />);
 
       obs.disconnect();
-    } else {
-      console.log('[FilterAI] Waiting for .page-title-action and #wp-media-grid...');
     }
   });
 
@@ -63,7 +60,6 @@ const initGenerateImageButtonUI = () => {
 (() => {
   const AttachmentsBrowser = window?.wp?.media?.view?.AttachmentsBrowser;
   if (!AttachmentsBrowser) {
-    //     console.warn('[FilterAI] AttachmentsBrowser not found.');
     return;
   }
 
