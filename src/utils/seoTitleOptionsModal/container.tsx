@@ -18,12 +18,12 @@ const SeoTiltleOptionsModalContainer = () => {
   const { settings } = useSettings();
 
   const { content, oldSeoTitle } = useSelect((select) => {
-    const { getEditedPostAttribute } = select('core/editor');
+    const { getEditedPostAttribute } = select('core/editor') || {};
     const { getSeoTitle } = select('yoast-seo/editor') || {};
 
     return {
       // @ts-expect-error Type 'never' has no call signatures.
-      content: getEditedPostAttribute('content'),
+      content: getEditedPostAttribute?.('content'),
       // @ts-expect-error Type 'never' has no call signatures.
       oldSeoTitle: getSeoTitle?.(),
     };
