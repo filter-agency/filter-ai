@@ -33,7 +33,7 @@
     "build",
     "includes",
     "composer.json",
-    "vendor/woocommerce/action-scheduler"
+    "packages"
   ],
   "dependencies": {
     "@lottiefiles/dotlottie-react": "^0.14.1",
