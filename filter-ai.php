@@ -210,3 +210,10 @@ function filter_ai_enqueue_assets() {
 }
 
 add_action( 'admin_enqueue_scripts', 'filter_ai_enqueue_assets', -1 );
+
+add_filter(
+	'ai_services_request_timeout',
+	function () {
+		return 60;
+	}
+);
