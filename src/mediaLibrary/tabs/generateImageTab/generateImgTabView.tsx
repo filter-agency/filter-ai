@@ -135,6 +135,12 @@ const GenerateImgTabView = () => {
       <h2>{__('Enter a prompt to generate images', 'filter-ai')}</h2>
       <p>
         {__(
+          'Be specific by clearly defining the subject of the image, provide context of where the subject is or what they are doing and indicate the desired style and mood you would like your image to have.',
+          'filter-ai'
+        )}
+      </p>
+      <p>
+        {__(
           'Once images are generated, choose one or more of those to import into your Media Library, and then choose one image to insert.',
           'filter-ai'
         )}

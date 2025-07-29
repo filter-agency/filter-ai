@@ -26,6 +26,8 @@ function filter_ai_get_default_settings() {
 		'auto_alt_text_enabled'              => true,
 		'dynamic_add_alt_text_enabled'       => true,
 
+		'generate_image_pre_prompt'          => esc_html__( 'Please generate an image that is optimised for web use and is based on the following prompt:', 'filter-ai' ),
+
 		'post_title_enabled'                 => true,
 		'post_title_prompt'                  => esc_html__( 'Please generate an SEO-friendly title for this page that is between 40 and 60 characters based on the following content:', 'filter-ai' ),
 
