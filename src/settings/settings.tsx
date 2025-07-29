@@ -13,7 +13,7 @@ import { createRoot, useState, useEffect, useMemo } from '@wordpress/element';
 import { FilterAISettings, useSettings } from './useSettings';
 import _ from 'underscore';
 import { sections } from './sections';
-import { filterLogo } from '@/assets/filter-logo';
+import { filterLogoWhite } from '@/assets/filter-logo';
 import { verticalDots } from '@/assets/vertical-dots';
 import { __ } from '@wordpress/i18n';
 
@@ -144,11 +144,11 @@ const Settings = () => {
     <div className="filter-ai-settings">
       <header className="filter-ai-settings-header">
         <div className="filter-ai-settings-header-content">
+          <img src={filterLogoWhite} alt={__('Filter AI logo', 'filter-ai')} />
           <div>
             <h1>{__('Filter AI Plugin Settings', 'filter-ai')}</h1>
             <p>{__('Customise your settings for the Filter AI plugin here.', 'filter-ai')}</p>
           </div>
-          <img src={filterLogo} alt={__('Filter AI logo', 'filter-ai')} />
         </div>
       </header>
       <div className="filter-ai-settings-content">

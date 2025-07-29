@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { filterLogo } from '@/assets/filter-logo';
+import { filterLogoWhite } from '@/assets/filter-logo';
 import { createRoot, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import ImageAltText from './imageAltText';
@@ -67,10 +67,10 @@ const BatchGeneration = () => {
     <div className="filter-ai-settings">
       <header className="filter-ai-settings-header">
         <div className="filter-ai-settings-header-content">
+          <img src={filterLogoWhite} alt={__('Filter AI logo', 'filter-ai')} />
           <div>
             <h1 style={{ margin: 0 }}>{__('Filter AI Batch Generation', 'filter-ai')}</h1>
           </div>
-          <img src={filterLogo} alt={__('Filter AI logo', 'filter-ai')} />
         </div>
         <nav className="nav-tab-wrapper">
           {Object.keys(tabs).map((key) => {
