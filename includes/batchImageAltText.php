@@ -259,11 +259,6 @@ function filter_ai_api_batch_image_alt_text() {
 		}
 	}
 
-	if ( class_exists( 'ActionScheduler' ) && ! empty( $action_ids ) ) {
-		// trigger the first action rather than waiting on the queue
-		ActionScheduler::runner()->process_action( $action_ids[0] );
-	}
-
 	wp_send_json_success();
 }
 
