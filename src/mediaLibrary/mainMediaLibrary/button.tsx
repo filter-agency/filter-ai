@@ -29,7 +29,7 @@ const GenerateImageButtonUI = () => {
           shouldCloseOnClickOutside={true}
           className="filter-ai-generator-modal"
         >
-          <GenerateImgTabView />
+          <GenerateImgTabView callback={closeModal} />
         </Modal>
       )}
     </>
