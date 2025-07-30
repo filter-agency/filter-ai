@@ -1,18 +1,33 @@
 import { createRoot } from 'react-dom/client';
 import GenerateImgTabView from './generateImgTabView';
 import { __ } from '@wordpress/i18n';
+import { getSettings } from '@/settings';
 
 declare const wp: any;
 
-export function addGenerateImageTab() {
-  const MediaFrameSelect = wp?.media?.view?.MediaFrame?.Select;
+(async () => {
+  const MediaFrame = wp?.media?.view?.MediaFrame?.Select;
 
-  if (!MediaFrameSelect) {
-    //     console.warn('[GenerateImgTab] wp.media.view.MediaFrame.Select not available.');
+  if (!MediaFrame) {
     return;
   }
 
-  const MediaFrame = wp.media.view.MediaFrame.Select;
+  const settings = await getSettings();
+
+  if (!settings?.generate_image_enabled) {
+    wp.media.view.MediaFrame.Select = MediaFrame.extend({
+      initialize: function () {
+        MediaFrame.prototype.initialize.apply(this, arguments);
+
+        this.on('content:render:generateImg', this.renderGenerateImg, this);
+      },
+      renderGenerateImg: function () {
+        this.content.mode('browse');
+      },
+    });
+
+    return;
+  }
 
   wp.media.view.MediaFrame.Select = MediaFrame.extend({
     initialize: function () {
@@ -52,6 +67,9 @@ export function addGenerateImageTab() {
     },
 
     renderGenerateImg: function () {
+      const parent = this.$el;
+      const isToolbarHidden = parent.hasClass('hide-toolbar');
+
       const container = document.createElement('div');
       container.className = 'generateImg-content';
 
@@ -59,8 +77,13 @@ export function addGenerateImageTab() {
         className: 'generateImg-wrapper',
         render: function () {
           this.$el.append(container);
+
           try {
             renderGenerateImgReact(container);
+
+            if (!isToolbarHidden) {
+              parent.addClass('hide-toolbar');
+            }
           } catch (err) {
             console.error('[GenerateImgTab] React render error:', err);
           }
@@ -71,6 +94,10 @@ export function addGenerateImageTab() {
         remove: function () {
           unmountGenerateImgReact();
           wp.Backbone.View.prototype.remove.call(this);
+
+          if (!isToolbarHidden) {
+            parent.removeClass('hide-toolbar');
+          }
         },
       });
 
@@ -78,7 +105,7 @@ export function addGenerateImageTab() {
       this.content.set(view);
     },
   });
-}
+})();
 
 let root: any = null;
 
@@ -93,12 +120,3 @@ function unmountGenerateImgReact() {
     root = null;
   }
 }
-
-const observer = new MutationObserver(() => {
-  addGenerateImageTab();
-});
-
-observer.observe(document.body, {
-  childList: true,
-  subtree: true,
-});

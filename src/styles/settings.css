@@ -141,6 +141,10 @@
     font-size: 15px;
   }
 
+  & .components-panel__body.has-dependency {
+    border-top-color: #fff;
+  }
+
   & .components-panel__body p {
     &:first-child {
       margin-top: 0;

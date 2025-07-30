@@ -86,6 +86,10 @@
   color: #0a4b78;
 }
 
+.filter-ai-media-lib-generate-btn.page-title-action {
+  top: 0 !important;
+}
+
 .filter-ai-generator-modal {
   padding-bottom: 15px;
   overflow-y: auto;
