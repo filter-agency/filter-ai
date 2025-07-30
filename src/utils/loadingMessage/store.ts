@@ -4,7 +4,7 @@ const storeName = 'filter-ai/loading-message-store';
 
 type State = {
   label: string;
-  type: 'generating' | 'summarising' | 'customising' | 'uploading';
+  type: 'generating' | 'summarising' | 'customising' | 'importing';
 };
 
 type Action = {

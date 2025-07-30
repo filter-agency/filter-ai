@@ -7,19 +7,23 @@ import { getService } from '@/utils/ai/services/getService';
 import { createInterpolateElement, useState, useEffect } from '@wordpress/element';
 import { useSettings } from '@/settings';
 
-const GenerateImgTabView = () => {
+type Props = {
+  callback?: () => void;
+};
+
+const GenerateImgTabView = ({ callback }: Props) => {
   const [prompt, setPrompt] = useState('');
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [selectedIndexes, setSelectedIndexes] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [importing, setImporting] = useState(false);
   const [isServiceConfigured, setIsServiceConfigured] = useState<boolean>(true);
 
   const { settings } = useSettings();
 
   const handleGenerate = async () => {
     setLoading(true);
-    showLoadingMessage(__('AI Image', 'filter-ai'));
+    showLoadingMessage(__('AI Images', 'filter-ai'));
     try {
       const generateImages = await getGeneratedImages(prompt);
       setGeneratedImages(generateImages);
@@ -48,22 +52,22 @@ const GenerateImgTabView = () => {
     setSelectedIndexes((prev) => (prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]));
   };
 
-  const handleUploadSelected = async () => {
+  const handleImportSelected = async () => {
     if (selectedIndexes.length === 0) {
       showNotice({
-        message: __('Please select at least one image to upload', 'filter-ai'),
+        message: __('Please select at least one image to import', 'filter-ai'),
         type: 'error',
       });
       return;
     }
 
-    setUploading(true);
-    showLoadingMessage(__('Image', 'filter-ai'), 'uploading');
+    setImporting(true);
+    showLoadingMessage(__('Images', 'filter-ai'), 'importing');
 
     try {
-      const uploaded = await Promise.all(
+      const imported = await Promise.all(
         selectedIndexes.map((index) =>
-          uploadGeneratedImageToMediaLibrary(generatedImages[index], `aiImage${index + 1}`, prompt)
+          uploadGeneratedImageToMediaLibrary(generatedImages[index], `filter-ai-image-${index + 1}`)
         )
       ).catch((error) => {
         throw new Error(error?.message || error);
@@ -71,23 +75,39 @@ const GenerateImgTabView = () => {
 
       refreshMediaLibrary();
 
+      callback?.();
+
       showNotice({
         message: sprintf(
-          _n(`Successfully uploaded %d image.`, `Successfully uploaded %d images.`, uploaded.length, 'filter-ai'),
-          uploaded.length
+          _n(`Successfully imported %d image.`, `Successfully imported %d images.`, imported.length, 'filter-ai'),
+          imported.length
         ),
         type: 'notice',
       });
     } catch (err) {
       showNotice({
-        message: sprintf(__('Upload failed: %s', 'filter-ai'), err),
+        message: sprintf(__('Import failed: %s', 'filter-ai'), err),
         type: 'error',
       });
     } finally {
-      setUploading(false);
+      setImporting(false);
       hideLoadingMessage();
     }
   };
+
+  useEffect(() => {
+    const modal = document.querySelector('.filter-ai-generator-modal') as HTMLDivElement;
+
+    if (!modal) {
+      return;
+    }
+
+    if (loading || importing) {
+      modal.style.display = 'none';
+    } else {
+      modal.style.display = '';
+    }
+  }, [loading, importing]);
 
   useEffect(() => {
     (async () => {
@@ -161,7 +181,7 @@ const GenerateImgTabView = () => {
 
         {generatedImages.length > 0 && (
           <>
-            <h3>Select images to upload</h3>
+            <h3>{__('Select images to import', 'filter-ai')}</h3>
             <Grid columns={3} gap={3} className="filter-ai-image-grid ">
               {generatedImages.map((img, i) => {
                 const isSelected = selectedIndexes.includes(i);
@@ -170,7 +190,7 @@ const GenerateImgTabView = () => {
                     key={i}
                     className={`filter-ai-image-wrapper ${isSelected ? 'selected' : ''}`}
                     onClick={() => toggleSelectImage(i)}
-                    disabled={uploading}
+                    disabled={importing}
                   >
                     <img src={img} alt={`Generated ${i + 1}`} className="filter-ai-image" />
                   </button>
@@ -179,11 +199,11 @@ const GenerateImgTabView = () => {
             </Grid>
             <Button
               variant="primary"
-              onClick={handleUploadSelected}
-              className="filter-ai-upload-button"
-              disabled={uploading || selectedIndexes.length === 0}
+              onClick={handleImportSelected}
+              className="filter-ai-import-button"
+              disabled={importing || selectedIndexes.length === 0}
             >
-              {uploading ? __('Uploading...', 'filter-ai') : __('Upload Selected', 'filter-ai')}
+              {importing ? __('Importing...', 'filter-ai') : __('Import Selected', 'filter-ai')}
             </Button>
           </>
         )}

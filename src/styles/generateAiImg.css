@@ -19,7 +19,7 @@
   margin-top: 5px;
 }
 
-.filter-ai-upload-button {
+.filter-ai-import-button {
   margin-top: 15px;
 }
 
@@ -73,9 +73,14 @@
 
 .filter-ai-button-container {
   display: inline-block;
-  vertical-align: middle;
   margin-left: 8px;
-  margin-top: -9px;
+  position: relative;
+  top: -3px;
+
+  & button {
+    margin-left: 0;
+    height: auto;
+  }
 }
 
 .filter-ai-media-lib-generate-btn {
@@ -110,8 +115,6 @@
 }
 
 .components-modal__frame.filter-ai-generator-modal {
-  width: 60vw;
-  max-width: 900px;
-  height: auto;
-  max-height: 90vh;
+  width: 100%;
+  max-width: 46.875rem;
 }

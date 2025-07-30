@@ -13,8 +13,8 @@ const LoadingMessage = () => {
         return __('Customising %s', 'filter-ai');
       case 'summarising':
         return __('Summarising %s', 'filter-ai');
-      case 'uploading':
-        return __('Uploading %s', 'filter-ai');
+      case 'importing':
+        return __('Importing %s', 'filter-ai');
       default:
         return __('Generating %s', 'filter-ai');
     }
@@ -43,8 +43,8 @@ const LoadingMessage = () => {
       <div className="filter-ai-loading-message">
         <h2>{sprintf(title, label)}</h2>
         <p>
-          {type === 'uploading'
-            ? sprintf(__('Uploading and processing your %s...', 'filter-ai'), convertToLowerCase(label))
+          {type === 'importing'
+            ? sprintf(__('Importing and processing your %s...', 'filter-ai'), convertToLowerCase(label))
             : sprintf(
                 __('Analysing your requirements and crafting the perfect %s.', 'filter-ai'),
                 convertToLowerCase(label)

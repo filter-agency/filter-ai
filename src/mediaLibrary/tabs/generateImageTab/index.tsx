@@ -73,13 +73,15 @@ declare const wp: any;
       const container = document.createElement('div');
       container.className = 'generateImg-content';
 
+      const callback = () => this.content.mode('browse');
+
       const View = wp.Backbone.View.extend({
         className: 'generateImg-wrapper',
         render: function () {
           this.$el.append(container);
 
           try {
-            renderGenerateImgReact(container);
+            renderGenerateImgReact(container, callback);
 
             if (!isToolbarHidden) {
               parent.addClass('hide-toolbar');
@@ -109,9 +111,9 @@ declare const wp: any;
 
 let root: any = null;
 
-function renderGenerateImgReact(container: HTMLElement) {
+function renderGenerateImgReact(container: HTMLElement, callback: () => void) {
   root = createRoot(container);
-  root.render(<GenerateImgTabView />);
+  root.render(<GenerateImgTabView callback={callback} />);
 }
 
 function unmountGenerateImgReact() {
