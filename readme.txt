@@ -3,7 +3,7 @@ Contributors: filterdigital, paulfhalfpenny, ianharrisfilter, davecpage
 Tags: ai, content generation, artificial intelligence, openai, anthropic
 Requires at least: 6.3 
 Tested up to: 6.8
-Stable tag: 1.2.2
+Stable tag: 1.3.0
 Requires PHP: 7.4 
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -86,6 +86,14 @@ If you need help with Filter AI, you can visit our support forum or [contact us 
 5. Rewriting existing content with AI assistance
 
 == Changelog ==
+
+= 1.3.0 =
+
+**Enhancements:**
+
+* Custom image generation
+* Dynamically replace missing alt text
+* Automatic plugin updates
 
 = 1.2.2 =
 
