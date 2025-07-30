@@ -90,7 +90,7 @@ const GenerateImgTabView = () => {
     (async () => {
       try {
         const service = await getService();
-        if (!service || !service.slug) {
+        if (!service) {
           setIsServiceConfigured(false);
         }
       } catch (err) {
