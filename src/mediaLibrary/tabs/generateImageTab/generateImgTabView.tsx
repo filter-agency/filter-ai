@@ -67,7 +67,7 @@ const GenerateImgTabView = ({ callback }: Props) => {
     try {
       const imported = await Promise.all(
         selectedIndexes.map((index) =>
-          uploadGeneratedImageToMediaLibrary(generatedImages[index], `filter-ai-image-${index + 1}`)
+          uploadGeneratedImageToMediaLibrary(generatedImages[index], `filter-ai-image-${index + 1}`, prompt)
         )
       ).catch((error) => {
         throw new Error(error?.message || error);
