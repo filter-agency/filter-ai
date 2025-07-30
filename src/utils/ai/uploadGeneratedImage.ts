@@ -21,7 +21,7 @@ export const refreshMediaLibrary = () => {
   }, 500);
 };
 
-export const uploadGeneratedImageToMediaLibrary = async (dataUrl: string, filename: string) => {
+export const uploadGeneratedImageToMediaLibrary = async (dataUrl: string, filename: string, promptText?: string) => {
   return new Promise(async (resolve, reject) => {
     const { helpers } = window.aiServices.ai;
 
@@ -41,8 +41,8 @@ export const uploadGeneratedImageToMediaLibrary = async (dataUrl: string, filena
       filesList: [file],
       additionalData: {
         title: {
-          raw: __('Filter AI generated image', 'filter-ai'),
-          rendered: __('Filter AI generated image', 'filter-ai'),
+          raw: promptText,
+          rendered: promptText || '',
         },
       },
       onFileChange: ([attachment]) => {
