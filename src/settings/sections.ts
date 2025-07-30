@@ -102,7 +102,7 @@ export const sections: Section[] = [
           key: 'dynamic_add_alt_text_enabled',
           label: __('Dynamically add missing alt text', 'filter-ai'),
           help: __(
-            `Core WordPress doesn't update the alt text in existing content by default when updated via the media library.`,
+            `Core WordPress doesn't update the alt text in existing content by default when updated via the Media Library.`,
             'filter-ai'
           ),
           dependency: 'image_alt_text_enabled',

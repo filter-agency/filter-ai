@@ -126,7 +126,7 @@ const ImageAltText = () => {
             <p>
               {sprintf(
                 __(
-                  'Generate alt text for images in the media library that are missing alt text. Supported image types include: %s.',
+                  'Generate alt text for images in the Media Library that are missing alt text. Supported image types include: %s.',
                   'filter-ai'
                 ),
                 types
