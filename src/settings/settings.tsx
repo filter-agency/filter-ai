@@ -168,7 +168,7 @@ const Settings = () => {
                 </h2>
               </PanelHeader>
               {section.features.map((feature) => (
-                <PanelBody>
+                <PanelBody className={feature?.toggle?.dependency ? 'has-dependency' : ''}>
                   <PanelRow className="filter-ai-settings-field">
                     <div className="filter-ai-settings-field-text">
                       <label htmlFor={feature.toggle.key}>{feature.toggle.label}</label>

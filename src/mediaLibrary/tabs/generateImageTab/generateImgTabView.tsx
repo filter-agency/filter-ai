@@ -5,6 +5,7 @@ import { Button, Notice, TextareaControl, __experimentalGrid as Grid } from '@wo
 import { hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils';
 import { getService } from '@/utils/ai/services/getService';
 import { createInterpolateElement, useState, useEffect } from '@wordpress/element';
+import { useSettings } from '@/settings';
 
 const GenerateImgTabView = () => {
   const [prompt, setPrompt] = useState('');
@@ -13,6 +14,8 @@ const GenerateImgTabView = () => {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [isServiceConfigured, setIsServiceConfigured] = useState<boolean>(true);
+
+  const { settings } = useSettings();
 
   const handleGenerate = async () => {
     setLoading(true);
@@ -102,19 +105,11 @@ const GenerateImgTabView = () => {
         });
       }
     })();
-
-    const toolbar = document.querySelector('.media-toolbar') as HTMLDivElement;
-
-    if (toolbar) {
-      toolbar.style.display = 'none';
-    }
-
-    return () => {
-      if (toolbar) {
-        toolbar.style.display = '';
-      }
-    };
   }, []);
+
+  if (!settings?.generate_image_enabled) {
+    return null;
+  }
 
   return (
     <>
@@ -141,7 +136,7 @@ const GenerateImgTabView = () => {
       </p>
       <p>
         {__(
-          'Once images are generated, choose one or more of those to import into your Media Library, and then choose one image to insert.',
+          'Once your images are generated, you can choose one or more of those to import into your Media Library.',
           'filter-ai'
         )}
       </p>
@@ -159,7 +154,7 @@ const GenerateImgTabView = () => {
           variant="secondary"
           onClick={handleGenerate}
           className="filter-ai-generate-button"
-          disabled={loading || !isServiceConfigured}
+          disabled={loading || !isServiceConfigured || !prompt}
         >
           {loading ? __('Generating...', 'filter-ai') : __('Generate Images', 'filter-ai')}
         </Button>

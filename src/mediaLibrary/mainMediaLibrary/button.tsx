@@ -2,16 +2,23 @@ import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Modal } from '@wordpress/components';
 import GenerateImgTabView from '@/mediaLibrary/tabs/generateImageTab/generateImgTabView';
+import { useSettings } from '@/settings';
 
 const GenerateImageButtonUI = () => {
   const [isOpen, setIsOpen] = useState(false);
 
+  const { settings } = useSettings();
+
   const openModal = () => setIsOpen(true);
   const closeModal = () => setIsOpen(false);
 
+  if (!settings?.generate_image_enabled) {
+    return null;
+  }
+
   return (
     <>
-      <Button variant="secondary" onClick={openModal} className="filter-ai-media-lib-generate-btn">
+      <Button onClick={openModal} className="filter-ai-media-lib-generate-btn page-title-action">
         {__('Generate AI Image', 'filter-ai')}
       </Button>
 
