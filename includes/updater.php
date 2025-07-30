@@ -185,9 +185,6 @@ if ( ! class_exists( 'filter_ai_updater' ) ) {
 		 * @param array       $options Array of bulk item update data
 		 */
 		public function purge( $upgrader, $options ) {
-			if ( 'update' === $options['action'] && 'plugin' === $options['type'] ) {
-					( new Configurations() )->refresh_configs();
-			}
 			if ( $this->cache_allowed && 'update' === $options['action'] && 'plugin' === $options['type'] ) {
 				delete_transient( $this->cache_key );
 			}
