@@ -58,8 +58,6 @@ function filter_ai_options_page() {
 		return;
 	}
 
-	wp_admin_notice( 'test' );
-
 	?>
 	<div class="wrap" style="display:none;"><h2></h2></div>
 	<div class="filter-wrap" id="filter-ai-settings-container"></div>
