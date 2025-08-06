@@ -16,6 +16,7 @@ import { sections } from './sections';
 import { filterLogoWhite } from '@/assets/filter-logo';
 import { verticalDots } from '@/assets/vertical-dots';
 import { __ } from '@wordpress/i18n';
+import AIServiceNotice from '@/components/aiServiceNotice';
 
 type ShowButtonProps = {
   extraKey: string;
@@ -152,6 +153,8 @@ const Settings = () => {
         </div>
       </header>
       <div className="filter-ai-settings-content">
+        <AIServiceNotice />
+
         {sections.map((section) => {
           let isDisabled = false;
 
@@ -160,7 +163,7 @@ const Settings = () => {
           }
 
           return (
-            <Panel className={`filter-ai-settings-panel ${isDisabled ? 'disabled' : ''}`}>
+            <Panel key={section.key} className={`filter-ai-settings-panel ${isDisabled ? 'disabled' : ''}`}>
               <PanelHeader>
                 <h2>
                   {section.header}
@@ -168,7 +171,7 @@ const Settings = () => {
                 </h2>
               </PanelHeader>
               {section.features.map((feature) => (
-                <PanelBody className={feature?.toggle?.dependency ? 'has-dependency' : ''}>
+                <PanelBody key={feature.key} className={feature?.toggle?.dependency ? 'has-dependency' : ''}>
                   <PanelRow className="filter-ai-settings-field">
                     <div className="filter-ai-settings-field-text">
                       <label htmlFor={feature.toggle.key}>{feature.toggle.label}</label>

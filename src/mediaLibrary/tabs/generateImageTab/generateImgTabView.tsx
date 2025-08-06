@@ -1,11 +1,12 @@
 import { getGeneratedImages } from '@/utils/ai/getGeneratedImages';
 import { uploadGeneratedImageToMediaLibrary, refreshMediaLibrary } from '@/utils/ai/uploadGeneratedImage';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Button, Notice, TextareaControl, __experimentalGrid as Grid } from '@wordpress/components';
+import { Button, TextareaControl, __experimentalGrid as Grid } from '@wordpress/components';
 import { hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils';
-import { getService } from '@/utils/ai/services/getService';
-import { createInterpolateElement, useState, useEffect } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 import { useSettings } from '@/settings';
+import { useSelect } from '@wordpress/data';
+import AIServiceNotice from '@/components/aiServiceNotice';
 
 type Props = {
   callback?: () => void;
@@ -17,9 +18,11 @@ const GenerateImgTabView = ({ callback }: Props) => {
   const [selectedIndexes, setSelectedIndexes] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
   const [importing, setImporting] = useState(false);
-  const [isServiceConfigured, setIsServiceConfigured] = useState<boolean>(true);
 
   const { settings } = useSettings();
+
+  // @ts-expect-error Type 'never' has no call signatures.
+  const AIService = useSelect((select) => select(window.aiServices.ai.store)?.getAvailableService(), []);
 
   const handleGenerate = async () => {
     setLoading(true);
@@ -109,43 +112,13 @@ const GenerateImgTabView = ({ callback }: Props) => {
     }
   }, [loading, importing]);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const service = await getService();
-        if (!service) {
-          setIsServiceConfigured(false);
-        }
-      } catch (err) {
-        console.error('[AI] getService failed:', err);
-        setIsServiceConfigured(false);
-        showNotice({
-          message: __('Failed to check AI service configuration.', 'filter-ai'),
-          type: 'error',
-        });
-      }
-    })();
-  }, []);
-
   if (!settings?.generate_image_enabled) {
     return null;
   }
 
   return (
     <>
-      {!isServiceConfigured && (
-        <Notice status="error" isDismissible={false}>
-          {createInterpolateElement(
-            sprintf(
-              __(`No AI service is configured. Please add an API key in the %s plugin settings.`, 'filter-ai'),
-              `<a>AI Services</a>`
-            ),
-            {
-              a: <a href="/wp-admin/options-general.php?page=ais_services" />,
-            }
-          )}
-        </Notice>
-      )}
+      <AIServiceNotice />
 
       <h2>{__('Enter a prompt to generate images', 'filter-ai')}</h2>
       <p>
@@ -167,14 +140,14 @@ const GenerateImgTabView = ({ callback }: Props) => {
           placeholder={__('e.g. A sunset over the mountains', 'filter-ai')}
           value={prompt}
           onChange={setPrompt}
-          disabled={loading || !isServiceConfigured}
+          disabled={loading || !AIService}
         />
 
         <Button
           variant="secondary"
           onClick={handleGenerate}
           className="filter-ai-generate-button"
-          disabled={loading || !isServiceConfigured || !prompt}
+          disabled={loading || !AIService || !prompt}
         >
           {loading ? __('Generating...', 'filter-ai') : __('Generate Images', 'filter-ai')}
         </Button>

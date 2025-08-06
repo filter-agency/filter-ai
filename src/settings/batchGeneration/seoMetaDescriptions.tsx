@@ -1,5 +1,5 @@
-import { Button, Spinner, Panel, PanelBody, ProgressBar } from '@wordpress/components';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { Button, Spinner, Panel, PanelBody, ProgressBar, Notice } from '@wordpress/components';
+import { RawHTML, useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useSettings } from '../useSettings';
 
@@ -126,6 +126,24 @@ const SEOMetaDescriptions = () => {
 
   return (
     <>
+      {!window.filter_ai_dependencies.yoast_seo && (
+        <Notice status="error" isDismissible={false}>
+          {__('Please install and activate the Yoast SEO plugin.', 'filter-ai')}
+        </Notice>
+      )}
+
+      {!!settings && !settings.yoast_seo_meta_description_enabled && (
+        <Notice status="error" isDismissible={false}>
+          <RawHTML>
+            {sprintf(
+              __('Please activate this feature in the %1$sSettings%2$s.', 'filter-ai'),
+              '<a href="/wp-admin/admin.php?page=filter_ai">',
+              '</a>'
+            )}
+          </RawHTML>
+        </Notice>
+      )}
+
       {isLoading && <Spinner className="filter-ai-settings-spinner" />}
 
       {!isLoading && (
@@ -153,8 +171,8 @@ const SEOMetaDescriptions = () => {
                 </tr>
               </thead>
               <tbody>
-                {postTypes.map((type) => (
-                  <tr>
+                {postTypes.map((type, index) => (
+                  <tr key={index}>
                     <td>{type.label}</td>
                     <td>{type.total}</td>
                     <td>{type.missing}</td>
@@ -178,7 +196,7 @@ const SEOMetaDescriptions = () => {
             >
               {failedActions?.map((action) => {
                 return (
-                  <p>
+                  <p key={action.post_id}>
                     <a href={`/wp-admin/post.php?post=${action.post_id}&action=edit`} target="_blank">
                       {action.post_id}
                     </a>

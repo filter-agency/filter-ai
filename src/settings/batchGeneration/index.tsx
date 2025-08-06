@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import ImageAltText from './imageAltText';
 import SEOTitles from './seoTitles';
 import SEOMetaDescriptions from './seoMetaDescriptions';
+import AIServiceNotice from '@/components/aiServiceNotice';
 
 type Tab = {
   label: string;
@@ -77,7 +78,7 @@ const BatchGeneration = () => {
             const isActive = currentTabKey === key;
 
             return (
-              <a href={`${baseUrl}#${key}`} className={`nav-tab ${isActive ? 'nav-tab-active' : ''}`}>
+              <a key={key} href={`${baseUrl}#${key}`} className={`nav-tab ${isActive ? 'nav-tab-active' : ''}`}>
                 {tabs[key].label}
               </a>
             );
@@ -85,6 +86,7 @@ const BatchGeneration = () => {
         </nav>
       </header>
       <div className="filter-ai-settings-content">
+        <AIServiceNotice />
         <Content />
         <div>
           <a href="/wp-admin/tools.php?page=action-scheduler">{__('View batch generation log', 'filter-ai')}</a>

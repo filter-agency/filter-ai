@@ -1,7 +1,9 @@
+import { resolveSelect } from '@wordpress/data';
+
 const { store } = window.aiServices.ai;
 
 export const getService = async (capabilities: string[] = []) => {
-  const aiService = await window.wp?.data.resolveSelect(store);
+  const aiService = await resolveSelect(store);
 
   await aiService.getServices();
 

@@ -202,3 +202,19 @@
     opacity: 0.5;
   }
 }
+
+.filter-wrap {
+  margin: 10px 20px 0 2px;
+}
+
+@media screen and (max-width: 782px) {
+  .filter-wrap {
+    clear: both;
+    margin-right: 12px;
+    margin-left: 0;
+  }
+}
+
+.notice.update-nag.inline ~ .filter-wrap {
+  margin-top: 35px;
+}
