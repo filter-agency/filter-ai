@@ -78,7 +78,7 @@ const BatchGeneration = () => {
             const isActive = currentTabKey === key;
 
             return (
-              <a href={`${baseUrl}#${key}`} className={`nav-tab ${isActive ? 'nav-tab-active' : ''}`}>
+              <a key={key} href={`${baseUrl}#${key}`} className={`nav-tab ${isActive ? 'nav-tab-active' : ''}`}>
                 {tabs[key].label}
               </a>
             );

@@ -171,8 +171,8 @@ const SEOMetaDescriptions = () => {
                 </tr>
               </thead>
               <tbody>
-                {postTypes.map((type) => (
-                  <tr>
+                {postTypes.map((type, index) => (
+                  <tr key={index}>
                     <td>{type.label}</td>
                     <td>{type.total}</td>
                     <td>{type.missing}</td>
@@ -196,7 +196,7 @@ const SEOMetaDescriptions = () => {
             >
               {failedActions?.map((action) => {
                 return (
-                  <p>
+                  <p key={action.post_id}>
                     <a href={`/wp-admin/post.php?post=${action.post_id}&action=edit`} target="_blank">
                       {action.post_id}
                     </a>

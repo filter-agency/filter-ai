@@ -214,3 +214,7 @@
     margin-left: 0;
   }
 }
+
+.notice.update-nag.inline ~ .filter-wrap {
+  margin-top: 35px;
+}
