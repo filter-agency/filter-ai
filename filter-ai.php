@@ -51,36 +51,22 @@ add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'filter_ai_add
 
 /**
  *  Add settings page
+ *  Contains a hidden div.wrap to hide admin notices
  */
 function filter_ai_options_page() {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
 
-	try {
-		ai_services()->get_available_service();
-	} catch ( InvalidArgumentException $e ) {
-		add_settings_error(
-			'filter_ai_messages',
-			'filter_ai_message_missing_plugin',
-			sprintf(
-			/* translators: 1: %s expands to a website link to AI Services settings, 2: </a> closing tag. */
-				esc_html__( 'Please activate an AI within the %1$sAI Services%2$s plugin.', 'filter-ai' ),
-				'<a href="options-general.php?page=ais_services">',
-				'</a>'
-			),
-			'warning'
-		);
-	}
-
-	settings_errors( 'filter_ai_messages' );
 	?>
-	<div class="wrap" id="filter-ai-settings-container"></div>
+	<div class="wrap" style="display:none;"><h2></h2></div>
+	<div class="filter-wrap" id="filter-ai-settings-container"></div>
 	<?php
 }
 
 /**
  *  Add batch page
+ *  Contains a hidden div.wrap to hide admin notices
  */
 function filter_ai_batch_page() {
 	if ( ! current_user_can( 'manage_options' ) ) {
@@ -88,7 +74,8 @@ function filter_ai_batch_page() {
 	}
 
 	?>
-	<div class="wrap" id="filter-ai-batch-container"></div>
+	<div class="wrap" style="display:none;"><h2></h2></div>
+	<div class="filter-wrap" id="filter-ai-batch-container"></div>
 	<?php
 }
 

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { Button, Spinner, Panel, PanelBody, ProgressBar } from '@wordpress/components';
-import { useEffect, useCallback, useState } from '@wordpress/element';
+import { Button, Spinner, Panel, PanelBody, ProgressBar, Notice } from '@wordpress/components';
+import { useEffect, useCallback, useState, RawHTML } from '@wordpress/element';
 import { mimeTypes } from '@/utils';
 import { useSettings } from '../useSettings';
 import { __, sprintf } from '@wordpress/i18n';
@@ -118,6 +118,18 @@ const ImageAltText = () => {
 
   return (
     <>
+      {!!settings && !settings.image_alt_text_enabled && (
+        <Notice status="error" isDismissible={false}>
+          <RawHTML>
+            {sprintf(
+              __('Please activate this feature in the %1$sSettings%2$s.', 'filter-ai'),
+              '<a href="/wp-admin/admin.php?page=filter_ai">',
+              '</a>'
+            )}
+          </RawHTML>
+        </Notice>
+      )}
+
       {isLoading && <Spinner className="filter-ai-settings-spinner" />}
 
       {!isLoading && (

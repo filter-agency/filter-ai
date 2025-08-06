@@ -16,6 +16,7 @@ import { sections } from './sections';
 import { filterLogoWhite } from '@/assets/filter-logo';
 import { verticalDots } from '@/assets/vertical-dots';
 import { __ } from '@wordpress/i18n';
+import AIServiceNotice from '@/components/aiServiceNotice';
 
 type ShowButtonProps = {
   extraKey: string;
@@ -152,6 +153,8 @@ const Settings = () => {
         </div>
       </header>
       <div className="filter-ai-settings-content">
+        <AIServiceNotice />
+
         {sections.map((section) => {
           let isDisabled = false;
 

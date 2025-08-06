@@ -1,5 +1,5 @@
-import { Button, Spinner, Panel, PanelBody, ProgressBar } from '@wordpress/components';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { Button, Spinner, Panel, PanelBody, ProgressBar, Notice } from '@wordpress/components';
+import { RawHTML, useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useSettings } from '../useSettings';
 
@@ -126,6 +126,24 @@ const SEOTitles = () => {
 
   return (
     <>
+      {!window.filter_ai_dependencies.yoast_seo && (
+        <Notice status="error" isDismissible={false}>
+          {__('Please install and activate the Yoast SEO plugin.', 'filter-ai')}
+        </Notice>
+      )}
+
+      {!!settings && !settings.yoast_seo_title_enabled && (
+        <Notice status="error" isDismissible={false}>
+          <RawHTML>
+            {sprintf(
+              __('Please activate this feature in the %1$sSettings%2$s.', 'filter-ai'),
+              '<a href="/wp-admin/admin.php?page=filter_ai">',
+              '</a>'
+            )}
+          </RawHTML>
+        </Notice>
+      )}
+
       {isLoading && <Spinner className="filter-ai-settings-spinner" />}
 
       {!isLoading && (
