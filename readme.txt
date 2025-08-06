@@ -89,7 +89,10 @@ If you need help with Filter AI, you can visit our support forum or [contact us 
 
 = 1.3.1 =
 
-**TBC**
+**Bug fixes:**
+
+* Improve messaging across the settings and generation pages
+
 
 = 1.3.0 =
 
@@ -98,6 +101,7 @@ If you need help with Filter AI, you can visit our support forum or [contact us 
 * Custom image generation
 * Dynamically replace missing alt text
 * Automatic plugin updates
+
 
 = 1.2.2 =
 
