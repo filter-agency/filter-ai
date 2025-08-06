@@ -6,7 +6,7 @@
   "tested": "6.8.2",
   "requires_php": "7.4",
   "last_updated": "2025-07-04 14:00",
-  "download_url": "https://github.com/filter-agency/filter-ai/releases/download/v1.3.0/filter-ai.zip",
+  "download_url": "https://github.com/filter-agency/filter-ai/releases/download/v1.3.1/filter-ai.zip",
   "author": "<a href='https://filter.agency/'>Filter</a>",
   "homepage": "https://filter.agency/filter-ai/",
   "sections": {
