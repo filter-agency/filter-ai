@@ -8,8 +8,12 @@ import {
   FlexItem,
   FormToggle,
   PanelHeader,
+  Dropdown,
+  MenuGroup,
+  MenuItem,
 } from '@wordpress/components';
 import { createRoot, useState, useEffect, useMemo } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
 import { FilterAISettings, useSettings } from './useSettings';
 import _ from 'underscore';
 import { sections } from './sections';
@@ -17,6 +21,7 @@ import { filterLogoWhite } from '@/assets/filter-logo';
 import { verticalDots } from '@/assets/vertical-dots';
 import { __ } from '@wordpress/i18n';
 import AIServiceNotice from '@/components/aiServiceNotice';
+import { SelectControl } from '@wordpress/components';
 
 type ShowButtonProps = {
   extraKey: string;
@@ -35,6 +40,12 @@ const Settings = () => {
     )
   );
   const [formData, setFormData] = useState<FilterAISettings>({});
+
+  const AI_PROVIDERS = [
+    { slug: 'openai', name: 'OpenAI', model: 'gpt-4o' },
+    { slug: 'google', name: 'Google Gemini', model: 'gemini-1.5-pro' },
+    { slug: 'anthropic', name: 'Anthropic', model: 'claude-3' },
+  ];
 
   const { settings, saveSettings } = useSettings();
 
@@ -56,10 +67,15 @@ const Settings = () => {
   };
 
   const onChange = (key: keyof FilterAISettings, value: FilterAISettings[keyof FilterAISettings]) => {
-    setFormData((prevState) => ({
-      ...prevState,
-      [key]: value,
-    }));
+    setFormData((prevState) => {
+      const newState = {
+        ...prevState,
+        [key]: value,
+      };
+      // Log the entire formData state after the change
+      console.log('Updated formData:', newState);
+      return newState;
+    });
 
     const section = sections.find((s) => !!s.features.find((f) => f.toggle.key === key));
 
@@ -198,9 +214,57 @@ const Settings = () => {
                   {feature.prompt && showExtra[section.key] === feature.key && (
                     <PanelRow>
                       <div style={{ flex: 1 }}>
+                        <div className="filter-ai-label-row">
+                          <label style={{ margin: 0 }} className="filter-ai-label-title">
+                            {feature.prompt.label}
+                          </label>
+                          <Dropdown
+                            renderToggle={({ isOpen, onToggle }) => {
+                              const serviceKey = feature.prompt?.key + '_service';
+
+                              const serviceData = formData?.[serviceKey];
+                              const selectedServiceSlug =
+                                serviceData && typeof serviceData === 'object' && 'service' in serviceData
+                                  ? serviceData.service
+                                  : '';
+
+                              const selectedProvider = AI_PROVIDERS.find((p) => p.slug === selectedServiceSlug);
+                              const buttonLabel = selectedProvider
+                                ? `${__('AI Service', 'filter-ai')}: ${selectedProvider.name}`
+                                : __('AI Service', 'filter-ai');
+
+                              return (
+                                <Button variant="secondary" onClick={onToggle} aria-expanded={isOpen}>
+                                  {buttonLabel}
+                                </Button>
+                              );
+                            }}
+                            renderContent={() => {
+                              const serviceKey = feature.prompt?.key + '_service';
+
+                              return (
+                                <MenuGroup>
+                                  {AI_PROVIDERS.map((provider) => (
+                                    <MenuItem
+                                      key={provider.slug}
+                                      onClick={() => {
+                                        onChange(serviceKey, {
+                                          service: provider.slug,
+                                          model: provider.model,
+                                        });
+                                      }}
+                                    >
+                                      {provider.name}
+                                    </MenuItem>
+                                  ))}
+                                </MenuGroup>
+                              );
+                            }}
+                          />
+                        </div>
+
                         <TextareaControl
                           __nextHasNoMarginBottom
-                          label={feature.prompt.label}
                           value={formData?.[feature.prompt.key]?.toString() || feature.prompt.defaultValue}
                           onChange={(newValue) => {
                             onChange(feature.prompt?.key!, newValue);
