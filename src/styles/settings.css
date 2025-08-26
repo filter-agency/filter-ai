@@ -203,6 +203,23 @@
   }
 }
 
+.filter-ai-label-title {
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 8px;
+  padding: 0px;
+}
+
+.filter-ai-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
 .filter-wrap {
   margin: 10px 20px 0 2px;
 }
