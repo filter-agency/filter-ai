@@ -10,7 +10,85 @@ const maxPixelSize = 2000;
 
 const Events = _.extend({}, window?.Backbone?.Events);
 
+type GenerateAltTextPayload = {
+  prompt: string;
+  serviceConfig: {
+    service: string;
+    model: string;
+  };
+};
+
 (() => {
+  const AttachmentDetails =
+    window.wp?.media?.view?.Attachment?.Details?.TwoColumn || window.wp?.media?.view?.Attachment?.Details;
+
+  if (!AttachmentDetails) return;
+
+  const OverrideAttachmentDetails = AttachmentDetails.extend({
+    render: function () {
+      AttachmentDetails.prototype.render.apply(this, arguments);
+
+      this.listenTo(Events, 'filter-ai:generateAltText', this.generateAltText);
+
+      Events.trigger('filter-ai:generateAltTextEnabled', true);
+    },
+    remove: function () {
+      AttachmentDetails.prototype.remove.apply(this);
+
+      this.stopListening(Events, 'filter-ai:generateAltText', this.generateAltText);
+
+      Events.trigger('filter-ai:generateAltTextEnabled', false);
+    },
+    async generateAltText({ prompt, serviceConfig }: GenerateAltTextPayload) {
+      showLoadingMessage(__('Alt Text', 'filter-ai'));
+
+      try {
+        if (!this.model.get('sizes')?.medium?.url) {
+          if (this.model.get('width') > maxPixelSize || this.model.get('height') > maxPixelSize) {
+            throw new Error(__('Please choose a smaller image.', 'filter-ai'));
+          }
+        }
+
+        const url = this.model.get('sizes')?.medium?.url || this.model.get('url');
+
+        console.log('[AltText] Service:', serviceConfig?.service, '| Model:', serviceConfig?.model);
+
+        const altText = await ai.getAltTextFromUrl(url, this.model.get('alt'), prompt, serviceConfig);
+
+        if (!altText) {
+          throw new Error(__('Sorry, there has been an issue while generating your alt text.', 'filter-ai'));
+        }
+
+        this.model.set('alt', altText);
+
+        this.model.save();
+
+        this.render();
+
+        showNotice({ message: __('Alt text has been updated.', 'filter-ai') });
+      } catch (error) {
+        console.error(error);
+
+        // @ts-expect-error Property 'message' does not exist on type '{}'
+        showNotice({ message: error?.message || error, type: 'error' });
+      } finally {
+        hideLoadingMessage();
+      }
+    },
+  });
+
+  if (window.wp?.media.view.Attachment.Details.TwoColumn) {
+    window.wp.media.view.Attachment.Details.TwoColumn = OverrideAttachmentDetails;
+  } else if (window.wp?.media.view.Attachment.Details) {
+    window.wp.media.view.Attachment.Details = OverrideAttachmentDetails;
+  }
+})();
+
+(() => {
+  const Modal = window.wp?.media?.view?.Modal;
+
+  if (!Modal) return;
+
   const { createRoot } = window.wp?.element || {};
 
   const ModalButton = () => {
@@ -25,7 +103,10 @@ const Events = _.extend({}, window?.Backbone?.Events);
         options.push({
           title: __('Generate Alt Text', 'filter-ai'),
           onClick: () => {
-            Events.trigger('filter-ai:generateAltText', prompt);
+            Events.trigger('filter-ai:generateAltText', {
+              prompt,
+              serviceConfig: settings?.image_alt_text_prompt_service,
+            });
           },
         });
       }

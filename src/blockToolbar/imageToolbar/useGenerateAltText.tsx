@@ -27,6 +27,10 @@ export const useGenerateAltText = ({ attributes, setAttributes }: Props) => {
     return !urlKeys.some((key) => attributes.hasOwnProperty(key));
   }, [attributes]);
 
+  const serviceConfig = settings?.image_alt_text_prompt_service;
+
+  //   console.log('[AltText] Service:', serviceConfig?.service, '| Model:', serviceConfig?.model);
+
   const getAttribute = useCallback(
     (keys: string[]) => {
       const key = keys.find((key) => attributes.hasOwnProperty(key));
@@ -73,7 +77,7 @@ export const useGenerateAltText = ({ attributes, setAttributes }: Props) => {
       const url = await getAttachmentUrl();
       const oldAltText = getAttribute(altTextKeys);
 
-      const altText = await ai.getAltTextFromUrl(url, oldAltText, prompt);
+      const altText = await ai.getAltTextFromUrl(url, oldAltText, prompt, serviceConfig);
 
       if (!altText) {
         throw new Error(__('Sorry, there has been an issue while generating your alt text.', 'filter-ai'));
