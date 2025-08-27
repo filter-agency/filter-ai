@@ -3,7 +3,12 @@ import { generateText, aiCapability } from './services';
 import { __, sprintf } from '@wordpress/i18n';
 import { getSettings } from '@/settings';
 
-export const getAltTextFromUrl = async (url: string, oldAltText?: string, prompt?: string) => {
+export const getAltTextFromUrl = async (
+  url: string,
+  oldAltText?: string,
+  prompt?: string,
+  serviceConfig?: { service: string; model: string }
+) => {
   if (!url) {
     throw new Error(__('Please select an image.', 'filter-ai'));
   }
@@ -38,5 +43,7 @@ export const getAltTextFromUrl = async (url: string, oldAltText?: string, prompt
         },
       },
     ],
+    service: serviceConfig?.service,
+    model: serviceConfig?.model,
   });
 };

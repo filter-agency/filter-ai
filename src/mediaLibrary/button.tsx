@@ -10,6 +10,14 @@ const maxPixelSize = 2000;
 
 const Events = _.extend({}, window?.Backbone?.Events);
 
+type GenerateAltTextPayload = {
+  prompt: string;
+  serviceConfig: {
+    service: string;
+    model: string;
+  };
+};
+
 (() => {
   const AttachmentDetails =
     window.wp?.media?.view?.Attachment?.Details?.TwoColumn || window.wp?.media?.view?.Attachment?.Details;
@@ -31,7 +39,7 @@ const Events = _.extend({}, window?.Backbone?.Events);
 
       Events.trigger('filter-ai:generateAltTextEnabled', false);
     },
-    async generateAltText(customPrompt?: string) {
+    async generateAltText({ prompt, serviceConfig }: GenerateAltTextPayload) {
       showLoadingMessage(__('Alt Text', 'filter-ai'));
 
       try {
@@ -43,7 +51,9 @@ const Events = _.extend({}, window?.Backbone?.Events);
 
         const url = this.model.get('sizes')?.medium?.url || this.model.get('url');
 
-        const altText = await ai.getAltTextFromUrl(url, this.model.get('alt'), customPrompt);
+        console.log('[AltText] Service:', serviceConfig?.service, '| Model:', serviceConfig?.model);
+
+        const altText = await ai.getAltTextFromUrl(url, this.model.get('alt'), prompt, serviceConfig);
 
         if (!altText) {
           throw new Error(__('Sorry, there has been an issue while generating your alt text.', 'filter-ai'));
@@ -95,7 +105,10 @@ const Events = _.extend({}, window?.Backbone?.Events);
         options.push({
           title: __('Generate Alt Text', 'filter-ai'),
           onClick: () => {
-            Events.trigger('filter-ai:generateAltText', prompt);
+            Events.trigger('filter-ai:generateAltText', {
+              prompt,
+              serviceConfig: settings?.image_alt_text_prompt_service,
+            });
           },
           isDisabled: !generateAltTextEnabled,
         });
