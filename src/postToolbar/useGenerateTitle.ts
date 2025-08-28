@@ -2,13 +2,15 @@ import { useSettings } from '@/settings';
 import { ai, hideLoadingMessage, removeWrappingQuotes, showLoadingMessage, showNotice } from '@/utils';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import {usePrompts} from "@/utils/ai/prompts/usePrompts";
+import { usePrompts } from '@/utils/ai/prompts/usePrompts';
 
 export const useGenerateTitle = () => {
   const { settings } = useSettings();
   const { editPost } = useDispatch('core/editor');
 
   const prompt = usePrompts('post_title_prompt');
+
+  const serviceConfig = settings?.post_title_prompt_service;
 
   const { content, oldTitle } = useSelect((select) => {
     const { getEditedPostAttribute } = select('core/editor');
@@ -29,7 +31,7 @@ export const useGenerateTitle = () => {
     showLoadingMessage(__('Title', 'filter-ai'));
 
     try {
-      const title = await ai.getTitleFromContent(content, oldTitle, prompt);
+      const title = await ai.getTitleFromContent(content, oldTitle, prompt, serviceConfig);
 
       if (!title) {
         throw new Error(__('Sorry, there has been an issue while generating your title.', 'filter-ai'));
@@ -37,7 +39,9 @@ export const useGenerateTitle = () => {
 
       editPost({ title: removeWrappingQuotes(title) });
 
-      showNotice({ message: __('Title has been updated', 'filter-ai') });
+      showNotice({
+        message: __(`Title has been updated using ${serviceConfig?.service || 'unknown'}`, 'filter-ai'),
+      });
     } catch (error) {
       console.error(error);
 
