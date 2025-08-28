@@ -3,13 +3,15 @@ import { ai, hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils'
 import { useDispatch, useSelect, resolveSelect, dispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { cleanForSlug } from '@wordpress/url';
-import {usePrompts} from "@/utils/ai/prompts/usePrompts";
+import { usePrompts } from '@/utils/ai/prompts/usePrompts';
 
 export const useGenerateTags = () => {
   const { settings } = useSettings();
   const { editPost } = useDispatch('core/editor');
 
   const prompt = usePrompts('post_tags_prompt');
+
+  const serviceConfig = settings?.post_tags_prompt_service;
 
   const errorMessage = __('Sorry, there has been an issue while generating your tags.', 'filter-ai');
 
@@ -47,7 +49,7 @@ export const useGenerateTags = () => {
     showLoadingMessage(__('Tags', 'filter-ai'));
 
     try {
-      const tags = await ai.getTagsFromContent(content, postTags, prompt);
+      const tags = await ai.getTagsFromContent(content, postTags, prompt, serviceConfig);
 
       if (!tags) {
         throw new Error(errorMessage);
@@ -81,7 +83,9 @@ export const useGenerateTags = () => {
 
       editPost({ tags: [...new Set([...postTagIds, ...newTagIds])] });
 
-      showNotice({ message: __('Tags have been updated', 'filter-ai') });
+      showNotice({
+        message: __(`Tags have been updated using ${serviceConfig?.service || 'unknown'}`, 'filter-ai'),
+      });
     } catch (error) {
       console.error(error);
 
