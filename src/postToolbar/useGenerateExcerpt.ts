@@ -10,6 +10,8 @@ export const useGenerateExcerpt = () => {
 
   const prompt = usePrompts('post_excerpt_prompt');
 
+  const serviceConfig = settings?.post_excerpt_prompt_service;
+
   const { excerptPanelEnabled, content, oldExcerpt } = useSelect((select) => {
     const { getCurrentPostType, isEditorPanelEnabled, getEditedPostAttribute } = select('core/editor') || {};
 
@@ -45,7 +47,7 @@ export const useGenerateExcerpt = () => {
       const excerptField = document.getElementById('excerpt') as HTMLTextAreaElement;
       const _oldExcerpt = oldExcerpt || excerptField?.value;
 
-      const excerpt = await ai.getExcerptFromContent(_content, _oldExcerpt, prompt);
+      const excerpt = await ai.getExcerptFromContent(_content, _oldExcerpt, prompt, serviceConfig);
 
       if (!excerpt) {
         throw new Error(__('Sorry, there has been an issue while generating your excerpt.', 'filter-ai'));
@@ -57,7 +59,9 @@ export const useGenerateExcerpt = () => {
         excerptField.value = excerpt;
       }
 
-      showNotice({ message: __('Excerpt has been updated', 'filter-ai') });
+      showNotice({
+        message: __(`Excerpt has been updated using ${serviceConfig?.service || 'unknown'}`, 'filter-ai'),
+      });
     } catch (error) {
       console.error(error);
 
