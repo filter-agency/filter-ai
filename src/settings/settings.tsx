@@ -194,7 +194,7 @@ const Settings = () => {
                       <label htmlFor={feature.toggle.key}>{feature.toggle.label}</label>
                       {feature.toggle.help && <div>{feature.toggle.help}</div>}
                     </div>
-                    <div style={!feature.prompt ? { marginRight: '34px' } : {}}>
+                    <div style={!feature.prompt && feature.key !== 'generate_image' ? { marginRight: '34px' } : {}}>
                       <FormToggle
                         onChange={() => {
                           onChange(feature.toggle.key, !formData?.[feature.toggle.key]);
@@ -204,7 +204,7 @@ const Settings = () => {
                         disabled={isDisabled}
                       />
                     </div>
-                    {feature.prompt && (
+                    {(feature.prompt || feature.key === 'generate_image') && (
                       <ShowButton
                         disabled={!formData?.[feature.toggle.key] || isDisabled}
                         extraKey={section.key}
@@ -212,79 +212,82 @@ const Settings = () => {
                       />
                     )}
                   </PanelRow>
-                  {feature.prompt && showExtra[section.key] === feature.key && (
+                  {(feature.prompt || feature.key === 'generate_image') && showExtra[section.key] === feature.key && (
                     <PanelRow>
                       <div style={{ flex: 1 }}>
                         <div className="filter-ai-label-row">
-                          <label style={{ margin: 0 }} className="filter-ai-label-title">
-                            {feature.prompt.label}
-                          </label>
-                          {feature.prompt.key !== 'stop_words_prompt' &&
-                            feature.prompt.key !== 'brand_voice_prompt' && (
-                              <Dropdown
-                                renderToggle={({ isOpen, onToggle }) => {
-                                  const serviceKey = feature.prompt?.key + '_service';
+                          {feature.prompt && (
+                            <label style={{ margin: 0 }} className="filter-ai-label-title">
+                              {feature.prompt.label}
+                            </label>
+                          )}
+                          {feature.key !== 'stop_words' && feature.key !== 'brand_voice' && (
+                            <Dropdown
+                              renderToggle={({ isOpen, onToggle }) => {
+                                const serviceKey = feature.prompt?.key + '_service';
+                                const serviceData = formData?.[serviceKey];
+                                const selectedServiceSlug =
+                                  serviceData && typeof serviceData === 'object' && 'service' in serviceData
+                                    ? serviceData.service
+                                    : '';
 
-                                  const serviceData = formData?.[serviceKey];
-                                  const selectedServiceSlug =
-                                    serviceData && typeof serviceData === 'object' && 'service' in serviceData
-                                      ? serviceData.service
-                                      : '';
+                                const selectedProvider = AI_PROVIDERS.find((p) => p.slug === selectedServiceSlug);
+                                const buttonLabel = selectedProvider
+                                  ? `${__('AI Service', 'filter-ai')}: ${selectedProvider.name}`
+                                  : __('AI Service', 'filter-ai');
 
-                                  const selectedProvider = AI_PROVIDERS.find((p) => p.slug === selectedServiceSlug);
-                                  const buttonLabel = selectedProvider
-                                    ? `${__('AI Service', 'filter-ai')}: ${selectedProvider.name}`
-                                    : __('AI Service', 'filter-ai');
+                                return (
+                                  <Button variant="secondary" onClick={onToggle} aria-expanded={isOpen}>
+                                    {buttonLabel}
+                                  </Button>
+                                );
+                              }}
+                              renderContent={() => {
+                                const serviceKey = feature.prompt?.key + '_service';
 
-                                  return (
-                                    <Button variant="secondary" onClick={onToggle} aria-expanded={isOpen}>
-                                      {buttonLabel}
-                                    </Button>
-                                  );
-                                }}
-                                renderContent={() => {
-                                  const serviceKey = feature.prompt?.key + '_service';
-
-                                  return (
-                                    <MenuGroup>
-                                      {AI_PROVIDERS.map((provider) => (
-                                        <MenuItem
-                                          key={provider.slug}
-                                          onClick={() => {
-                                            onChange(serviceKey, {
-                                              service: provider.slug,
-                                              model: provider.model,
-                                              name: provider.name,
-                                            });
-                                          }}
-                                        >
-                                          {provider.name}
-                                        </MenuItem>
-                                      ))}
-                                    </MenuGroup>
-                                  );
-                                }}
-                              />
-                            )}
+                                return (
+                                  <MenuGroup>
+                                    {AI_PROVIDERS.map((provider) => (
+                                      <MenuItem
+                                        key={provider.slug}
+                                        onClick={() => {
+                                          onChange(serviceKey, {
+                                            service: provider.slug,
+                                            model: provider.model,
+                                            name: provider.name,
+                                          });
+                                        }}
+                                      >
+                                        {provider.name}
+                                      </MenuItem>
+                                    ))}
+                                  </MenuGroup>
+                                );
+                              }}
+                            />
+                          )}
                         </div>
-
-                        <TextareaControl
-                          __nextHasNoMarginBottom
-                          value={formData?.[feature.prompt.key]?.toString() || feature.prompt.defaultValue}
-                          onChange={(newValue) => {
-                            onChange(feature.prompt?.key!, newValue);
-                          }}
-                          disabled={!formData?.[feature.toggle.key]}
-                          placeholder={feature.prompt.placeholder}
-                        />
-                        {feature.prompt.defaultValue && (
-                          <Button
-                            className="filter-ai-settings-field-reset"
-                            variant="link"
-                            onClick={() => onChange(feature.prompt!.key, '')}
-                          >
-                            {__('Reset to default', 'filter-ai')}
-                          </Button>
+                        {feature.prompt && (
+                          <>
+                            <TextareaControl
+                              __nextHasNoMarginBottom
+                              value={formData?.[feature.prompt.key]?.toString() || feature.prompt.defaultValue}
+                              onChange={(newValue) => {
+                                onChange(feature.prompt?.key!, newValue);
+                              }}
+                              disabled={!formData?.[feature.toggle.key]}
+                              placeholder={feature.prompt.placeholder}
+                            />
+                            {feature.prompt.defaultValue && (
+                              <Button
+                                className="filter-ai-settings-field-reset"
+                                variant="link"
+                                onClick={() => onChange(feature.prompt!.key, '')}
+                              >
+                                {__('Reset to default', 'filter-ai')}
+                              </Button>
+                            )}
+                          </>
                         )}
                       </div>
                     </PanelRow>

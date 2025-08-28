@@ -2,7 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { generateImage } from '@/utils/ai/services/generateImage';
 import { getSettings } from '@/settings';
 
-export const getGeneratedImages = async (prompt: string) => {
+export const getGeneratedImages = async (prompt: string, serviceConfig?: { service: string; model: string }) => {
   if (!prompt) {
     throw new Error(__('Prompt missing, please check settings', 'filter-ai'));
   }
@@ -14,6 +14,8 @@ export const getGeneratedImages = async (prompt: string) => {
     feature: 'generate-ai-img-feature',
     candidateCount: 3,
     aspectRatio: '1:1',
+    service: serviceConfig?.service,
+    model: serviceConfig?.model,
   });
 
   return images;
