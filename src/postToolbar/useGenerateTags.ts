@@ -11,6 +11,8 @@ export const useGenerateTags = () => {
 
   const prompt = usePrompts('post_tags_prompt');
 
+  const serviceConfig = settings?.post_tags_prompt_service;
+
   const errorMessage = __('Sorry, there has been an issue while generating your tags.', 'filter-ai');
 
   const { tagsEnabled, content, postTagIds, postTags } = useSelect((select) => {
@@ -57,7 +59,7 @@ export const useGenerateTags = () => {
               ?.value?.split(',')
               .map((i: string) => i.trim())) || [];
 
-      const tags = await ai.getTagsFromContent(_content, _postTags, prompt);
+      const tags = await ai.getTagsFromContent(_content, _postTags, prompt, serviceConfig);
 
       if (!tags) {
         throw new Error(errorMessage);
@@ -99,7 +101,9 @@ export const useGenerateTags = () => {
         window.tagBox.flushTags(tagsdiv, tempElement);
       }
 
-      showNotice({ message: __('Tags have been updated', 'filter-ai') });
+      showNotice({
+        message: __(`Tags have been updated using ${serviceConfig?.service || 'unknown'}`, 'filter-ai'),
+      });
     } catch (error) {
       console.error(error);
 
