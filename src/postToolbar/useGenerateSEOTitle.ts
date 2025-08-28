@@ -11,7 +11,7 @@ import {
   resetSeoTitleOptionsModal,
 } from '@/utils';
 import { useEffect } from '@wordpress/element';
-import {usePrompts} from "@/utils/ai/prompts/usePrompts";
+import { usePrompts } from '@/utils/ai/prompts/usePrompts';
 
 export const useGenerateSEOTitle = () => {
   const { settings } = useSettings();
@@ -19,6 +19,8 @@ export const useGenerateSEOTitle = () => {
   const { options, choice } = useSeoTitleOptionsModal();
 
   const prompt = usePrompts('yoast_seo_title_prompt');
+
+  const serviceConfig = settings?.yoast_seo_title_prompt_service;
 
   const { content, getSeoTitleTemplate, oldSeoTitle } = useSelect((select) => {
     const { getEditedPostAttribute } = select('core/editor');
@@ -75,7 +77,9 @@ export const useGenerateSEOTitle = () => {
       scrollToField();
     }
 
-    showNotice({ message: __('SEO title has been updated', 'filter-ai') });
+    showNotice({
+      message: __(`SEO title has been updated using ${serviceConfig?.service || 'unknown'}`, 'filter-ai'),
+    });
   };
 
   const onClick = async () => {
@@ -84,7 +88,7 @@ export const useGenerateSEOTitle = () => {
     let options = [];
 
     try {
-      const titles = await ai.getSeoTitleFromContent(content, oldSeoTitle, prompt);
+      const titles = await ai.getSeoTitleFromContent(content, oldSeoTitle, prompt, serviceConfig);
 
       if (!titles) {
         throw new Error(__('Sorry, there has been an issue while generating your SEO title.', 'filter-ai'));
