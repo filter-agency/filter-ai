@@ -3,7 +3,7 @@ import { useSettings } from '@/settings';
 import { ai, hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createRoot, useCallback, useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { usePrompts } from '@/utils/ai/prompts/usePrompts';
 
 const Toolbar = () => {
@@ -48,8 +48,10 @@ const Toolbar = () => {
         document.getElementById('attachment_alt').value = newAltText;
       }
 
+      const serviceName = serviceConfig?.name ? ` using ${serviceConfig.name}` : '';
+
       showNotice({
-        message: __(`Alt text has been updated using ${serviceConfig?.service || 'unknown'}`, 'filter-ai'),
+        message: sprintf(__('Alt text has been updated%s', 'filter-ai'), serviceName),
       });
     } catch (error) {
       console.error(error);

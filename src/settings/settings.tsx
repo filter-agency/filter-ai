@@ -254,6 +254,7 @@ const Settings = () => {
                                             onChange(serviceKey, {
                                               service: provider.slug,
                                               model: provider.model,
+                                              name: provider.name,
                                             });
                                           }}
                                         >

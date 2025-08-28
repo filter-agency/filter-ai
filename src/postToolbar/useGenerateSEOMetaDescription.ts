@@ -1,6 +1,6 @@
 import { useSettings } from '@/settings';
 import { useSelect } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { ai, hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils';
 import { usePrompts } from '@/utils/ai/prompts/usePrompts';
 
@@ -56,8 +56,10 @@ export const useGenerateSEOMetaDescription = () => {
       scrollToField();
     }
 
+    const serviceName = serviceConfig?.name ? ` using ${serviceConfig.name}` : '';
+
     showNotice({
-      message: __(`SEO meta description has been updated using ${serviceConfig?.service || 'unknown'}`, 'filter-ai'),
+      message: sprintf(__('SEO meta description has been updated%s', 'filter-ai'), serviceName),
     });
   };
 

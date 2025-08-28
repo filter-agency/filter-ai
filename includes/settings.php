@@ -14,12 +14,14 @@ function filter_ai_get_default_settings() {
 		'common_prompt_prefix_service'              => array(
 			'service' => 'openai',
 			'model'   => 'gpt-4o',
+			'name'    => 'OpenAI (Chat-GPT)',
 		),
 
 		'common_prompt_different'                   => esc_html__( 'Making sure it is different to the current text:', 'filter-ai' ),
 		'common_prompt_different_service'           => array(
 			'service' => 'openai',
 			'model'   => 'gpt-4o',
+			'name'    => 'OpenAI (Chat-GPT)',
 		),
 
 		'brand_voice_enabled'                       => false,
@@ -27,6 +29,7 @@ function filter_ai_get_default_settings() {
 		'brand_voice_prompt_service'                => array(
 			'service' => 'openai',
 			'model'   => 'gpt-4o',
+			'name'    => 'OpenAI (Chat-GPT)',
 		),
 
 		'stop_words_enabled'                        => false,
@@ -34,12 +37,14 @@ function filter_ai_get_default_settings() {
 		'stop_words_prompt_service'                 => array(
 			'service' => 'openai',
 			'model'   => 'gpt-4o',
+			'name'    => 'OpenAI (Chat-GPT)',
 		),
 
 		'stop_words_pre_prompt'                     => esc_html__( 'Please avoid using the following words in any generated response:', 'filter-ai' ),
 		'stop_words_pre_prompt_service'             => array(
 			'service' => 'openai',
 			'model'   => 'gpt-4o',
+			'name'    => 'OpenAI (Chat-GPT)',
 		),
 
 		'image_alt_text_enabled'                    => true,
@@ -47,6 +52,7 @@ function filter_ai_get_default_settings() {
 		'image_alt_text_prompt_service'             => array(
 			'service' => 'openai',
 			'model'   => 'gpt-4o',
+			'name'    => 'OpenAI (Chat-GPT)',
 		),
 
 		'auto_alt_text_enabled'                     => true,
@@ -56,6 +62,7 @@ function filter_ai_get_default_settings() {
 		'generate_image_pre_prompt_service'         => array(
 			'service' => 'openai',
 			'model'   => 'gpt-4o',
+			'name'    => 'OpenAI (Chat-GPT)',
 		),
 		'generate_image_enabled'                    => true,
 
@@ -64,6 +71,7 @@ function filter_ai_get_default_settings() {
 		'post_title_prompt_service'                 => array(
 			'service' => 'openai',
 			'model'   => 'gpt-4o',
+			'name'    => 'OpenAI (Chat-GPT)',
 		),
 
 		'post_excerpt_enabled'                      => true,
@@ -71,6 +79,7 @@ function filter_ai_get_default_settings() {
 		'post_excerpt_prompt_service'               => array(
 			'service' => 'openai',
 			'model'   => 'gpt-4o',
+			'name'    => 'OpenAI (Chat-GPT)',
 		),
 
 		'post_tags_enabled'                         => true,
@@ -78,6 +87,7 @@ function filter_ai_get_default_settings() {
 		'post_tags_prompt_service'                  => array(
 			'service' => 'openai',
 			'model'   => 'gpt-4o',
+			'name'    => 'OpenAI (Chat-GPT)',
 		),
 
 		'customise_text_rewrite_enabled'            => true,
@@ -85,6 +95,7 @@ function filter_ai_get_default_settings() {
 		'customise_text_rewrite_prompt_service'     => array(
 			'service' => 'openai',
 			'model'   => 'gpt-4o',
+			'name'    => 'OpenAI (Chat-GPT)',
 		),
 
 		'customise_text_expand_enabled'             => true,
@@ -92,6 +103,7 @@ function filter_ai_get_default_settings() {
 		'customise_text_expand_prompt_service'      => array(
 			'service' => 'openai',
 			'model'   => 'gpt-4o',
+			'name'    => 'OpenAI (Chat-GPT)',
 		),
 
 		'customise_text_condense_enabled'           => true,
@@ -99,6 +111,7 @@ function filter_ai_get_default_settings() {
 		'customise_text_condense_prompt_service'    => array(
 			'service' => 'openai',
 			'model'   => 'gpt-4o',
+			'name'    => 'OpenAI (Chat-GPT)',
 		),
 
 		'customise_text_summarise_enabled'          => true,
@@ -106,6 +119,7 @@ function filter_ai_get_default_settings() {
 		'customise_text_summarise_prompt_service'   => array(
 			'service' => 'openai',
 			'model'   => 'gpt-4o',
+			'name'    => 'OpenAI (Chat-GPT)',
 		),
 
 		'customise_text_change_tone_enabled'        => true,
@@ -113,6 +127,7 @@ function filter_ai_get_default_settings() {
 		'customise_text_change_tone_prompt_service' => array(
 			'service' => 'openai',
 			'model'   => 'gpt-4o',
+			'name'    => 'OpenAI (Chat-GPT)',
 		),
 
 		'wc_product_description_enabled'            => true,
@@ -120,6 +135,7 @@ function filter_ai_get_default_settings() {
 		'wc_product_description_prompt_service'     => array(
 			'service' => 'openai',
 			'model'   => 'gpt-4o',
+			'name'    => 'OpenAI (Chat-GPT)',
 		),
 
 		'wc_product_excerpt_enabled'                => true,
@@ -127,6 +143,7 @@ function filter_ai_get_default_settings() {
 		'wc_product_excerpt_prompt_service'         => array(
 			'service' => 'openai',
 			'model'   => 'gpt-4o',
+			'name'    => 'OpenAI (Chat-GPT)',
 		),
 
 		'yoast_seo_title_enabled'                   => true,
@@ -134,12 +151,14 @@ function filter_ai_get_default_settings() {
 		'yoast_seo_title_prompt_service'            => array(
 			'service' => 'openai',
 			'model'   => 'gpt-4o',
+			'name'    => 'OpenAI (Chat-GPT)',
 		),
 
 		'yoast_seo_title_pre_prompt'                => esc_html__( 'Please provide 5 options separated by 2 pipes "||", do not return anything other than your answer.', 'filter-ai' ),
 		'yoast_seo_title_pre_prompt_service'        => array(
 			'service' => 'openai',
 			'model'   => 'gpt-4o',
+			'name'    => 'OpenAI (Chat-GPT)',
 		),
 
 		'yoast_seo_meta_description_enabled'        => true,
@@ -147,6 +166,7 @@ function filter_ai_get_default_settings() {
 		'yoast_seo_meta_description_prompt_service' => array(
 			'service' => 'openai',
 			'model'   => 'gpt-4o',
+			'name'    => 'OpenAI (Chat-GPT)',
 		),
 	);
 }
@@ -178,6 +198,7 @@ function filter_ai_get_option_schema_properties() {
 				'properties' => array(
 					'service' => array( 'type' => 'string' ),
 					'model'   => array( 'type' => 'string' ),
+					'name'    => array( 'type' => 'string' ),
 				),
 			);
 		} else {

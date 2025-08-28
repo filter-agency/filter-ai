@@ -30,11 +30,35 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
 
   const { settings } = useSettings();
 
-  const rewritePrompt = usePrompts('customise_text_rewrite_prompt');
-  const expandPrompt = usePrompts('customise_text_expand_prompt');
-  const condensePrompt = usePrompts('customise_text_condense_prompt');
-  const summarisePrompt = usePrompts('customise_text_summarise_prompt');
-  const changeTonePrompt = usePrompts('customise_text_change_tone_prompt');
+  type PromptKey =
+    | 'customise_text_rewrite_prompt'
+    | 'customise_text_expand_prompt'
+    | 'customise_text_condense_prompt'
+    | 'customise_text_summarise_prompt'
+    | 'customise_text_change_tone_prompt';
+
+  const promptConfigs: Record<PromptKey, { prompt: string; serviceConfig: any }> = {
+    customise_text_rewrite_prompt: {
+      prompt: usePrompts('customise_text_rewrite_prompt'),
+      serviceConfig: settings?.customise_text_rewrite_prompt_service,
+    },
+    customise_text_expand_prompt: {
+      prompt: usePrompts('customise_text_expand_prompt'),
+      serviceConfig: settings?.customise_text_expand_prompt_service,
+    },
+    customise_text_condense_prompt: {
+      prompt: usePrompts('customise_text_condense_prompt'),
+      serviceConfig: settings?.customise_text_condense_prompt_service,
+    },
+    customise_text_summarise_prompt: {
+      prompt: usePrompts('customise_text_summarise_prompt'),
+      serviceConfig: settings?.customise_text_summarise_prompt_service,
+    },
+    customise_text_change_tone_prompt: {
+      prompt: usePrompts('customise_text_change_tone_prompt'),
+      serviceConfig: settings?.customise_text_change_tone_prompt_service,
+    },
+  };
 
   const { selectionStart, selectionEnd, hasMultiSelection } = useSelect(
     (select) => {
@@ -74,6 +98,8 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
   }, [name]);
 
   const onClick: OnClick = async (promptKey, params) => {
+    const { prompt, serviceConfig } = promptConfigs[promptKey as PromptKey] || {};
+
     if (promptKey === 'customise_text_summarise_prompt') {
       showLoadingMessage(label, 'summarising');
     } else {
@@ -94,22 +120,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
         value: hasSelection ? slice(content, selectionStart.offset, selectionEnd.offset) : content,
       });
 
-      let prompt = (() => {
-        switch (promptKey) {
-          case 'customise_text_rewrite_prompt':
-            return rewritePrompt;
-          case 'customise_text_expand_prompt':
-            return expandPrompt;
-          case 'customise_text_condense_prompt':
-            return condensePrompt;
-          case 'customise_text_summarise_prompt':
-            return summarisePrompt;
-          case 'customise_text_change_tone_prompt':
-            return changeTonePrompt;
-          default:
-            return null;
-        }
-      })();
+      let finalPrompt = prompt;
 
       if (typeof prompt !== 'string') {
         throw new Error(
@@ -122,11 +133,11 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
 
       if (params) {
         for (const key in params) {
-          prompt = prompt.replace(new RegExp(`{{${key}}}`, 'g'), params[key]);
+          finalPrompt = finalPrompt.replace(new RegExp(`{{${key}}}`, 'g'), params[key]);
         }
       }
 
-      let newText = await ai.customiseText(feature, text, prompt);
+      let newText = await ai.customiseText(feature, text, finalPrompt, serviceConfig);
 
       if (!newText) {
         throw new Error(sprintf(__('Sorry, there has been an issue while generating your %s', 'filter-ai'), label));
@@ -149,7 +160,14 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
           setAttributes({ content: newText });
         }
 
-        showNotice({ message: sprintf(__('Your %s has been updated', 'filter-ai'), label.toLowerCase()) });
+        const serviceName =
+          serviceConfig?.name || serviceConfig?.service
+            ? ` ${__('using', 'filter-ai')} ${serviceConfig?.name || serviceConfig?.service}`
+            : '';
+
+        showNotice({
+          message: sprintf(__('Your %s has been updated%s', 'filter-ai'), label.toLowerCase(), serviceName),
+        });
       }
     } catch (error) {
       console.error(error);

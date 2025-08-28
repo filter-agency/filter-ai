@@ -26,6 +26,7 @@ const useControl = ({ id }: Props) => {
         return {
           enabled: settings?.wc_product_excerpt_enabled,
           promptPrefix: settings?.wc_product_excerpt_prompt,
+          serviceConfig: settings?.wc_product_excerpt_prompt_service,
           loadingMessage: __('Short Description', 'filter-ai'),
           successMessage: __('Product short description has been updated', 'filter-ai'),
           errorMessage: __(
@@ -39,6 +40,7 @@ const useControl = ({ id }: Props) => {
         return {
           enabled: settings?.wc_product_description_enabled,
           promptPrefix: settings?.wc_product_description_prompt,
+          serviceConfig: settings?.wc_product_description_prompt_service,
           loadingMessage: __('Description', 'filter-ai'),
           successMessage: __('Product description has been updated', 'filter-ai'),
           errorMessage: __('Sorry, there has been an issue while generating your product description.', 'filter-ai'),
@@ -74,6 +76,8 @@ const useControl = ({ id }: Props) => {
       const content = await ai.generateText({
         feature: `filter-ai-wc-product-${id}`,
         prompt,
+        service: data.serviceConfig?.service,
+        model: data.serviceConfig?.model,
       });
 
       if (!content) {
@@ -82,7 +86,8 @@ const useControl = ({ id }: Props) => {
 
       updateValue(content);
 
-      showNotice({ message: data.successMessage });
+      const serviceName = data.serviceConfig?.name ? ` using ${data.serviceConfig.name}` : '';
+      showNotice({ message: `${data.successMessage}${serviceName}` });
     } catch (error) {
       console.error(error);
 

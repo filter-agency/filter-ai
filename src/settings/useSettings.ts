@@ -8,7 +8,7 @@ export type FilterAISettings = Record<
   | {
       service: string;
       model: string;
-      prompt?: string;
+      name: string;
     }
 >;
 

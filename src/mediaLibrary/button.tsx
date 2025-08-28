@@ -2,7 +2,7 @@ import { DropdownMenu } from '@/components/dropdownMenu';
 import { useSettings } from '@/settings';
 import { ai, hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils';
 import { useEffect, useMemo, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import _ from 'underscore';
 import { usePrompts } from '@/utils/ai/prompts/usePrompts';
 
@@ -15,6 +15,7 @@ type GenerateAltTextPayload = {
   serviceConfig: {
     service: string;
     model: string;
+    name: string;
   };
 };
 
@@ -65,8 +66,10 @@ type GenerateAltTextPayload = {
 
         this.render();
 
+        const serviceName = serviceConfig?.name ? ` using ${serviceConfig.name}` : '';
+
         showNotice({
-          message: __(`Alt text has been updated using ${serviceConfig?.service || 'unknown'}`, 'filter-ai'),
+          message: sprintf(__('Alt text has been updated%s', 'filter-ai'), serviceName),
         });
       } catch (error) {
         console.error(error);

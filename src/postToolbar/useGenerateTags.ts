@@ -1,7 +1,7 @@
 import { useSettings } from '@/settings';
 import { ai, hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils';
 import { useDispatch, useSelect, resolveSelect, dispatch } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { cleanForSlug } from '@wordpress/url';
 import { usePrompts } from '@/utils/ai/prompts/usePrompts';
 
@@ -83,8 +83,10 @@ export const useGenerateTags = () => {
 
       editPost({ tags: [...new Set([...postTagIds, ...newTagIds])] });
 
+      const serviceName = serviceConfig?.name ? ` using ${serviceConfig.name}` : '';
+
       showNotice({
-        message: __(`Tags have been updated using ${serviceConfig?.service || 'unknown'}`, 'filter-ai'),
+        message: sprintf(__('Tags have been updated%s', 'filter-ai'), serviceName),
       });
     } catch (error) {
       console.error(error);

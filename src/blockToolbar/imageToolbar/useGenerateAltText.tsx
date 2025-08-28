@@ -2,7 +2,7 @@ import { useSettings } from '@/settings';
 import { BlockEditProps } from '@/types';
 import { showNotice, ai, hideLoadingMessage, showLoadingMessage } from '@/utils';
 import { useMemo, useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { usePrompts } from '@/utils/ai/prompts/usePrompts';
 
 type Props = {
@@ -85,8 +85,10 @@ export const useGenerateAltText = ({ attributes, setAttributes }: Props) => {
 
       setAttribute(altText, altTextKeys);
 
+      const serviceName = serviceConfig?.name ? ` using ${serviceConfig.name}` : '';
+
       showNotice({
-        message: __(`Alt text has been updated using ${serviceConfig?.service || 'unknown'}`, 'filter-ai'),
+        message: sprintf(__('Alt text has been updated%s', 'filter-ai'), serviceName),
       });
     } catch (error) {
       console.error(error);
