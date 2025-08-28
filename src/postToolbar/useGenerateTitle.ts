@@ -10,6 +10,8 @@ export const useGenerateTitle = () => {
 
   const prompt = usePrompts('post_title_prompt');
 
+  const serviceConfig = settings?.post_title_prompt_service;
+
   const { content, oldTitle } = useSelect((select) => {
     const { getEditedPostAttribute } = select('core/editor') || {};
 
@@ -34,7 +36,7 @@ export const useGenerateTitle = () => {
       const titleField = document.getElementById('title') as HTMLInputElement;
       const _oldTitle = oldTitle || titleField?.value;
 
-      const title = await ai.getTitleFromContent(_content, _oldTitle, prompt);
+      const title = await ai.getTitleFromContent(_content, _oldTitle, prompt, serviceConfig);
 
       if (!title) {
         throw new Error(__('Sorry, there has been an issue while generating your title.', 'filter-ai'));
@@ -46,7 +48,9 @@ export const useGenerateTitle = () => {
         titleField.value = title;
       }
 
-      showNotice({ message: __('Title has been updated', 'filter-ai') });
+      showNotice({
+        message: __(`Title has been updated using ${serviceConfig?.service || 'unknown'}`, 'filter-ai'),
+      });
     } catch (error) {
       console.error(error);
 
