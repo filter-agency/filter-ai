@@ -20,6 +20,8 @@ export const useGenerateSEOTitle = () => {
 
   const prompt = usePrompts('yoast_seo_title_prompt');
 
+  const serviceConfig = settings?.yoast_seo_title_prompt_service;
+
   const { content, getSeoTitleTemplate, oldSeoTitle } = useSelect((select) => {
     const { getEditedPostAttribute } = select('core/editor') || {};
     const { getSeoTitleTemplate, getSeoTitle } = select('yoast-seo/editor') || {};
@@ -75,7 +77,9 @@ export const useGenerateSEOTitle = () => {
       scrollToField();
     }
 
-    showNotice({ message: __('SEO title has been updated', 'filter-ai') });
+    showNotice({
+      message: __(`SEO title has been updated using ${serviceConfig?.service || 'unknown'}`, 'filter-ai'),
+    });
   };
 
   const onClick = async () => {
@@ -86,7 +90,7 @@ export const useGenerateSEOTitle = () => {
     try {
       const _content = content || window.tinymce?.editors?.content?.getContent();
 
-      const titles = await ai.getSeoTitleFromContent(_content, oldSeoTitle, prompt);
+      const titles = await ai.getSeoTitleFromContent(_content, oldSeoTitle, prompt, serviceConfig);
 
       if (!titles) {
         throw new Error(__('Sorry, there has been an issue while generating your SEO title.', 'filter-ai'));

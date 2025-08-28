@@ -9,6 +9,8 @@ export const useGenerateSEOMetaDescription = () => {
 
   const prompt = usePrompts('yoast_seo_meta_description_prompt');
 
+  const serviceConfig = settings?.yoast_seo_meta_description_prompt_service;
+
   const { content, oldDescription } = useSelect((select) => {
     const { getEditedPostAttribute } = select('core/editor') || {};
     const { getDescription } = select('yoast-seo/editor') || {};
@@ -54,7 +56,9 @@ export const useGenerateSEOMetaDescription = () => {
       scrollToField();
     }
 
-    showNotice({ message: __('SEO meta description has been updated', 'filter-ai') });
+    showNotice({
+      message: __(`SEO meta description has been updated using ${serviceConfig?.service || 'unknown'}`, 'filter-ai'),
+    });
   };
 
   const onClick = async () => {
@@ -63,7 +67,7 @@ export const useGenerateSEOMetaDescription = () => {
     try {
       const _content = content || window.tinymce?.editors?.content?.getContent();
 
-      const description = await ai.getSeoMetaDescriptionFromContent(_content, oldDescription, prompt);
+      const description = await ai.getSeoMetaDescriptionFromContent(_content, oldDescription, prompt, serviceConfig);
 
       if (!description) {
         throw new Error(__('Sorry, there has been an issue while generating your SEO meta description.', 'filter-ai'));
