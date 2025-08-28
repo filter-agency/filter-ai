@@ -65,7 +65,9 @@ type GenerateAltTextPayload = {
 
         this.render();
 
-        showNotice({ message: __('Alt text has been updated.', 'filter-ai') });
+        showNotice({
+          message: __(`Alt text has been updated using ${serviceConfig?.service || 'unknown'}`, 'filter-ai'),
+        });
       } catch (error) {
         console.error(error);
 
