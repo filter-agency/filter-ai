@@ -1,7 +1,7 @@
 import { useSettings } from '@/settings';
 import { ai, hideLoadingMessage, removeWrappingQuotes, showLoadingMessage, showNotice } from '@/utils';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { usePrompts } from '@/utils/ai/prompts/usePrompts';
 
 export const useGenerateTitle = () => {
@@ -48,8 +48,10 @@ export const useGenerateTitle = () => {
         titleField.value = title;
       }
 
+      const serviceName = serviceConfig?.name ? ` using ${serviceConfig.name}` : '';
+
       showNotice({
-        message: __(`Title has been updated using ${serviceConfig?.service || 'unknown'}`, 'filter-ai'),
+        message: sprintf(__('Title has been updated%s', 'filter-ai'), serviceName),
       });
     } catch (error) {
       console.error(error);
