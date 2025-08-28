@@ -40,25 +40,25 @@ export const generateText = async ({
   );
 
   if (service) {
-    //     console.log(`[AI] Requested service: ${service}`);
+    console.log(`[AI] Requested service: ${service}`);
     const { isServiceAvailable, getAvailableService } = select('ai-services/ai');
 
     const availableService = getAvailableService(service);
 
     if (!availableService) {
       // Service exists but not configured (API key missing, disabled, etc.)
-      //         console.log(`[AI] Service "${service}" exists but is not configured properly (API key missing or disabled).`);
+      console.log(`[AI] Service "${service}" exists but is not configured properly (API key missing or disabled).`);
       throw new Error(
         `The requested service "${service}" exists but is not configured properly. Please check API key or plugin settings.`
       );
     } else if (!isServiceAvailable(service)) {
       // Service is configured but cannot handle this capability
-      //         console.log(`[AI] Service "${service}" is configured but not available for this feature/capability.`);
+      console.log(`[AI] Service "${service}" is configured but not available for this feature/capability.`);
       throw new Error(`The requested service "${service}" cannot be used for this feature. Check its capabilities.`);
     } else {
       // Service is available and usable
       resolvedService = availableService;
-      //         console.log(`[AI] Resolved requested service: ${resolvedService?.getServiceSlug?.()}`);
+      console.log(`[AI] Resolved requested service: ${resolvedService?.getServiceSlug?.()}`);
     }
   }
 
@@ -84,7 +84,7 @@ export const generateText = async ({
       {
         feature,
         capabilities,
-        ...(model ? { model } : {}),
+        //         ...(model ? { model } : {}),
       }
     );
 

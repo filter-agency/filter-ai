@@ -41,6 +41,7 @@ const Settings = () => {
   );
   const [formData, setFormData] = useState<FilterAISettings>({});
 
+  // I've maintained the ability to provide a specific model, although in generateText() we only use the slug.
   const AI_PROVIDERS = [
     { slug: 'openai', name: 'OpenAI (Chat-GPT)', model: 'gpt-4o' },
     { slug: 'google', name: 'Google (Gemini)', model: 'gemini-1.5-pro' },

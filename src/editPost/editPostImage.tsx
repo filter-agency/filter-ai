@@ -48,7 +48,9 @@ const Toolbar = () => {
         document.getElementById('attachment_alt').value = newAltText;
       }
 
-      showNotice({ message: __('Alt text has been updated.', 'filter-ai') });
+      showNotice({
+        message: __(`Alt text has been updated using ${serviceConfig?.service || 'unknown'}`, 'filter-ai'),
+      });
     } catch (error) {
       console.error(error);
 
