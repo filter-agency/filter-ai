@@ -29,6 +29,8 @@ const ImageAltText = () => {
 
   const { settings } = useSettings();
 
+  //   console.log('Sending service to API:', settings?.generate_image_service);
+
   const types = useMemo(() => [...new Set(mimeTypes.values())], [mimeTypes]);
 
   const inProgress = useMemo(() => {
@@ -81,11 +83,19 @@ const ImageAltText = () => {
       completeActions: 0,
     }));
 
+    console.log('Sending service to API:', settings?.image_alt_text_prompt_service);
+
     try {
       await fetch(
         `${window.filter_ai_api.url}?action=filter_ai_api_batch_image_alt_text&nonce=${window.filter_ai_api.nonce}`,
         {
           method: 'POST',
+          body: JSON.stringify({
+            service: settings?.generate_image_service,
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
         }
       );
 
@@ -95,7 +105,7 @@ const ImageAltText = () => {
     } finally {
       getCount();
     }
-  }, []);
+  }, [settings?.generate_image_service, getCount]);
 
   const cancel = useCallback(async () => {
     setIsCancelling(true);
