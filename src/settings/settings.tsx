@@ -215,7 +215,12 @@ const Settings = () => {
                   {(feature.prompt || feature.key === 'generate_image') && showExtra[section.key] === feature.key && (
                     <PanelRow>
                       <div style={{ flex: 1 }}>
-                        <div className="filter-ai-label-row">
+                        <div
+                          className="filter-ai-label-row"
+                          style={
+                            feature.key === 'generate_image' ? { display: 'flex', justifyContent: 'flex-end' } : {}
+                          }
+                        >
                           {feature.prompt && (
                             <label style={{ margin: 0 }} className="filter-ai-label-title">
                               {feature.prompt.label}
@@ -224,7 +229,10 @@ const Settings = () => {
                           {feature.key !== 'stop_words' && feature.key !== 'brand_voice' && (
                             <Dropdown
                               renderToggle={({ isOpen, onToggle }) => {
-                                const serviceKey = feature.prompt?.key + '_service';
+                                const serviceKey = (() => {
+                                  if (feature.key === 'generate_image_pre_prompt') return 'generate_image_service';
+                                  return (feature.prompt?.key || feature.key) + '_service';
+                                })();
                                 const serviceData = formData?.[serviceKey];
                                 const selectedServiceSlug =
                                   serviceData && typeof serviceData === 'object' && 'service' in serviceData
@@ -243,7 +251,10 @@ const Settings = () => {
                                 );
                               }}
                               renderContent={() => {
-                                const serviceKey = feature.prompt?.key + '_service';
+                                const serviceKey = (() => {
+                                  if (feature.key === 'generate_image_pre_prompt') return 'generate_image_service';
+                                  return (feature.prompt?.key || feature.key) + '_service';
+                                })();
 
                                 return (
                                   <MenuGroup>

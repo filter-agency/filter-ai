@@ -59,7 +59,7 @@ function filter_ai_get_default_settings() {
 		'dynamic_add_alt_text_enabled'              => true,
 
 		'generate_image_pre_prompt'                 => esc_html__( 'Please generate an image that is optimised for web use and is based on the following prompt:', 'filter-ai' ),
-		'generate_image_pre_prompt_service'         => array(
+		'generate_image_service'                    => array(
 			'service' => 'openai',
 			'model'   => 'gpt-4o',
 			'name'    => 'OpenAI (Chat-GPT)',

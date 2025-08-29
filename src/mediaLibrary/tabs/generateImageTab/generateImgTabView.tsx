@@ -21,7 +21,7 @@ const GenerateImgTabView = ({ callback }: Props) => {
 
   const { settings } = useSettings();
 
-  const serviceConfig = settings?.generate_image_pre_prompt_service;
+  const serviceConfig = settings?.generate_image_service;
 
   // @ts-expect-error Type 'never' has no call signatures.
   const AIService = useSelect((select) => select(window.aiServices.ai.store)?.getAvailableService(), []);
@@ -35,6 +35,9 @@ const GenerateImgTabView = ({ callback }: Props) => {
       setSelectedIndexes([]);
     } catch (err) {
       console.error('Failed to generate images:', err);
+
+      const serviceName = serviceConfig?.name || serviceConfig?.service || __('Unknown service', 'filter-ai');
+
       let message = __('Image generation failed.');
       if (err instanceof Error) {
         message = err.message;
@@ -44,7 +47,7 @@ const GenerateImgTabView = ({ callback }: Props) => {
         message = (err as any).message;
       }
       showNotice({
-        message: sprintf(__('Error: %s', 'filter-ai'), message),
+        message: sprintf(__('Error (%s): %s', 'filter-ai'), serviceName, message),
         type: 'error',
       });
     } finally {
