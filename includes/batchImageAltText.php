@@ -128,8 +128,9 @@ function filter_ai_get_images_without_alt_text_count() {
  * @return void Returns early if the image already has alt text
  */
 function filter_ai_process_batch_image_alt_text( $args ) {
-	$image_id = $args['image_id'];
-	$user_id  = $args['user_id'];
+	$image_id     = $args['image_id'];
+	$user_id      = $args['user_id'];
+	$service_name = $args['service'];
 
 	if ( ! isset( $image_id ) ) {
 		throw new Exception( esc_html__( 'Missing image', 'filter-ai' ) );
@@ -179,11 +180,22 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 	try {
 		wp_set_current_user( $user_id );
 
-		if ( ai_services()->has_available_services( $required_capabilities ) === false ) {
-			throw new Exception( esc_html__( 'AI service not available', 'filter-ai' ) );
+		// Ensure AI services are registered first
+		if ( method_exists( ai_services(), 'register_services' ) ) {
+			ai_services()->register_services();
 		}
 
-		$service = ai_services()->get_available_service( $required_capabilities );
+		// Get the actual service object (not the string)
+		$service = ai_services()->get_available_service(
+			array_merge(
+				array( 'service' => $service_name ),
+				$required_capabilities
+			)
+		);
+
+		if ( false === $service ) {
+			throw new Exception( esc_html__( 'AI service not available', 'filter-ai' ) );
+		}
 
 		$parts = new Parts();
 
@@ -201,14 +213,16 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 
 		$content = new Content( Content_Role::USER, $parts );
 
-		$candidates = $service->get_model(
+		$model = $service->get_model(
 			array_merge(
 				array(
 					'feature' => 'filter-ai-image-alt-text',
 				),
 				$required_capabilities,
 			)
-		)->generate_text( $content );
+		);
+
+		$candidates = $model->generate_text( $content );
 
 		$text = Helpers::get_text_from_contents(
 			Helpers::get_candidate_contents( $candidates )
@@ -232,6 +246,14 @@ add_action( 'filter_ai_batch_image_alt_text', 'filter_ai_process_batch_image_alt
 function filter_ai_api_batch_image_alt_text() {
 	check_ajax_referer( 'filter_ai_api', 'nonce' );
 
+	$body = json_decode( file_get_contents( 'php://input' ), true );
+
+	if ( isset( $body['service'] ) && is_array( $body['service'] ) && isset( $body['service']['service'] ) ) {
+		$service_name = sanitize_text_field( $body['service']['service'] );
+	} else {
+		$service_name = 'default';
+	}
+
 	filter_ai_reset_batch( 'filter_ai_batch_image_alt_text' );
 
 	$posts_per_page = 500;
@@ -251,6 +273,7 @@ function filter_ai_api_batch_image_alt_text() {
 						array(
 							'image_id' => $image_id,
 							'user_id'  => get_current_user_id(),
+							'service'  => $service_name,
 						),
 					),
 					'filter-ai-current'

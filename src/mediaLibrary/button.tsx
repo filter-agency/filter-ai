@@ -52,8 +52,6 @@ type GenerateAltTextPayload = {
 
         const url = this.model.get('sizes')?.medium?.url || this.model.get('url');
 
-        console.log('[AltText] Service:', serviceConfig?.service, '| Model:', serviceConfig?.model);
-
         const altText = await ai.getAltTextFromUrl(url, this.model.get('alt'), prompt, serviceConfig);
 
         if (!altText) {
