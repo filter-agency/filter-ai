@@ -29,8 +29,6 @@ const ImageAltText = () => {
 
   const { settings } = useSettings();
 
-  //   console.log('Sending service to API:', settings?.generate_image_service);
-
   const types = useMemo(() => [...new Set(mimeTypes.values())], [mimeTypes]);
 
   const inProgress = useMemo(() => {
@@ -83,15 +81,13 @@ const ImageAltText = () => {
       completeActions: 0,
     }));
 
-    console.log('Sending service to API:', settings?.image_alt_text_prompt_service);
-
     try {
       await fetch(
         `${window.filter_ai_api.url}?action=filter_ai_api_batch_image_alt_text&nonce=${window.filter_ai_api.nonce}`,
         {
           method: 'POST',
           body: JSON.stringify({
-            service: settings?.generate_image_service,
+            service: settings?.image_alt_text_prompt_service,
           }),
           headers: {
             'Content-Type': 'application/json',
@@ -105,7 +101,7 @@ const ImageAltText = () => {
     } finally {
       getCount();
     }
-  }, [settings?.generate_image_service, getCount]);
+  }, [settings?.image_alt_text_prompt_service, getCount]);
 
   const cancel = useCallback(async () => {
     setIsCancelling(true);
@@ -162,6 +158,7 @@ const ImageAltText = () => {
           </PanelBody>
           {!inProgress && count.actions > 0 && (
             <PanelBody title={__('Previous run stats', 'filter-ai')}>
+              <p>{sprintf(__('AI model: %s', 'filter-ai'), settings?.image_alt_text_prompt_service?.name || 'N/A')}</p>
               <p>{sprintf(__('Images processed: %s', 'filter-ai'), count.actions)}</p>
               <p>{sprintf(__('Completed images: %s', 'filter-ai'), count.completeActions)}</p>
               <p>{sprintf(__('Failed images %s', 'filter-ai'), count.failedActions)}</p>
