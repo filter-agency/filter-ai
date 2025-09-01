@@ -13,6 +13,7 @@ const defaultCount = {
   pendingActions: 0,
   runningActions: 0,
   failedActions: 0,
+  lastRunService: 'N/A',
 };
 
 type FailedAction = {
@@ -56,6 +57,7 @@ const ImageAltText = () => {
         pendingActions: data.pending_actions_count,
         runningActions: data.running_actions_count,
         failedActions: data.failed_actions_count,
+        lastRunService: data.last_run_service,
       }));
 
       setFailedActions(Object.values(data.failed_actions || {}));
@@ -158,7 +160,7 @@ const ImageAltText = () => {
           </PanelBody>
           {!inProgress && count.actions > 0 && (
             <PanelBody title={__('Previous run stats', 'filter-ai')}>
-              <p>{sprintf(__('AI model: %s', 'filter-ai'), settings?.image_alt_text_prompt_service?.name || 'N/A')}</p>
+              <p>{sprintf(__('AI Service: %s', 'filter-ai'), count.lastRunService)}</p>
               <p>{sprintf(__('Images processed: %s', 'filter-ai'), count.actions)}</p>
               <p>{sprintf(__('Completed images: %s', 'filter-ai'), count.completeActions)}</p>
               <p>{sprintf(__('Failed images %s', 'filter-ai'), count.failedActions)}</p>

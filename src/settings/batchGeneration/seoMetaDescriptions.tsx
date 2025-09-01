@@ -12,6 +12,7 @@ const defaultCount = {
   runningActions: 0,
   failedActions: 0,
   postTypes: [],
+  lastRunService: 'N/A',
 };
 
 type FailedAction = {
@@ -61,6 +62,7 @@ const SEOMetaDescriptions = () => {
           pendingActions: data.pending_actions_count,
           runningActions: data.running_actions_count,
           failedActions: data.failed_actions_count,
+          lastRunService: data.last_run_service,
         };
       });
 
@@ -94,6 +96,12 @@ const SEOMetaDescriptions = () => {
         `${window.filter_ai_api.url}?action=filter_ai_api_batch_seo_meta_description&nonce=${window.filter_ai_api.nonce}`,
         {
           method: 'POST',
+          body: JSON.stringify({
+            service: settings?.yoast_seo_meta_description_prompt_service,
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
         }
       );
 
@@ -103,7 +111,7 @@ const SEOMetaDescriptions = () => {
     } finally {
       getCount();
     }
-  }, []);
+  }, [settings?.yoast_seo_meta_description_prompt_service, getCount]);
 
   const cancel = useCallback(async () => {
     setIsCancelling(true);
@@ -183,6 +191,7 @@ const SEOMetaDescriptions = () => {
           </PanelBody>
           {!inProgress && count.actions > 0 && (
             <PanelBody title={__('Previous run stats', 'filter-ai')}>
+              <p>{sprintf(__('AI Service: %s', 'filter-ai'), count.lastRunService)}</p>
               <p>{sprintf(__('SEO meta descriptions processed: %s', 'filter-ai'), count.actions)}</p>
               <p>{sprintf(__('Completed SEO meta descriptions: %s', 'filter-ai'), count.completeActions)}</p>
               <p>{sprintf(__('Failed SEO meta descriptions %s', 'filter-ai'), count.failedActions)}</p>

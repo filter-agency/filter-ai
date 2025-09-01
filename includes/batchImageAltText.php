@@ -185,6 +185,13 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 			ai_services()->register_services();
 		}
 
+		if ( ! ai_services()->is_service_available( $service_name ) ) {
+			throw new Exception(
+				// translators: %s: AI service name.
+				sprintf( esc_html__( 'The requested AI service "%s" is not available or does not support the required features. Please check your settings.', 'filter-ai' ), $service_name )
+			);
+		}
+
 		$service = ai_services()->get_available_service( $service_name );
 
 		if ( false === $service ) {
@@ -242,14 +249,16 @@ function filter_ai_api_batch_image_alt_text() {
 
 	$body = json_decode( file_get_contents( 'php://input' ), true );
 
-	if ( isset( $body['service'] ) && is_array( $body['service'] ) && isset( $body['service']['service'] ) ) {
-		$service_name = sanitize_text_field( $body['service']['service'] );
+	if ( isset( $body['service'] ) && is_array( $body['service'] ) && isset( $body['service']['name'] ) ) {
+		$service_name = sanitize_text_field( $body['service']['name'] );
 	} else {
-		$service_name = 'default';
+		// Use a user-friendly default name if none is provided.
+		$service_name = 'Default Service (Unknown)';
 	}
 
+	update_option( 'filter_ai_last_ai_image_alt_text_service', $service_name );
+
 	filter_ai_reset_batch( 'filter_ai_batch_image_alt_text' );
-	filter_ai_reset_batch( 'filter_ai_batch_image_alt_text() service_name:', $service_name );
 
 	$posts_per_page = 500;
 	$images_count   = filter_ai_get_images_without_alt_text_count();
@@ -261,6 +270,8 @@ function filter_ai_api_batch_image_alt_text() {
 
 		if ( ! empty( $images ) ) {
 			foreach ( $images as $image_id ) {
+				$service_slug = isset( $body['service']['service'] ) ? sanitize_text_field( $body['service']['service'] ) : 'default';
+
 				// call action through a scheduled action
 				$action_ids[] = as_enqueue_async_action(
 					'filter_ai_batch_image_alt_text',
@@ -268,7 +279,7 @@ function filter_ai_api_batch_image_alt_text() {
 						array(
 							'image_id' => $image_id,
 							'user_id'  => get_current_user_id(),
-							'service'  => $service_name,
+							'service'  => $service_slug,
 						),
 					),
 					'filter-ai-current'
@@ -320,6 +331,8 @@ function filter_ai_api_get_image_count() {
 		}
 	}
 
+	$last_run_service = get_option( 'filter_ai_last_ai_image_alt_text_service', 'N/A' );
+
 	wp_send_json_success(
 		array(
 			'images_count'                  => filter_ai_get_images_count(),
@@ -330,6 +343,7 @@ function filter_ai_api_get_image_count() {
 			'complete_actions_count'        => $action_count->complete,
 			'failed_actions_count'          => $action_count->failed,
 			'failed_actions'                => $failed_actions,
+			'last_run_service'              => $last_run_service,
 		)
 	);
 }
