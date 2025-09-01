@@ -185,13 +185,7 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 			ai_services()->register_services();
 		}
 
-		// Get the actual service object (not the string)
-		$service = ai_services()->get_available_service(
-			array_merge(
-				array( 'service' => $service_name ),
-				$required_capabilities
-			)
-		);
+		$service = ai_services()->get_available_service( $service_name );
 
 		if ( false === $service ) {
 			throw new Exception( esc_html__( 'AI service not available', 'filter-ai' ) );
@@ -255,6 +249,7 @@ function filter_ai_api_batch_image_alt_text() {
 	}
 
 	filter_ai_reset_batch( 'filter_ai_batch_image_alt_text' );
+	filter_ai_reset_batch( 'filter_ai_batch_image_alt_text() service_name:', $service_name );
 
 	$posts_per_page = 500;
 	$images_count   = filter_ai_get_images_without_alt_text_count();
