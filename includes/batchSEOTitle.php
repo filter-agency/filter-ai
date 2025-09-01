@@ -51,8 +51,9 @@ function filter_ai_get_posts_missing_seo_title_count( $post_type = 'any' ) {
  * @return void Returns early if the post already has a SEO title
  */
 function filter_ai_process_batch_seo_title( $args ) {
-	$post_id = $args['post_id'];
-	$user_id = $args['user_id'];
+	$post_id      = $args['post_id'];
+	$user_id      = $args['user_id'];
+	$service_name = $args['service'];
 
 	if ( ! isset( $post_id ) ) {
 		throw new Exception( esc_html__( 'Missing post', 'filter-ai' ) );
@@ -89,7 +90,14 @@ function filter_ai_process_batch_seo_title( $args ) {
 			throw new Exception( esc_html__( 'AI service not available', 'filter-ai' ) );
 		}
 
-		$service = ai_services()->get_available_service( $required_capabilities );
+		if ( ! ai_services()->is_service_available( $service_name ) ) {
+			throw new Exception(
+				// translators: %s: AI service name.
+				sprintf( esc_html__( 'The requested AI service "%s" is not available or does not support the required features. Please check your settings.', 'filter-ai' ), $service_name )
+			);
+		}
+
+		$service = ai_services()->get_available_service( $service_name );
 
 		$parts = new Parts();
 
@@ -141,6 +149,17 @@ add_action( 'filter_ai_batch_seo_title', 'filter_ai_process_batch_seo_title' );
 function filter_ai_api_batch_seo_title() {
 	check_ajax_referer( 'filter_ai_api', 'nonce' );
 
+	$body = json_decode( file_get_contents( 'php://input' ), true );
+
+	if ( isset( $body['service'] ) && is_array( $body['service'] ) && isset( $body['service']['name'] ) ) {
+		$service_name = sanitize_text_field( $body['service']['name'] );
+	} else {
+		// Use a user-friendly default name if none is provided.
+		$service_name = 'Default Service (Unknown)';
+	}
+
+	update_option( 'filter_ai_last_seo_title_service', $service_name );
+
 	filter_ai_reset_batch( 'filter_ai_batch_seo_title' );
 
 	$posts_per_page = 500;
@@ -153,6 +172,8 @@ function filter_ai_api_batch_seo_title() {
 
 		if ( ! empty( $posts ) ) {
 			foreach ( $posts as $post_id ) {
+				$service_slug = isset( $body['service']['service'] ) ? sanitize_text_field( $body['service']['service'] ) : 'default';
+
 				// call action through a scheduled action
 				$action_ids[] = as_enqueue_async_action(
 					'filter_ai_batch_seo_title',
@@ -160,6 +181,7 @@ function filter_ai_api_batch_seo_title() {
 						array(
 							'post_id' => $post_id,
 							'user_id' => get_current_user_id(),
+							'service' => $service_slug,
 						),
 					),
 					'filter-ai-current'
@@ -236,6 +258,8 @@ function filter_ai_api_get_seo_title_count() {
 		}
 	}
 
+	$last_run_service = get_option( 'filter_ai_last_seo_title_service', 'N/A' );
+
 	wp_send_json_success(
 		array(
 			'post_types'             => $post_type_count,
@@ -247,6 +271,7 @@ function filter_ai_api_get_seo_title_count() {
 			'complete_actions_count' => $action_count->complete,
 			'failed_actions_count'   => $action_count->failed,
 			'failed_actions'         => $failed_actions,
+			'last_run_service'       => $last_run_service,
 		)
 	);
 }
