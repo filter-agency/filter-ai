@@ -13,7 +13,6 @@ import {
   MenuItem,
 } from '@wordpress/components';
 import { createRoot, useState, useEffect, useMemo } from '@wordpress/element';
-import { useSelect } from '@wordpress/data';
 import { FilterAISettings, useSettings } from './useSettings';
 import _ from 'underscore';
 import { sections } from './sections';
@@ -21,13 +20,16 @@ import { filterLogoWhite } from '@/assets/filter-logo';
 import { verticalDots } from '@/assets/vertical-dots';
 import { __ } from '@wordpress/i18n';
 import AIServiceNotice from '@/components/aiServiceNotice';
-import { SelectControl } from '@wordpress/components';
+import { chevronDown, chevronUp } from '@wordpress/icons';
+const { isServiceAvailable } = wp.data.select('ai-services/ai');
 
 type ShowButtonProps = {
   extraKey: string;
   extraValue: string;
   disabled?: boolean;
 };
+
+declare const wp: any;
 
 const Settings = () => {
   const [showExtra, setShowExtra] = useState<{ [key: string]: string }>(
@@ -41,14 +43,25 @@ const Settings = () => {
   );
   const [formData, setFormData] = useState<FilterAISettings>({});
 
-  // I've maintained the ability to provide a specific model, although in generateText() we only use the slug.
-  const AI_PROVIDERS = [
-    { slug: 'openai', name: 'OpenAI (Chat-GPT)', model: 'gpt-4o' },
-    { slug: 'google', name: 'Google (Gemini)', model: 'gemini-1.5-pro' },
-    { slug: 'anthropic', name: 'Anthropic (Claude)', model: 'claude-3' },
-  ];
-
   const { settings, saveSettings } = useSettings();
+
+  const AI_PROVIDERS = ['openai', 'anthropic', 'google']
+    .filter((slug) => {
+      const isAvailable = wp.data.select('ai-services/ai').isServiceAvailable(slug);
+      console.log(`[AI_PROVIDERS] Checking service: ${slug}, available:`, isAvailable);
+      return isAvailable;
+    })
+    .map((slug) => {
+      const service = wp.data.select('ai-services/ai').getAvailableService(slug);
+      console.log(`[AI_PROVIDERS] getAvailableService(${slug}):`, service);
+
+      return {
+        slug: service.slug,
+        name: service.name,
+      };
+    });
+
+  console.log('[AI_PROVIDERS] Final list:', AI_PROVIDERS);
 
   const isMatch = useMemo(() => {
     return _.isMatch(formData, settings);
@@ -73,8 +86,6 @@ const Settings = () => {
         ...prevState,
         [key]: value,
       };
-      // Log the entire formData state after the change
-      console.log('Updated formData:', newState);
       return newState;
     });
 
@@ -194,7 +205,7 @@ const Settings = () => {
                       <label htmlFor={feature.toggle.key}>{feature.toggle.label}</label>
                       {feature.toggle.help && <div>{feature.toggle.help}</div>}
                     </div>
-                    <div style={!feature.prompt && feature.key !== 'generate_image' ? { marginRight: '34px' } : {}}>
+                    <div style={!feature.showAiServiceSelector ? { marginRight: '34px' } : {}}>
                       <FormToggle
                         onChange={() => {
                           onChange(feature.toggle.key, !formData?.[feature.toggle.key]);
@@ -204,7 +215,7 @@ const Settings = () => {
                         disabled={isDisabled}
                       />
                     </div>
-                    {(feature.prompt || feature.key === 'generate_image') && (
+                    {feature.showAiServiceSelector && (
                       <ShowButton
                         disabled={!formData?.[feature.toggle.key] || isDisabled}
                         extraKey={section.key}
@@ -212,7 +223,7 @@ const Settings = () => {
                       />
                     )}
                   </PanelRow>
-                  {(feature.prompt || feature.key === 'generate_image') && showExtra[section.key] === feature.key && (
+                  {feature.showAiServiceSelector && showExtra[section.key] === feature.key && (
                     <PanelRow>
                       <div style={{ flex: 1 }}>
                         <div
@@ -230,7 +241,8 @@ const Settings = () => {
                             <Dropdown
                               renderToggle={({ isOpen, onToggle }) => {
                                 const serviceKey = (() => {
-                                  if (feature.key === 'generate_image_pre_prompt') return 'generate_image_service';
+                                  if (feature.key === 'generate_image_pre_prompt')
+                                    return 'generate_image_prompt_service';
                                   return (feature.prompt?.key || feature.key) + '_service';
                                 })();
                                 const serviceData = formData?.[serviceKey];
@@ -245,14 +257,21 @@ const Settings = () => {
                                   : __('AI Service', 'filter-ai');
 
                                 return (
-                                  <Button variant="secondary" onClick={onToggle} aria-expanded={isOpen}>
+                                  <Button
+                                    variant="secondary"
+                                    onClick={onToggle}
+                                    aria-expanded={isOpen}
+                                    icon={isOpen ? chevronUp : chevronDown}
+                                    iconPosition="right"
+                                  >
                                     {buttonLabel}
                                   </Button>
                                 );
                               }}
                               renderContent={() => {
                                 const serviceKey = (() => {
-                                  if (feature.key === 'generate_image_pre_prompt') return 'generate_image_service';
+                                  if (feature.key === 'generate_image_pre_prompt')
+                                    return 'generate_image_prompt_service';
                                   return (feature.prompt?.key || feature.key) + '_service';
                                 })();
 
@@ -264,7 +283,6 @@ const Settings = () => {
                                         onClick={() => {
                                           onChange(serviceKey, {
                                             service: provider.slug,
-                                            model: provider.model,
                                             name: provider.name,
                                           });
                                         }}

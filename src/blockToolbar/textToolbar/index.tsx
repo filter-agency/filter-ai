@@ -22,6 +22,13 @@ const tones = [
   { key: 'helpful', label: __('Helpful', 'filter-ai') },
 ];
 
+type PromptKey =
+  | 'customise_text_rewrite_prompt'
+  | 'customise_text_expand_prompt'
+  | 'customise_text_condense_prompt'
+  | 'customise_text_summarise_prompt'
+  | 'customise_text_change_tone_prompt';
+
 type OnClick = (promptKey: string, params?: Record<string, string>) => Promise<void>;
 
 export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps) => {
@@ -30,35 +37,37 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
 
   const { settings } = useSettings();
 
-  type PromptKey =
-    | 'customise_text_rewrite_prompt'
-    | 'customise_text_expand_prompt'
-    | 'customise_text_condense_prompt'
-    | 'customise_text_summarise_prompt'
-    | 'customise_text_change_tone_prompt';
+  const rewritePrompt = usePrompts('customise_text_rewrite_prompt');
+  const expandPrompt = usePrompts('customise_text_expand_prompt');
+  const condensePrompt = usePrompts('customise_text_condense_prompt');
+  const summarisePrompt = usePrompts('customise_text_summarise_prompt');
+  const changeTonePrompt = usePrompts('customise_text_change_tone_prompt');
 
-  const promptConfigs: Record<PromptKey, { prompt: string; serviceConfig: any }> = {
-    customise_text_rewrite_prompt: {
-      prompt: usePrompts('customise_text_rewrite_prompt'),
-      serviceConfig: settings?.customise_text_rewrite_prompt_service,
-    },
-    customise_text_expand_prompt: {
-      prompt: usePrompts('customise_text_expand_prompt'),
-      serviceConfig: settings?.customise_text_expand_prompt_service,
-    },
-    customise_text_condense_prompt: {
-      prompt: usePrompts('customise_text_condense_prompt'),
-      serviceConfig: settings?.customise_text_condense_prompt_service,
-    },
-    customise_text_summarise_prompt: {
-      prompt: usePrompts('customise_text_summarise_prompt'),
-      serviceConfig: settings?.customise_text_summarise_prompt_service,
-    },
-    customise_text_change_tone_prompt: {
-      prompt: usePrompts('customise_text_change_tone_prompt'),
-      serviceConfig: settings?.customise_text_change_tone_prompt_service,
-    },
-  };
+  const promptConfigs = useMemo(
+    () => ({
+      customise_text_rewrite_prompt: {
+        prompt: rewritePrompt,
+        serviceConfig: settings?.customise_text_rewrite_prompt_service,
+      },
+      customise_text_expand_prompt: {
+        prompt: expandPrompt,
+        serviceConfig: settings?.customise_text_expand_prompt_service,
+      },
+      customise_text_condense_prompt: {
+        prompt: condensePrompt,
+        serviceConfig: settings?.customise_text_condense_prompt_service,
+      },
+      customise_text_summarise_prompt: {
+        prompt: summarisePrompt,
+        serviceConfig: settings?.customise_text_summarise_prompt_service,
+      },
+      customise_text_change_tone_prompt: {
+        prompt: changeTonePrompt,
+        serviceConfig: settings?.customise_text_change_tone_prompt_service,
+      },
+    }),
+    [rewritePrompt, expandPrompt, condensePrompt, summarisePrompt, changeTonePrompt, settings]
+  );
 
   const { selectionStart, selectionEnd, hasMultiSelection } = useSelect(
     (select) => {
@@ -98,6 +107,15 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
   }, [name]);
 
   const onClick: OnClick = async (promptKey, params) => {
+    const isValidPromptKey = (key: string): key is PromptKey => {
+      return key in promptConfigs;
+    };
+
+    if (!isValidPromptKey(promptKey)) {
+      console.error(`Invalid prompt key: ${promptKey}`);
+      return;
+    }
+
     const { prompt, serviceConfig } = promptConfigs[promptKey as PromptKey] || {};
 
     if (promptKey === 'customise_text_summarise_prompt') {
@@ -261,6 +279,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
                   <NavigableMenu role="menu">
                     {tones.map((tone) => (
                       <MenuItem
+                        key={tone.key}
                         onClick={() => {
                           onClose();
                           onClick('customise_text_change_tone_prompt', {

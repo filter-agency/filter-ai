@@ -29,8 +29,6 @@ export const useGenerateAltText = ({ attributes, setAttributes }: Props) => {
 
   const serviceConfig = settings?.image_alt_text_prompt_service;
 
-  //   console.log('[AltText] Service:', serviceConfig?.service, '| Model:', serviceConfig?.model);
-
   const getAttribute = useCallback(
     (keys: string[]) => {
       const key = keys.find((key) => attributes.hasOwnProperty(key));

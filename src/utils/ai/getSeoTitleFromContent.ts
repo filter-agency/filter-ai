@@ -6,7 +6,7 @@ export const getSeoTitleFromContent = async (
   content: string,
   oldTitle?: string,
   customPrompt?: string,
-  serviceConfig?: { service: string; model: string }
+  serviceConfig?: { service: string }
 ) => {
   if (!content) {
     throw new Error(__('Please add some content first.', 'filter-ai'));
@@ -23,6 +23,5 @@ export const getSeoTitleFromContent = async (
     feature: 'filter-ai-seo-title',
     prompt: `${prePrompt} ${promptDifference} ${customPrompt} ${content}`,
     service: serviceConfig?.service,
-    model: serviceConfig?.model,
   });
 };

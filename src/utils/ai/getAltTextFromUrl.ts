@@ -7,7 +7,7 @@ export const getAltTextFromUrl = async (
   url: string,
   oldAltText?: string,
   prompt?: string,
-  serviceConfig?: { service: string; model: string }
+  serviceConfig?: { service: string }
 ) => {
   if (!url) {
     throw new Error(__('Please select an image.', 'filter-ai'));
@@ -44,6 +44,5 @@ export const getAltTextFromUrl = async (
       },
     ],
     service: serviceConfig?.service,
-    model: serviceConfig?.model,
   });
 };

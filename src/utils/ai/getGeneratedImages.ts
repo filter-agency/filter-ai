@@ -15,7 +15,6 @@ export const getGeneratedImages = async (prompt: string, serviceConfig?: { servi
     candidateCount: 3,
     aspectRatio: '1:1',
     service: serviceConfig?.service,
-    model: serviceConfig?.model,
   });
 
   return images;

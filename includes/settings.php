@@ -11,41 +11,16 @@
 function filter_ai_get_default_settings() {
 	return array(
 		'common_prompt_prefix'                      => esc_html__( 'The response should only contain the answer and in plain text, so no <br> tags for line breaks.', 'filter-ai' ),
-		'common_prompt_prefix_service'              => array(
-			'service' => 'openai',
-			'model'   => 'gpt-4o',
-			'name'    => 'OpenAI (Chat-GPT)',
-		),
 
 		'common_prompt_different'                   => esc_html__( 'Making sure it is different to the current text:', 'filter-ai' ),
-		'common_prompt_different_service'           => array(
-			'service' => 'openai',
-			'model'   => 'gpt-4o',
-			'name'    => 'OpenAI (Chat-GPT)',
-		),
 
 		'brand_voice_enabled'                       => false,
 		'brand_voice_prompt'                        => '',
-		'brand_voice_prompt_service'                => array(
-			'service' => 'openai',
-			'model'   => 'gpt-4o',
-			'name'    => 'OpenAI (Chat-GPT)',
-		),
 
 		'stop_words_enabled'                        => false,
 		'stop_words_prompt'                         => '',
-		'stop_words_prompt_service'                 => array(
-			'service' => 'openai',
-			'model'   => 'gpt-4o',
-			'name'    => 'OpenAI (Chat-GPT)',
-		),
 
 		'stop_words_pre_prompt'                     => esc_html__( 'Please avoid using the following words in any generated response:', 'filter-ai' ),
-		'stop_words_pre_prompt_service'             => array(
-			'service' => 'openai',
-			'model'   => 'gpt-4o',
-			'name'    => 'OpenAI (Chat-GPT)',
-		),
 
 		'image_alt_text_enabled'                    => true,
 		'image_alt_text_prompt'                     => esc_html__( 'Please generate a short description no more than 50 words for the following image that can be used as its alternative text. The description should be clear, succinct, and provide a sense of what the image portrays, ensuring that it is accessible to individuals using screen readers.', 'filter-ai' ),
@@ -59,7 +34,7 @@ function filter_ai_get_default_settings() {
 		'dynamic_add_alt_text_enabled'              => true,
 
 		'generate_image_pre_prompt'                 => esc_html__( 'Please generate an image that is optimised for web use and is based on the following prompt:', 'filter-ai' ),
-		'generate_image_service'                    => array(
+		'generate_image_prompt_service'             => array(
 			'service' => 'openai',
 			'model'   => 'gpt-4o',
 			'name'    => 'OpenAI (Chat-GPT)',

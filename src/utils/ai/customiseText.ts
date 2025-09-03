@@ -6,7 +6,7 @@ export const customiseText = async (
   feature: string,
   text: string,
   prompt: string,
-  serviceConfig?: { service: string; model: string; name: string }
+  serviceConfig?: { service: string; name: string }
 ) => {
   if (!prompt) {
     throw new Error(__('Prompt missing, please check settings', 'filter-ai'));
@@ -22,6 +22,5 @@ export const customiseText = async (
     feature,
     prompt: `${settings?.common_prompt_prefix || ''} ${prompt} \`${text}\``,
     service: serviceConfig?.service,
-    model: serviceConfig?.model,
   });
 };
