@@ -48,20 +48,16 @@ const Settings = () => {
   const AI_PROVIDERS = ['openai', 'anthropic', 'google']
     .filter((slug) => {
       const isAvailable = wp.data.select('ai-services/ai').isServiceAvailable(slug);
-      console.log(`[AI_PROVIDERS] Checking service: ${slug}, available:`, isAvailable);
       return isAvailable;
     })
     .map((slug) => {
       const service = wp.data.select('ai-services/ai').getAvailableService(slug);
-      console.log(`[AI_PROVIDERS] getAvailableService(${slug}):`, service);
 
       return {
         slug: service.slug,
         name: service.name,
       };
     });
-
-  console.log('[AI_PROVIDERS] Final list:', AI_PROVIDERS);
 
   const isMatch = useMemo(() => {
     return _.isMatch(formData, settings);
