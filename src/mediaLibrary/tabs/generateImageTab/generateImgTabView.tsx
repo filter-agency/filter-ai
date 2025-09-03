@@ -21,7 +21,7 @@ const GenerateImgTabView = ({ callback }: Props) => {
 
   const { settings } = useSettings();
 
-  const serviceConfig = settings?.generate_image_service;
+  const serviceConfig = settings?.generate_image_prompt_service;
 
   // @ts-expect-error Type 'never' has no call signatures.
   const AIService = useSelect((select) => select(window.aiServices.ai.store)?.getAvailableService(), []);

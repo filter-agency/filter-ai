@@ -128,9 +128,8 @@ function filter_ai_get_images_without_alt_text_count() {
  * @return void Returns early if the image already has alt text
  */
 function filter_ai_process_batch_image_alt_text( $args ) {
-	$image_id     = $args['image_id'];
-	$user_id      = $args['user_id'];
-	$service_name = $args['service'];
+	$image_id = $args['image_id'];
+	$user_id  = $args['user_id'];
 
 	if ( ! isset( $image_id ) ) {
 		throw new Exception( esc_html__( 'Missing image', 'filter-ai' ) );
@@ -138,6 +137,15 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 
 	if ( ! isset( $user_id ) ) {
 		throw new Exception( esc_html__( 'Missing user', 'filter-ai' ) );
+	}
+
+	$settings       = filter_ai_get_settings();
+	$service_option = $settings['image_alt_text_prompt_service'];
+
+	if ( ! is_array( $service_option ) || empty( $service_option['service'] ) ) {
+		$service_slug = 'default';
+	} else {
+		$service_slug = $service_option['service'];
 	}
 
 	$current_user_id = get_current_user_id();
@@ -180,19 +188,14 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 	try {
 		wp_set_current_user( $user_id );
 
-		// Ensure AI services are registered first
-		if ( method_exists( ai_services(), 'register_services' ) ) {
-			ai_services()->register_services();
-		}
-
-		if ( ! ai_services()->is_service_available( $service_name ) ) {
+		if ( ! ai_services()->is_service_available( $service_slug, $required_capabilities ) ) {
 			throw new Exception(
 				// translators: %s: AI service name.
-				sprintf( esc_html__( 'The requested AI service "%s" is not available or does not support the required features. Please check your settings.', 'filter-ai' ), $service_name )
+				sprintf( esc_html__( 'The requested AI service "%s" is not available or does not support the required features. Please check your settings.', 'filter-ai' ), $service_slug )
 			);
 		}
 
-		$service = ai_services()->get_available_service( $service_name );
+		$service = ai_services()->get_available_service( $service_slug );
 
 		if ( false === $service ) {
 			throw new Exception( esc_html__( 'AI service not available', 'filter-ai' ) );

@@ -30,7 +30,6 @@ export const generateImage = async ({
   const capabilities = [aiCapability.IMAGE_GENERATION];
 
   if (service) {
-    console.log(`[AI] Requested service: ${service}`);
     const { isServiceAvailable, getAvailableService } = select('ai-services/ai');
 
     const availableService = getAvailableService(service);
@@ -45,7 +44,6 @@ export const generateImage = async ({
       throw new Error(`The requested service "${service}" cannot be used for this feature. Check its capabilities.`);
     } else {
       resolvedService = availableService;
-      console.log(`[AI] Resolved requested service: ${resolvedService?.getServiceSlug?.()}`);
     }
   } else {
     // If no specific service is requested, find a default one that supports image generation
@@ -65,7 +63,6 @@ export const generateImage = async ({
 
   try {
     const slug = resolvedService.getServiceSlug();
-    console.log(`[AI] Final choice: ${slug}${model ? ` with model: ${model}` : ''}`);
 
     const resolvedModel = resolvedService.getModel({
       feature,

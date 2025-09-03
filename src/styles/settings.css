@@ -15,6 +15,14 @@
   gap: 24px;
 }
 
+.filter-ai-settings .components-button.is-secondary.has-icon > svg {
+  margin-left: -2px;
+  margin-right: -10px;
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+}
+
 .filter-ai-settings-header {
   background-color: #012f5f;
   background-image: url('../assets/fade-bg.png');

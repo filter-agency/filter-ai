@@ -14,7 +14,6 @@ type GenerateAltTextPayload = {
   prompt: string;
   serviceConfig: {
     service: string;
-    model: string;
     name: string;
   };
 };

@@ -6,7 +6,7 @@ export const getExcerptFromContent = async (
   content: string,
   oldExcerpt?: string,
   customPrompt?: string,
-  serviceConfig?: { service: string; model: string }
+  serviceConfig?: { service: string }
 ) => {
   if (!content) {
     throw new Error(__('Please add some content first.', 'filter-ai'));
@@ -21,6 +21,5 @@ export const getExcerptFromContent = async (
     feature: 'filter-ai-post-excerpt',
     prompt: `${settings?.common_prompt_prefix || ''} ${promptDifference} ${customPrompt} ${content}`,
     service: serviceConfig?.service,
-    model: serviceConfig?.model,
   });
 };
