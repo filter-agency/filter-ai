@@ -11,7 +11,7 @@ import {
   resetSeoTitleOptionsModal,
 } from '@/utils';
 import { useEffect } from '@wordpress/element';
-import {usePrompts} from "@/utils/ai/prompts/usePrompts";
+import { usePrompts } from '@/utils/ai/prompts/usePrompts';
 
 export const useGenerateSEOTitle = () => {
   const { settings } = useSettings();
@@ -21,12 +21,12 @@ export const useGenerateSEOTitle = () => {
   const prompt = usePrompts('yoast_seo_title_prompt');
 
   const { content, getSeoTitleTemplate, oldSeoTitle } = useSelect((select) => {
-    const { getEditedPostAttribute } = select('core/editor');
+    const { getEditedPostAttribute } = select('core/editor') || {};
     const { getSeoTitleTemplate, getSeoTitle } = select('yoast-seo/editor');
 
     return {
       // @ts-expect-error Type 'never' has no call signatures.
-      content: getEditedPostAttribute('content'),
+      content: getEditedPostAttribute?.('content'),
       // @ts-expect-error Type 'never' has no call signatures.
       getSeoTitleTemplate: getSeoTitleTemplate(),
       // @ts-expect-error Type 'never' has no call signatures.
@@ -84,7 +84,9 @@ export const useGenerateSEOTitle = () => {
     let options = [];
 
     try {
-      const titles = await ai.getSeoTitleFromContent(content, oldSeoTitle, prompt);
+      const _content = content || window.tinymce?.editors?.content?.getContent();
+
+      const titles = await ai.getSeoTitleFromContent(_content, oldSeoTitle, prompt);
 
       if (!titles) {
         throw new Error(__('Sorry, there has been an issue while generating your SEO title.', 'filter-ai'));

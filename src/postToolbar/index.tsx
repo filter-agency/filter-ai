@@ -4,8 +4,8 @@ import { useGenerateTitle } from './useGenerateTitle';
 import { useGenerateExcerpt } from './useGenerateExcerpt';
 import _ from 'underscore';
 import { useGenerateTags } from './useGenerateTags';
-import { useGenerateSEOTitle } from './useGenerateSEOTitle';
-import { useGenerateSEOMetaDescription } from './useGenerateSEOMetaDescription';
+import { useGenerateSEOTitle } from '../yoast-seo/useGenerateSEOTitle';
+import { useGenerateSEOMetaDescription } from '../yoast-seo/useGenerateSEOMetaDescription';
 
 const PostToolbar = () => {
   const generateTitle = useGenerateTitle();
