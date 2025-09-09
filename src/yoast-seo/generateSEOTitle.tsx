@@ -11,9 +11,11 @@ const GenerateSEOTitle = () => {
 
 const addButton = () => {
   const id = 'filter-ai-yst-seo-title-button';
-  const buttonContainer = document.documentElement.querySelector(
-    '#replacement-variable-editor-field-4 ~ .yst-replacevar__buttons'
-  );
+  const field = document.getElementById('yoast-google-preview-title-metabox');
+  const labelId = field?.getAttribute('aria-labelledby');
+  const buttonContainer = labelId
+    ? document.documentElement.querySelector(`#${labelId} ~ .yst-replacevar__buttons`)
+    : null;
 
   if (!buttonContainer || document.getElementById(id)) {
     return;

@@ -27,7 +27,9 @@ const PostToolbar = () => {
 
 const addToolbar = () => {
   const id = 'filter-ai-post-toolbar-container';
-  const postActionsButton = document.documentElement.querySelector('.editor-all-actions-button');
+  const postActionsButton =
+    document.documentElement.querySelector('.editor-all-actions-button') ||
+    document.documentElement.querySelector('#misc-publishing-actions');
 
   if (!postActionsButton || document.getElementById(id)) {
     return;

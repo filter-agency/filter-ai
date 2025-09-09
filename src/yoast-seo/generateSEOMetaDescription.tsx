@@ -11,9 +11,11 @@ const GenerateSEOMetaDescription = () => {
 
 const addButton = () => {
   const id = 'filter-ai-yst-seo-meta-desc-button';
-  const buttonContainer = document.documentElement.querySelector(
-    '#replacement-variable-editor-field-5 ~ .yst-replacevar__buttons'
-  );
+  const field = document.getElementById('yoast-google-preview-description-metabox');
+  const labelId = field?.getAttribute('aria-labelledby');
+  const buttonContainer = labelId
+    ? document.documentElement.querySelector(`#${labelId} ~ .yst-replacevar__buttons`)
+    : null;
 
   if (!buttonContainer || document.getElementById(id)) {
     return;

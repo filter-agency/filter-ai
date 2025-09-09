@@ -3,22 +3,22 @@ import { ai, hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils'
 import { useDispatch, useSelect, resolveSelect, dispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { cleanForSlug } from '@wordpress/url';
-import {usePrompts} from "@/utils/ai/prompts/usePrompts";
+import { usePrompts } from '@/utils/ai/prompts/usePrompts';
 
 export const useGenerateTags = () => {
   const { settings } = useSettings();
-  const { editPost } = useDispatch('core/editor');
+  const { editPost } = useDispatch('core/editor') || {};
 
   const prompt = usePrompts('post_tags_prompt');
 
   const errorMessage = __('Sorry, there has been an issue while generating your tags.', 'filter-ai');
 
   const { tagsEnabled, content, postTagIds, postTags } = useSelect((select) => {
-    const { getCurrentPostType, getEditedPostAttribute } = select('core/editor');
+    const { getCurrentPostType, getEditedPostAttribute } = select('core/editor') || {};
     const { getEntityRecords, getTaxonomy } = select('core');
 
     // @ts-expect-error Type 'never' has no call signatures.
-    const postType = getCurrentPostType();
+    const postType = getCurrentPostType?.() || document.getElementById('post_type')?.value;
 
     // @ts-expect-error Type 'never' has no call signatures.
     const taxonomy = getTaxonomy('post_tag');
@@ -27,10 +27,10 @@ export const useGenerateTags = () => {
     const _tagsEnabled = taxonomy?.types.includes(postType) && taxonomy?.visibility?.show_ui;
 
     // @ts-expect-error Type 'never' has no call signatures.
-    const _content = getEditedPostAttribute('content');
+    const _content = getEditedPostAttribute?.('content');
 
     // @ts-expect-error Type 'never' has no call signatures.
-    const _postTagIds = getEditedPostAttribute('tags');
+    const _postTagIds = getEditedPostAttribute?.('tags') || [];
 
     // @ts-expect-error Type 'never' has no call signatures.
     const _postTags = getEntityRecords('taxonomy', 'post_tag', { include: _postTagIds })?.map((tag) => tag.name);
@@ -47,39 +47,57 @@ export const useGenerateTags = () => {
     showLoadingMessage(__('Tags', 'filter-ai'));
 
     try {
-      const tags = await ai.getTagsFromContent(content, postTags, prompt);
+      const _content = content || window.tinymce?.editors?.content?.getContent();
+      const _postTags =
+        (postTags.length
+          ? postTags
+          : document
+              .getElementById('tax-input-post_tag')
+              // @ts-expect-error
+              ?.value?.split(',')
+              .map((i: string) => i.trim())) || [];
+
+      const tags = await ai.getTagsFromContent(_content, _postTags, prompt);
 
       if (!tags) {
         throw new Error(errorMessage);
       }
 
-      const newTagIds = [];
+      if (editPost) {
+        const newTagIds = [];
 
-      for (let i = 0; i < tags.length; i++) {
-        // check if tag already exists
-        const existingTag = await resolveSelect('core').getEntityRecords('taxonomy', 'post_tag', {
-          slug: cleanForSlug(tags[i]),
-        });
+        for (let i = 0; i < tags.length; i++) {
+          // check if tag already exists
+          const existingTag = await resolveSelect('core').getEntityRecords('taxonomy', 'post_tag', {
+            slug: cleanForSlug(tags[i]),
+          });
 
-        if (existingTag?.[0]?.id) {
-          newTagIds.push(existingTag[0].id);
-          continue;
+          if (existingTag?.[0]?.id) {
+            newTagIds.push(existingTag[0].id);
+            continue;
+          }
+
+          // add tag if they don't exist
+          // @ts-expect-error Property 'saveEntityRecord' does not exist on type '{}'.
+          const newTag = await dispatch('core')?.saveEntityRecord('taxonomy', 'post_tag', { name: tags[i] });
+
+          if (newTag?.id) {
+            newTagIds.push(newTag.id);
+          }
         }
 
-        // add tag if they don't exist
-        // @ts-expect-error Property 'saveEntityRecord' does not exist on type '{}'.
-        const newTag = await dispatch('core')?.saveEntityRecord('taxonomy', 'post_tag', { name: tags[i] });
-
-        if (newTag?.id) {
-          newTagIds.push(newTag.id);
+        if (newTagIds.length === 0) {
+          throw new Error(errorMessage);
         }
-      }
 
-      if (newTagIds.length === 0) {
-        throw new Error(errorMessage);
-      }
+        editPost({ tags: [...new Set([...postTagIds, ...newTagIds])] });
+      } else if (window.tagBox) {
+        const tagsdiv = document.getElementById('post_tag');
+        const tempElement = document.createElement('div');
+        tempElement.textContent = tags.join(',');
 
-      editPost({ tags: [...new Set([...postTagIds, ...newTagIds])] });
+        window.tagBox.flushTags(tagsdiv, tempElement);
+      }
 
       showNotice({ message: __('Tags have been updated', 'filter-ai') });
     } catch (error) {

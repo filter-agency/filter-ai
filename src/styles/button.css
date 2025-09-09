@@ -89,3 +89,7 @@
   align-items: center;
   justify-content: center;
 }
+
+#minor-publishing #filter-ai-post-toolbar-container {
+  padding: 10px 10px 0;
+}
