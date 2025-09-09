@@ -41,7 +41,7 @@ if ( ! class_exists( 'filter_ai_updater' ) ) {
 		 */
 		public function __construct() {
 			$this->plugin_slug   = 'filter-ai';
-			$this->version       = get_plugin_data( FILTER_AI_PATH . '/filter-ai.php' )['Version'];
+			$this->version       = get_plugin_data( FILTER_AI_PATH . '/filter-ai.php', false, false )['Version'];
 			$this->cache_key     = 'filter_ai_updater_cache';
 			$this->cache_allowed = true;
 
