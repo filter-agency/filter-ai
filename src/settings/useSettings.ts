@@ -7,6 +7,7 @@ export type FilterAISettings = Record<
   | boolean
   | {
       service: string;
+      model: string;
       name: string;
     }
 >;

@@ -237,15 +237,14 @@ const Settings = () => {
                             <Dropdown
                               renderToggle={({ isOpen, onToggle }) => {
                                 const serviceKey = (() => {
-                                  if (feature.key === 'generate_image_pre_prompt')
+                                  if (feature.key === 'generate_image' || feature.key === 'generate_image_pre_prompt') {
                                     return 'generate_image_prompt_service';
+                                  }
                                   return (feature.prompt?.key || feature.key) + '_service';
                                 })();
                                 const serviceData = formData?.[serviceKey];
                                 const selectedServiceSlug =
-                                  serviceData && typeof serviceData === 'object' && 'service' in serviceData
-                                    ? serviceData.service
-                                    : '';
+                                  typeof serviceData === 'object' && serviceData !== null ? serviceData.service : '';
 
                                 const selectedProvider = AI_PROVIDERS.find((p) => p.slug === selectedServiceSlug);
                                 const buttonLabel = selectedProvider
@@ -266,8 +265,9 @@ const Settings = () => {
                               }}
                               renderContent={() => {
                                 const serviceKey = (() => {
-                                  if (feature.key === 'generate_image_pre_prompt')
+                                  if (feature.key === 'generate_image' || feature.key === 'generate_image_pre_prompt') {
                                     return 'generate_image_prompt_service';
+                                  }
                                   return (feature.prompt?.key || feature.key) + '_service';
                                 })();
 
@@ -279,6 +279,7 @@ const Settings = () => {
                                         onClick={() => {
                                           onChange(serviceKey, {
                                             service: provider.slug,
+                                            model: '',
                                             name: provider.name,
                                           });
                                         }}
