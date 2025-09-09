@@ -22,15 +22,15 @@ export const useGenerateSEOTitle = () => {
 
   const { content, getSeoTitleTemplate, oldSeoTitle } = useSelect((select) => {
     const { getEditedPostAttribute } = select('core/editor') || {};
-    const { getSeoTitleTemplate, getSeoTitle } = select('yoast-seo/editor');
+    const { getSeoTitleTemplate, getSeoTitle } = select('yoast-seo/editor') || {};
 
     return {
       // @ts-expect-error Type 'never' has no call signatures.
       content: getEditedPostAttribute?.('content'),
       // @ts-expect-error Type 'never' has no call signatures.
-      getSeoTitleTemplate: getSeoTitleTemplate(),
+      getSeoTitleTemplate: getSeoTitleTemplate?.(),
       // @ts-expect-error Type 'never' has no call signatures.
-      oldSeoTitle: getSeoTitle(),
+      oldSeoTitle: getSeoTitle?.(),
     };
   }, []);
 
@@ -47,7 +47,7 @@ export const useGenerateSEOTitle = () => {
     const template = getSeoTitleTemplate;
     const tag = '%%title%%';
 
-    if (getSeoTitleTemplate.indexOf(tag) > -1) {
+    if (getSeoTitleTemplate?.indexOf(tag) > -1) {
       return template.replace(tag, title);
     }
 
