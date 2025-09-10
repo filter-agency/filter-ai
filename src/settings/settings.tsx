@@ -223,25 +223,20 @@ const Settings = () => {
                       <div style={{ flex: 1 }}>
                         <div
                           className="filter-ai-label-row"
-                          style={
-                            feature.key === 'generate_image' ? { display: 'flex', justifyContent: 'flex-end' } : {}
-                          }
+                          style={!feature.prompt ? { display: 'flex', justifyContent: 'flex-end' } : {}}
                         >
                           {feature.prompt && (
                             <label style={{ margin: 0 }} className="filter-ai-label-title">
                               {feature.prompt.label}
                             </label>
                           )}
-                          {feature.key !== 'stop_words' && feature.key !== 'brand_voice' && (
+                          {feature.showAiServiceSelector && (
                             <Dropdown
                               popoverProps={{ placement: 'bottom-end' }}
                               renderToggle={({ isOpen, onToggle }) => {
-                                const serviceKey = (() => {
-                                  if (feature.key === 'generate_image' || feature.key === 'generate_image_pre_prompt') {
-                                    return 'generate_image_prompt_service';
-                                  }
-                                  return (feature.prompt?.key || feature.key) + '_service';
-                                })();
+                                const serviceKey = feature.prompt?.key
+                                  ? feature.prompt.key + '_service'
+                                  : feature.key + '_prompt_service';
                                 const serviceData = formData?.[serviceKey];
                                 const selectedServiceSlug =
                                   typeof serviceData === 'object' && serviceData !== null ? serviceData.service : '';
@@ -264,12 +259,9 @@ const Settings = () => {
                                 );
                               }}
                               renderContent={() => {
-                                const serviceKey = (() => {
-                                  if (feature.key === 'generate_image' || feature.key === 'generate_image_pre_prompt') {
-                                    return 'generate_image_prompt_service';
-                                  }
-                                  return (feature.prompt?.key || feature.key) + '_service';
-                                })();
+                                const serviceKey = feature.prompt?.key
+                                  ? feature.prompt.key + '_service'
+                                  : feature.key + '_prompt_service';
 
                                 const currentServiceData = formData?.[serviceKey];
                                 const currentServiceSlug =
