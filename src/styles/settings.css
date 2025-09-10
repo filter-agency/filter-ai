@@ -228,6 +228,10 @@
   margin-bottom: 8px;
 }
 
+.components-menu-item__button.components-button .components-menu-items__item-icon.has-icon-right {
+  margin-left: 0px;
+}
+
 .filter-wrap {
   margin: 10px 20px 0 2px;
 }

@@ -20,7 +20,7 @@ import { filterLogoWhite } from '@/assets/filter-logo';
 import { verticalDots } from '@/assets/vertical-dots';
 import { __ } from '@wordpress/i18n';
 import AIServiceNotice from '@/components/aiServiceNotice';
-import { chevronDown, chevronUp } from '@wordpress/icons';
+import { chevronDown, chevronUp, check } from '@wordpress/icons';
 
 type ShowButtonProps = {
   extraKey: string;
@@ -234,6 +234,7 @@ const Settings = () => {
                           )}
                           {feature.key !== 'stop_words' && feature.key !== 'brand_voice' && (
                             <Dropdown
+                              popoverProps={{ placement: 'bottom-end' }}
                               renderToggle={({ isOpen, onToggle }) => {
                                 const serviceKey = (() => {
                                   if (feature.key === 'generate_image' || feature.key === 'generate_image_pre_prompt') {
@@ -270,11 +271,18 @@ const Settings = () => {
                                   return (feature.prompt?.key || feature.key) + '_service';
                                 })();
 
+                                const currentServiceData = formData?.[serviceKey];
+                                const currentServiceSlug =
+                                  typeof currentServiceData === 'object' && currentServiceData !== null
+                                    ? currentServiceData.service
+                                    : '';
+
                                 return (
                                   <MenuGroup>
                                     {AI_PROVIDERS.map((provider) => (
                                       <MenuItem
                                         key={provider.slug}
+                                        icon={currentServiceSlug === provider.slug ? check : undefined}
                                         onClick={() => {
                                           onChange(serviceKey, {
                                             service: provider.slug,
