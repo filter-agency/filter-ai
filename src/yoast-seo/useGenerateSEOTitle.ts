@@ -77,7 +77,7 @@ export const useGenerateSEOTitle = () => {
       scrollToField();
     }
 
-    const serviceName = serviceConfig?.name ? ` using ${serviceConfig.name}` : '';
+    const serviceName = serviceConfig?.name ? sprintf(__(' using %s', 'filter-ai'), serviceConfig.name) : '';
 
     showNotice({
       message: sprintf(__('SEO title has been updated%s', 'filter-ai'), serviceName),

@@ -101,7 +101,7 @@ export const useGenerateTags = () => {
         window.tagBox.flushTags(tagsdiv, tempElement);
       }
 
-      const serviceName = serviceConfig?.name ? ` using ${serviceConfig.name}` : '';
+      const serviceName = serviceConfig?.name ? sprintf(__(' using %s', 'filter-ai'), serviceConfig.name) : '';
 
       showNotice({
         message: sprintf(__('Tags have been updated%s', 'filter-ai'), serviceName),

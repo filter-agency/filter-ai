@@ -59,7 +59,7 @@ export const useGenerateExcerpt = () => {
         excerptField.value = excerpt;
       }
 
-      const serviceName = serviceConfig?.name ? ` using ${serviceConfig.name}` : '';
+      const serviceName = serviceConfig?.name ? sprintf(__(' using %s', 'filter-ai'), serviceConfig.name) : '';
 
       showNotice({
         message: sprintf(__('Excerpt has been updated%s', 'filter-ai'), serviceName),
