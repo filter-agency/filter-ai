@@ -21,7 +21,6 @@ import { verticalDots } from '@/assets/vertical-dots';
 import { __ } from '@wordpress/i18n';
 import AIServiceNotice from '@/components/aiServiceNotice';
 import { chevronDown, chevronUp } from '@wordpress/icons';
-const { isServiceAvailable } = wp.data.select('ai-services/ai');
 
 type ShowButtonProps = {
   extraKey: string;
