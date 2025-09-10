@@ -39,7 +39,7 @@ export const useGenerateTitle = () => {
 
       editPost({ title: removeWrappingQuotes(title) });
 
-      const serviceName = serviceConfig?.name ? ` using ${serviceConfig.name}` : '';
+      const serviceName = serviceConfig?.name ? sprintf(__(' using %s', 'filter-ai'), serviceConfig.name) : '';
 
       showNotice({
         message: sprintf(__('Title has been updated%s', 'filter-ai'), serviceName),

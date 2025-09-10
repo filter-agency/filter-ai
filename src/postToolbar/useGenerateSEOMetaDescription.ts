@@ -56,7 +56,7 @@ export const useGenerateSEOMetaDescription = () => {
       scrollToField();
     }
 
-    const serviceName = serviceConfig?.name ? ` using ${serviceConfig.name}` : '';
+    const serviceName = serviceConfig?.name ? sprintf(__(' using %s', 'filter-ai'), serviceConfig.name) : '';
 
     showNotice({
       message: sprintf(__('SEO meta description has been updated%s', 'filter-ai'), serviceName),

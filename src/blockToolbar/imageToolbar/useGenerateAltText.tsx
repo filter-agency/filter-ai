@@ -83,7 +83,7 @@ export const useGenerateAltText = ({ attributes, setAttributes }: Props) => {
 
       setAttribute(altText, altTextKeys);
 
-      const serviceName = serviceConfig?.name ? ` using ${serviceConfig.name}` : '';
+      const serviceName = serviceConfig?.name ? sprintf(__(' using %s', 'filter-ai'), serviceConfig.name) : '';
 
       showNotice({
         message: sprintf(__('Alt text has been updated%s', 'filter-ai'), serviceName),

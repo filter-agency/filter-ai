@@ -27,33 +27,31 @@ export const generateImage = async ({
 }: GenerateImageProps): Promise<string[]> => {
   let resolvedService;
 
-  const capabilities = [aiCapability.IMAGE_GENERATION];
-
   if (service) {
     const { isServiceAvailable, getAvailableService } = select('ai-services/ai');
 
     const availableService = getAvailableService(service);
 
     if (!availableService) {
-      console.log(`[AI] Service "${service}" exists but is not configured properly (API key missing or disabled).`);
+      console.error(`[AI] Service "${service}" exists but is not configured properly (API key missing or disabled).`);
       throw new Error(
         `The requested service "${service}" exists but is not configured properly. Please check API key or plugin settings.`
       );
     } else if (!isServiceAvailable(service)) {
-      console.log(`[AI] Service "${service}" is configured but not available for this feature/capability.`);
+      console.error(`[AI] Service "${service}" is configured but not available for this feature/capability.`);
       throw new Error(`The requested service "${service}" cannot be used for this feature. Check its capabilities.`);
     } else {
       resolvedService = availableService;
     }
   } else {
     // If no specific service is requested, find a default one that supports image generation
-    console.log('[AI] No service requested. Attempting to find a default image generation service.');
+    console.error('[AI] No service requested. Attempting to find a default image generation service.');
     const { getServicesByCapability } = select('ai-services/ai');
     const imageServices = getServicesByCapability(aiCapability);
 
     if (imageServices.length > 0) {
       resolvedService = imageServices[0];
-      console.log(`[AI] Resolved default service: ${resolvedService?.getServiceSlug?.()}`);
+      console.error(`[AI] Resolved default service: ${resolvedService?.getServiceSlug?.()}`);
     }
   }
 
