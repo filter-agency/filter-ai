@@ -144,8 +144,12 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 
 	if ( ! is_array( $service_option ) || empty( $service_option['service'] ) ) {
 		$service_slug = 'default';
+		$service_name = 'Default Service';
 	} else {
 		$service_slug = $service_option['service'];
+		$service_name = ! empty( $service_option['name'] )
+		? sanitize_text_field( $service_option['name'] )
+		: $service_slug;
 	}
 
 	$current_user_id = get_current_user_id();
@@ -188,10 +192,10 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 	try {
 		wp_set_current_user( $user_id );
 
-		if ( ! ai_services()->is_service_available( $service_slug, $required_capabilities ) ) {
+		if ( ! ai_services()->is_service_available( $service_name, $required_capabilities ) ) {
 			throw new Exception(
 				// translators: %s: AI service name.
-				sprintf( esc_html__( 'The requested AI service "%s" is not available or does not support the required features. Please check your settings.', 'filter-ai' ), $service_slug )
+				sprintf( esc_html__( 'The requested AI service %s is not available or does not support the required features. Please check your settings.', 'filter-ai' ), $service_name )
 			);
 		}
 
