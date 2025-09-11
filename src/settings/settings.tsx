@@ -44,19 +44,30 @@ const Settings = () => {
 
   const { settings, saveSettings } = useSettings();
 
-  // Build a map of slug -> service object from wp.ai-services
-  const AI_PROVIDERS: Record<string, { slug: string; name: string }> = {};
-  ['openai', 'anthropic', 'google'].forEach((slug) => {
-    if (wp.data.select('ai-services/ai').isServiceAvailable(slug)) {
-      const service = wp.data.select('ai-services/ai').getAvailableService(slug);
-      if (service) {
-        AI_PROVIDERS[service.slug] = {
-          slug: service.slug,
-          name: service.name,
-        };
-      }
-    }
-  });
+  const aiStore = wp.data.select('ai-services/ai');
+
+  const [AI_PROVIDERS, setAIProviders] = useState<Record<string, { slug: string; name: string }>>({});
+
+  useEffect(() => {
+    const buildProviders = async () => {
+      await wp.data.resolveSelect('ai-services/ai').getServices();
+      const allServices = aiStore.getServices?.() || {};
+
+      const providers: Record<string, { slug: string; name: string }> = {};
+      Object.values(allServices).forEach((service: any) => {
+        if (service.is_available) {
+          providers[service.slug] = {
+            slug: service.slug,
+            name: service.name,
+          };
+        }
+      });
+
+      setAIProviders(providers);
+    };
+
+    buildProviders();
+  }, [aiStore]);
 
   const isMatch = useMemo(() => {
     return _.isMatch(formData, settings);
@@ -248,6 +259,7 @@ const Settings = () => {
                                   ? feature.prompt.key + '_service'
                                   : feature.key + '_prompt_service';
                                 const serviceData = formData?.[serviceKey];
+
                                 const selectedServiceSlug = getServiceSlug(serviceData);
 
                                 const selectedServiceName =
