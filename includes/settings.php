@@ -79,7 +79,6 @@ function filter_ai_get_default_settings() {
 		'yoast_seo_title_prompt_service'            => '',
 
 		'yoast_seo_title_pre_prompt'                => esc_html__( 'Please provide 5 options separated by 2 pipes "||", do not return anything other than your answer.', 'filter-ai' ),
-		'yoast_seo_title_pre_prompt_service'        => '',
 
 		'yoast_seo_meta_description_enabled'        => true,
 		'yoast_seo_meta_description_prompt'         => esc_html__( 'Please generate an SEO-friendly description for this page that is between 120 and 150 characters based on the following content:', 'filter-ai' ),
@@ -108,24 +107,7 @@ function filter_ai_get_option_schema_properties() {
 	$default_settings = filter_ai_get_default_settings();
 
 	foreach ( $default_settings as $key => $value ) {
-		if ( str_ends_with( $key, '_prompt_service' ) || str_ends_with( $key, '_service' ) ) {
-			// Accept both string and object formats
-			$schema[ $key ] = array(
-				'oneOf' => array(
-					array( 'type' => 'string' ),
-					array(
-						'type'       => 'object',
-						'properties' => array(
-							'service' => array( 'type' => 'string' ),
-							'model'   => array( 'type' => 'string' ),
-							'name'    => array( 'type' => 'string' ),
-						),
-					),
-				),
-			);
-		} else {
-			$schema[ $key ] = array( 'type' => gettype( $value ) );
-		}
+		$schema[ $key ] = array( 'type' => gettype( $value ) );
 	}
 
 	return $schema;
