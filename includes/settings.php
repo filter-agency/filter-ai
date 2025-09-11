@@ -107,32 +107,20 @@ function filter_ai_get_option_schema_properties() {
 	$schema           = array();
 	$default_settings = filter_ai_get_default_settings();
 
-	$service_fields = array(
-		'image_alt_text_prompt_service',
-		'generate_image_prompt_service',
-		'post_title_prompt_service',
-		'post_excerpt_prompt_service',
-		'post_tags_prompt_service',
-		'customise_text_rewrite_prompt_service',
-		'customise_text_expand_prompt_service',
-		'customise_text_condense_prompt_service',
-		'customise_text_summarise_prompt_service',
-		'customise_text_change_tone_prompt_service',
-		'wc_product_description_prompt_service',
-		'wc_product_excerpt_prompt_service',
-		'yoast_seo_title_prompt_service',
-		'yoast_seo_title_pre_prompt_service',
-		'yoast_seo_meta_description_prompt_service',
-	);
-
 	foreach ( $default_settings as $key => $value ) {
-		if ( in_array( $key, $service_fields, true ) || ( is_array( $value ) && isset( $value['service'] ) ) ) {
+		if ( str_ends_with( $key, '_prompt_service' ) || str_ends_with( $key, '_service' ) ) {
+			// Accept both string and object formats
 			$schema[ $key ] = array(
-				'type'       => 'object',
-				'properties' => array(
-					'service' => array( 'type' => 'string' ),
-					'model'   => array( 'type' => 'string' ),
-					'name'    => array( 'type' => 'string' ),
+				'oneOf' => array(
+					array( 'type' => 'string' ),
+					array(
+						'type'       => 'object',
+						'properties' => array(
+							'service' => array( 'type' => 'string' ),
+							'model'   => array( 'type' => 'string' ),
+							'name'    => array( 'type' => 'string' ),
+						),
+					),
 				),
 			);
 		} else {

@@ -44,19 +44,19 @@ const Settings = () => {
 
   const { settings, saveSettings } = useSettings();
 
-  const AI_PROVIDERS = ['openai', 'anthropic', 'google']
-    .filter((slug) => {
-      const isAvailable = wp.data.select('ai-services/ai').isServiceAvailable(slug);
-      return isAvailable;
-    })
-    .map((slug) => {
+  // Build a map of slug -> service object from wp.ai-services
+  const AI_PROVIDERS: Record<string, { slug: string; name: string }> = {};
+  ['openai', 'anthropic', 'google'].forEach((slug) => {
+    if (wp.data.select('ai-services/ai').isServiceAvailable(slug)) {
       const service = wp.data.select('ai-services/ai').getAvailableService(slug);
-
-      return {
-        slug: service.slug,
-        name: service.name,
-      };
-    });
+      if (service) {
+        AI_PROVIDERS[service.slug] = {
+          slug: service.slug,
+          name: service.name,
+        };
+      }
+    }
+  });
 
   const isMatch = useMemo(() => {
     return _.isMatch(formData, settings);
@@ -134,6 +134,16 @@ const Settings = () => {
         className="filter-ai-settings-toggle-options"
       />
     );
+  };
+
+  const getServiceSlug = (serviceData: any): string => {
+    if (typeof serviceData === 'string') {
+      return serviceData;
+    }
+    if (typeof serviceData === 'object' && serviceData?.service) {
+      return serviceData.service;
+    }
+    return '';
   };
 
   useEffect(() => {
@@ -238,13 +248,11 @@ const Settings = () => {
                                   ? feature.prompt.key + '_service'
                                   : feature.key + '_prompt_service';
                                 const serviceData = formData?.[serviceKey];
-                                const selectedServiceSlug =
-                                  typeof serviceData === 'object' && serviceData !== null ? serviceData.service : '';
+                                const selectedServiceSlug = getServiceSlug(serviceData);
 
-                                const selectedProvider = AI_PROVIDERS.find((p) => p.slug === selectedServiceSlug);
-                                const buttonLabel = selectedProvider
-                                  ? `${__('AI Service', 'filter-ai')}: ${selectedProvider.name}`
-                                  : __('AI Service', 'filter-ai');
+                                const selectedServiceName =
+                                  AI_PROVIDERS[selectedServiceSlug]?.name || __('AI Service', 'filter-ai');
+                                const buttonLabel = `${__('AI Service', 'filter-ai')}: ${selectedServiceName}`;
 
                                 return (
                                   <Button
@@ -264,23 +272,16 @@ const Settings = () => {
                                   : feature.key + '_prompt_service';
 
                                 const currentServiceData = formData?.[serviceKey];
-                                const currentServiceSlug =
-                                  typeof currentServiceData === 'object' && currentServiceData !== null
-                                    ? currentServiceData.service
-                                    : '';
+                                const currentServiceSlug = getServiceSlug(currentServiceData);
 
                                 return (
                                   <MenuGroup>
-                                    {AI_PROVIDERS.map((provider) => (
+                                    {Object.values(AI_PROVIDERS).map((provider) => (
                                       <MenuItem
                                         key={provider.slug}
                                         icon={currentServiceSlug === provider.slug ? check : undefined}
                                         onClick={() => {
-                                          onChange(serviceKey, {
-                                            service: provider.slug,
-                                            model: '',
-                                            name: provider.name,
-                                          });
+                                          onChange(serviceKey, provider.slug);
                                         }}
                                       >
                                         {provider.name}

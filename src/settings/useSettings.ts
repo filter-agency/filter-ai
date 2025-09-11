@@ -1,16 +1,7 @@
 import { resolveSelect, useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 
-export type FilterAISettings = Record<
-  string,
-  | string
-  | boolean
-  | {
-      service: string;
-      model: string;
-      name: string;
-    }
->;
+export type FilterAISettings = Record<string, string | boolean>;
 
 const settingsKey = 'filter_ai_settings';
 
