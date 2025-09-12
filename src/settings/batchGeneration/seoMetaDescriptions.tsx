@@ -2,6 +2,7 @@ import { Button, Spinner, Panel, PanelBody, ProgressBar, Notice } from '@wordpre
 import { RawHTML, useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useSettings } from '../useSettings';
+import { useServices } from '@/utils/ai/services/useServices';
 
 const defaultCount = {
   posts: 0,
@@ -35,6 +36,8 @@ const SEOMetaDescriptions = () => {
   const [postTypes, setPostTypes] = useState<PostType[]>([]);
 
   const { settings } = useSettings();
+
+  const services = useServices();
 
   const inProgress = useMemo(() => {
     return !!count.pendingActions || !!count.runningActions;
@@ -96,12 +99,6 @@ const SEOMetaDescriptions = () => {
         `${window.filter_ai_api.url}?action=filter_ai_api_batch_seo_meta_description&nonce=${window.filter_ai_api.nonce}`,
         {
           method: 'POST',
-          body: JSON.stringify({
-            service: settings?.yoast_seo_meta_description_prompt_service,
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-          },
         }
       );
 
@@ -191,7 +188,12 @@ const SEOMetaDescriptions = () => {
           </PanelBody>
           {!inProgress && count.actions > 0 && (
             <PanelBody title={__('Previous run stats', 'filter-ai')}>
-              <p>{sprintf(__('AI Service: %s', 'filter-ai'), count.lastRunService)}</p>
+              <p>
+                {sprintf(
+                  __('AI Service: %s', 'filter-ai'),
+                  services?.[count.lastRunService]?.metadata.name ?? 'unknown'
+                )}
+              </p>
               <p>{sprintf(__('SEO meta descriptions processed: %s', 'filter-ai'), count.actions)}</p>
               <p>{sprintf(__('Completed SEO meta descriptions: %s', 'filter-ai'), count.completeActions)}</p>
               <p>{sprintf(__('Failed SEO meta descriptions %s', 'filter-ai'), count.failedActions)}</p>

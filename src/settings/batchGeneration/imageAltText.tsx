@@ -4,6 +4,7 @@ import { useEffect, useCallback, useState, RawHTML } from '@wordpress/element';
 import { mimeTypes } from '@/utils';
 import { useSettings } from '../useSettings';
 import { __, sprintf } from '@wordpress/i18n';
+import { useServices } from '@/utils/ai/services/useServices';
 
 const defaultCount = {
   images: 0,
@@ -13,7 +14,7 @@ const defaultCount = {
   pendingActions: 0,
   runningActions: 0,
   failedActions: 0,
-  lastRunService: 'N/A',
+  lastRunService: '',
 };
 
 type FailedAction = {
@@ -29,6 +30,8 @@ const ImageAltText = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const { settings } = useSettings();
+
+  const services = useServices();
 
   const types = useMemo(() => [...new Set(mimeTypes.values())], [mimeTypes]);
 
@@ -88,12 +91,6 @@ const ImageAltText = () => {
         `${window.filter_ai_api.url}?action=filter_ai_api_batch_image_alt_text&nonce=${window.filter_ai_api.nonce}`,
         {
           method: 'POST',
-          body: JSON.stringify({
-            service: settings?.image_alt_text_prompt_service,
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-          },
         }
       );
 
@@ -160,7 +157,12 @@ const ImageAltText = () => {
           </PanelBody>
           {!inProgress && count.actions > 0 && (
             <PanelBody title={__('Previous run stats', 'filter-ai')}>
-              <p>{sprintf(__('AI Service: %s', 'filter-ai'), count.lastRunService)}</p>
+              <p>
+                {sprintf(
+                  __('AI Service: %s', 'filter-ai'),
+                  services?.[count.lastRunService]?.metadata.name ?? 'unknown'
+                )}
+              </p>
               <p>{sprintf(__('Images processed: %s', 'filter-ai'), count.actions)}</p>
               <p>{sprintf(__('Completed images: %s', 'filter-ai'), count.completeActions)}</p>
               <p>{sprintf(__('Failed images %s', 'filter-ai'), count.failedActions)}</p>

@@ -51,9 +51,8 @@ function filter_ai_get_posts_missing_seo_meta_description_count( $post_type = 'a
  * @return void Returns early if the post already has a SEO meta_description
  */
 function filter_ai_process_batch_seo_meta_description( $args ) {
-	$post_id      = $args['post_id'];
-	$user_id      = $args['user_id'];
-	$service_name = $args['service'];
+	$post_id = $args['post_id'];
+	$user_id = $args['user_id'];
 
 	if ( ! isset( $post_id ) ) {
 		throw new Exception( esc_html__( 'Missing post', 'filter-ai' ) );
@@ -63,6 +62,8 @@ function filter_ai_process_batch_seo_meta_description( $args ) {
 		throw new Exception( esc_html__( 'Missing user', 'filter-ai' ) );
 	}
 
+	$settings             = filter_ai_get_settings();
+	$service_slug         = $settings['yoast_seo_meta_description_prompt_service'];
 	$post_type            = get_post_type( $post_id );
 	$current_user_id      = get_current_user_id();
 	$seo_meta_description = get_post_meta( $post_id, '_yoast_wpseo_metadesc', true );
@@ -86,18 +87,23 @@ function filter_ai_process_batch_seo_meta_description( $args ) {
 	try {
 		wp_set_current_user( $user_id );
 
-		if ( ai_services()->has_available_services( $required_capabilities ) === false ) {
+		$required_slugs = array();
+
+		if ( ! empty( $service_slug ) ) {
+			$required_slugs->slugs = [ $service_slug ];
+		}
+
+		if ( ai_services()->has_available_services( array_merge( $required_slugs, $required_capabilities ) ) === false ) {
 			throw new Exception( esc_html__( 'AI service not available', 'filter-ai' ) );
 		}
 
-		if ( ! ai_services()->is_service_available( $service_name ) ) {
-			throw new Exception(
-				// translators: %s: AI service name.
-				sprintf( esc_html__( 'The requested AI service "%s" is not available or does not support the required features. Please check your settings.', 'filter-ai' ), $service_name )
-			);
+		if ( ! empty( $service_slug ) ) {
+			$service = ai_services()->get_available_service( $service_slug );
+		} else {
+			$service = ai_services()->get_available_service( $required_capabilities );
 		}
 
-		$service = ai_services()->get_available_service( $service_name );
+		update_option( 'filter_ai_last_seo_meta_description_service', $service->get_service_slug() );
 
 		$parts = new Parts();
 
@@ -138,17 +144,6 @@ add_action( 'filter_ai_batch_seo_meta_description', 'filter_ai_process_batch_seo
 function filter_ai_api_batch_seo_meta_description() {
 	check_ajax_referer( 'filter_ai_api', 'nonce' );
 
-	$body = json_decode( file_get_contents( 'php://input' ), true );
-
-	if ( isset( $body['service'] ) && is_array( $body['service'] ) && isset( $body['service']['name'] ) ) {
-		$service_name = sanitize_text_field( $body['service']['name'] );
-	} else {
-		// Use a user-friendly default name if none is provided.
-		$service_name = 'Default Service (Unknown)';
-	}
-
-	update_option( 'filter_ai_last_seo_meta_description_service', $service_name );
-
 	filter_ai_reset_batch( 'filter_ai_batch_seo_meta_description' );
 
 	$posts_per_page = 500;
@@ -162,15 +157,12 @@ function filter_ai_api_batch_seo_meta_description() {
 		if ( ! empty( $posts ) ) {
 			foreach ( $posts as $post_id ) {
 				// call action through a scheduled action
-				$service_slug = isset( $body['service']['service'] ) ? sanitize_text_field( $body['service']['service'] ) : 'default';
-
 				$action_ids[] = as_enqueue_async_action(
 					'filter_ai_batch_seo_meta_description',
 					array(
 						array(
 							'post_id' => $post_id,
 							'user_id' => get_current_user_id(),
-							'service' => $service_slug,
 						),
 					),
 					'filter-ai-current'
@@ -247,7 +239,7 @@ function filter_ai_api_get_seo_meta_description_count() {
 		}
 	}
 
-	$last_run_service = get_option( 'filter_ai_last_seo_meta_description_service', 'N/A' );
+	$last_run_service = get_option( 'filter_ai_last_seo_meta_description_service', '' );
 
 	wp_send_json_success(
 		array(

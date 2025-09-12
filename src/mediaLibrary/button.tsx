@@ -5,6 +5,8 @@ import { useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import _ from 'underscore';
 import { usePrompts } from '@/utils/ai/prompts/usePrompts';
+import { AIService } from '@/utils/ai/services/types';
+import { useService } from '@/utils/ai/services/useService';
 
 const maxPixelSize = 2000;
 
@@ -12,10 +14,7 @@ const Events = _.extend({}, window?.Backbone?.Events);
 
 type GenerateAltTextPayload = {
   prompt: string;
-  serviceConfig: {
-    service: string;
-    name: string;
-  };
+  service: AIService;
 };
 
 (() => {
@@ -39,7 +38,7 @@ type GenerateAltTextPayload = {
 
       Events.trigger('filter-ai:generateAltTextEnabled', false);
     },
-    async generateAltText({ prompt, serviceConfig }: GenerateAltTextPayload) {
+    async generateAltText({ prompt, service }: GenerateAltTextPayload) {
       showLoadingMessage(__('Alt Text', 'filter-ai'));
 
       try {
@@ -51,7 +50,7 @@ type GenerateAltTextPayload = {
 
         const url = this.model.get('sizes')?.medium?.url || this.model.get('url');
 
-        const altText = await ai.getAltTextFromUrl(url, this.model.get('alt'), prompt, serviceConfig);
+        const altText = await ai.getAltTextFromUrl(url, this.model.get('alt'), prompt, service?.slug);
 
         if (!altText) {
           throw new Error(__('Sorry, there has been an issue while generating your alt text.', 'filter-ai'));
@@ -63,11 +62,13 @@ type GenerateAltTextPayload = {
 
         this.render();
 
-        const serviceName = serviceConfig?.name ? sprintf(__(' using %s', 'filter-ai'), serviceConfig.name) : '';
+        let message = __('Alt text has been updated', 'filter-ai');
 
-        showNotice({
-          message: sprintf(__('Alt text has been updated%s', 'filter-ai'), serviceName),
-        });
+        if (service?.metadata.name) {
+          message = sprintf(__('Alt text has been updated using %s', 'filter-ai'), service.metadata.name);
+        }
+
+        showNotice({ message });
       } catch (error) {
         console.error(error);
 
@@ -99,6 +100,7 @@ type GenerateAltTextPayload = {
     const { settings } = useSettings();
 
     const prompt = usePrompts('image_alt_text_prompt');
+    const service = useService('image_alt_text_prompt_service');
 
     const controls = useMemo(() => {
       const options = [];
@@ -109,7 +111,7 @@ type GenerateAltTextPayload = {
           onClick: () => {
             Events.trigger('filter-ai:generateAltText', {
               prompt,
-              serviceConfig: settings?.image_alt_text_prompt_service,
+              service,
             });
           },
           isDisabled: !generateAltTextEnabled,
@@ -117,7 +119,7 @@ type GenerateAltTextPayload = {
       }
 
       return options;
-    }, [settings, generateAltTextEnabled]);
+    }, [settings, generateAltTextEnabled, prompt, service]);
 
     useEffect(() => {
       Events.listenTo(Events, 'filter-ai:generateAltTextEnabled', setGenerateAltTextEnabled);

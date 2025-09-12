@@ -7,6 +7,7 @@ import { useState, useEffect } from '@wordpress/element';
 import { useSettings } from '@/settings';
 import { useSelect } from '@wordpress/data';
 import AIServiceNotice from '@/components/aiServiceNotice';
+import { useService } from '@/utils/ai/services/useService';
 
 type Props = {
   callback?: () => void;
@@ -21,7 +22,7 @@ const GenerateImgTabView = ({ callback }: Props) => {
 
   const { settings } = useSettings();
 
-  const serviceConfig = settings?.generate_image_prompt_service;
+  const service = useService('generate_image_prompt_service');
 
   // @ts-expect-error Type 'never' has no call signatures.
   const AIService = useSelect((select) => select(window.aiServices.ai.store)?.getAvailableService(), []);
@@ -30,13 +31,11 @@ const GenerateImgTabView = ({ callback }: Props) => {
     setLoading(true);
     showLoadingMessage(__('AI Images', 'filter-ai'));
     try {
-      const generateImages = await getGeneratedImages(prompt, serviceConfig);
+      const generateImages = await getGeneratedImages(prompt, service?.slug);
       setGeneratedImages(generateImages);
       setSelectedIndexes([]);
     } catch (err) {
       console.error('Failed to generate images:', err);
-
-      const serviceName = serviceConfig?.name || serviceConfig?.service || __('Unknown service', 'filter-ai');
 
       let message = __('Image generation failed.');
       if (err instanceof Error) {
@@ -47,7 +46,7 @@ const GenerateImgTabView = ({ callback }: Props) => {
         message = (err as any).message;
       }
       showNotice({
-        message: sprintf(__('Error (%s): %s', 'filter-ai'), serviceName, message),
+        message: sprintf(__('Error: %s', 'filter-ai'), message),
         type: 'error',
       });
     } finally {

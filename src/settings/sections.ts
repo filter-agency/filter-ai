@@ -19,7 +19,7 @@ type Feature = {
   key: string;
   toggle: Toggle;
   prompt?: Prompt;
-  showAiServiceSelector?: boolean;
+  serviceKey?: string;
 };
 
 type Section = {
@@ -37,7 +37,6 @@ export const sections: Section[] = [
     features: [
       {
         key: 'brand_voice',
-        showAiServiceSelector: false,
         toggle: {
           key: 'brand_voice_enabled',
           label: __('Brand voice', 'filter-ai'),
@@ -52,7 +51,6 @@ export const sections: Section[] = [
       },
       {
         key: 'stop_words',
-        showAiServiceSelector: false,
         toggle: {
           key: 'stop_words_enabled',
           label: __('Stop words', 'filter-ai'),
@@ -79,7 +77,7 @@ export const sections: Section[] = [
     features: [
       {
         key: 'image_alt_text',
-        showAiServiceSelector: true,
+        serviceKey: 'image_alt_text_prompt_service',
         toggle: {
           key: 'image_alt_text_enabled',
           label: __('Image alt text', 'filter-ai'),
@@ -114,7 +112,7 @@ export const sections: Section[] = [
       },
       {
         key: 'generate_image',
-        showAiServiceSelector: true,
+        serviceKey: 'generate_image_prompt_service',
         toggle: {
           key: 'generate_image_enabled',
           label: __('Generate images', 'filter-ai'),
@@ -129,7 +127,7 @@ export const sections: Section[] = [
     features: [
       {
         key: 'post_title',
-        showAiServiceSelector: true,
+        serviceKey: 'post_title_prompt_service',
         toggle: {
           key: 'post_title_enabled',
           label: __('Post title', 'filter-ai'),
@@ -143,7 +141,7 @@ export const sections: Section[] = [
       },
       {
         key: 'post_excerpt',
-        showAiServiceSelector: true,
+        serviceKey: 'post_excerpt_prompt_service',
         toggle: {
           key: 'post_excerpt_enabled',
           label: __('Post excerpt', 'filter-ai'),
@@ -157,7 +155,7 @@ export const sections: Section[] = [
       },
       {
         key: 'post_tags',
-        showAiServiceSelector: true,
+        serviceKey: 'post_tags_prompt_service',
         toggle: {
           key: 'post_tags_enabled',
           label: __('Post tags', 'filter-ai'),
@@ -177,7 +175,7 @@ export const sections: Section[] = [
     features: [
       {
         key: 'customise_text_rewrite',
-        showAiServiceSelector: true,
+        serviceKey: 'customise_text_rewrite_prompt_service',
         toggle: {
           key: 'customise_text_rewrite_enabled',
           label: __('Rewrite text', 'filter-ai'),
@@ -191,7 +189,7 @@ export const sections: Section[] = [
       },
       {
         key: 'customise_text_expand',
-        showAiServiceSelector: true,
+        serviceKey: 'customise_text_expand_prompt_service',
         toggle: {
           key: 'customise_text_expand_enabled',
           label: __('Expand text', 'filter-ai'),
@@ -205,7 +203,7 @@ export const sections: Section[] = [
       },
       {
         key: 'customise_text_condense',
-        showAiServiceSelector: true,
+        serviceKey: 'customise_text_condense_prompt_service',
         toggle: {
           key: 'customise_text_condense_enabled',
           label: __('Condense text', 'filter-ai'),
@@ -219,7 +217,7 @@ export const sections: Section[] = [
       },
       {
         key: 'customise_text_summarise',
-        showAiServiceSelector: true,
+        serviceKey: 'customise_text_summarise_prompt_service',
         toggle: {
           key: 'customise_text_summarise_enabled',
           label: __('Summarise text', 'filter-ai'),
@@ -233,7 +231,7 @@ export const sections: Section[] = [
       },
       {
         key: 'customise_text_change_tone',
-        showAiServiceSelector: true,
+        serviceKey: 'customise_text_change_tone_prompt_service',
         toggle: {
           key: 'customise_text_change_tone_enabled',
           label: __('Change the tone of the text', 'filter-ai'),
@@ -253,7 +251,7 @@ export const sections: Section[] = [
     features: [
       {
         key: 'wc_product_description',
-        showAiServiceSelector: true,
+        serviceKey: 'wc_product_description_prompt_service',
         toggle: {
           key: 'wc_product_description_enabled',
           label: __('Product description', 'filter-ai'),
@@ -267,7 +265,7 @@ export const sections: Section[] = [
       },
       {
         key: 'wc_product_excerpt',
-        showAiServiceSelector: true,
+        serviceKey: 'wc_product_excerpt_prompt_service',
         toggle: {
           key: 'wc_product_excerpt_enabled',
           label: __('Product short description', 'filter-ai'),
@@ -287,7 +285,7 @@ export const sections: Section[] = [
     features: [
       {
         key: 'yoast_seo_title',
-        showAiServiceSelector: true,
+        serviceKey: 'yoast_seo_title_prompt_service',
         toggle: {
           key: 'yoast_seo_title_enabled',
           label: __('Yoast SEO title', 'filter-ai'),
@@ -301,7 +299,7 @@ export const sections: Section[] = [
       },
       {
         key: 'yoast_seo_meta_description',
-        showAiServiceSelector: true,
+        serviceKey: 'yoast_seo_meta_description_prompt_service',
         toggle: {
           key: 'yoast_seo_meta_description_enabled',
           label: __('Yoast SEO meta description', 'filter-ai'),
