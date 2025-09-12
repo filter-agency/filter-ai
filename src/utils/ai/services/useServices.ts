@@ -5,9 +5,9 @@ type UseServices = () => Record<string, AIService>;
 
 export const useServices: UseServices = () => {
   const services = useSelect((select) => {
-    const { getServices } = select('ai-services/ai') || {};
-
     // @ts-expect-error Type 'never' has no call signatures.
+    const { getServices } = select(window.aiServices.ai.store) || {};
+
     const aiServices: Record<string, AIService> = getServices?.() || {};
 
     return aiServices;

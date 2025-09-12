@@ -1,4 +1,4 @@
-import { getService } from './getService';
+import { sprintf, __ } from '@wordpress/i18n';
 
 const { enums, helpers } = window.aiServices.ai;
 const { select } = wp.data;
@@ -26,25 +26,35 @@ export const generateText = async ({
   capabilities = [aiCapability.TEXT_GENERATION],
   parts = [],
   service,
-  model,
 }: Props) => {
   let resolvedService;
 
-  await wp.data.resolveSelect('ai-services/ai').getServices();
+  await wp.data.resolveSelect(window.aiServices.ai.store).getServices();
 
   if (service) {
-    const { isServiceAvailable, getAvailableService } = select('ai-services/ai');
+    const { isServiceAvailable, getAvailableService } = select(window.aiServices.ai.store);
 
     const availableService = getAvailableService(service);
 
     if (!availableService) {
       // Service exists but not configured (API key missing, disabled, etc.)
       throw new Error(
-        `The requested service "${service}" exists but is not configured properly. Please check API key or plugin settings.`
+        sprintf(
+          __(
+            'The requested service "%s" exists but is not configured properly. Please check API key or plugin settings.',
+            'filter-ai'
+          ),
+          service
+        )
       );
     } else if (!isServiceAvailable(service)) {
       // Service is configured but cannot handle this capability
-      throw new Error(`The requested service "${service}" cannot be used for this feature. Check its capabilities.`);
+      throw new Error(
+        sprintf(
+          __('The requested service "%s" cannot be used for this feature. Check its capabilities.', 'filter-ai'),
+          service
+        )
+      );
     } else {
       // Service is available and usable
       resolvedService = availableService;
@@ -56,8 +66,6 @@ export const generateText = async ({
   }
 
   try {
-    const slug = resolvedService.getServiceSlug();
-
     const candidates = await resolvedService.generateText(
       {
         role: enums.ContentRole.USER,
@@ -71,7 +79,6 @@ export const generateText = async ({
       {
         feature,
         capabilities,
-        //         ...(model ? { model } : {}),
       }
     );
 

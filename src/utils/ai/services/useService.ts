@@ -10,9 +10,9 @@ export const useService: UseService = (key) => {
   const serviceSlug = settings?.[key];
 
   const service = useSelect((select) => {
-    const { getServices } = select('ai-services/ai') || {};
-
     // @ts-expect-error Type 'never' has no call signatures.
+    const { getServices } = select(window.aiServices.ai.store) || {};
+
     const aiServices: Record<string, AIService> = getServices?.() || {};
 
     const _service = Object.values(aiServices).find((s) => s.slug === serviceSlug && s.is_available);
