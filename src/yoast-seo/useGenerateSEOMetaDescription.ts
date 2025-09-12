@@ -3,13 +3,13 @@ import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { ai, hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils';
 import { usePrompts } from '@/utils/ai/prompts/usePrompts';
+import { useService } from '@/utils/ai/services/useService';
 
 export const useGenerateSEOMetaDescription = () => {
   const { settings } = useSettings();
 
   const prompt = usePrompts('yoast_seo_meta_description_prompt');
-
-  const serviceConfig = settings?.yoast_seo_meta_description_prompt_service;
+  const service = useService('yoast_seo_meta_description_prompt_service');
 
   const { content, oldDescription } = useSelect((select) => {
     const { getEditedPostAttribute } = select('core/editor') || {};
@@ -56,11 +56,13 @@ export const useGenerateSEOMetaDescription = () => {
       scrollToField();
     }
 
-    const serviceName = serviceConfig?.name ? sprintf(__(' using %s', 'filter-ai'), serviceConfig.name) : '';
+    let message = __('SEO meta description has been updated', 'filter-ai');
 
-    showNotice({
-      message: sprintf(__('SEO meta description has been updated%s', 'filter-ai'), serviceName),
-    });
+    if (service?.metadata.name) {
+      message = sprintf(__('SEO meta description has been updated using %s', 'filter-ai'), service.metadata.name);
+    }
+
+    showNotice({ message });
   };
 
   const onClick = async () => {
@@ -69,7 +71,7 @@ export const useGenerateSEOMetaDescription = () => {
     try {
       const _content = content || window.tinymce?.editors?.content?.getContent();
 
-      const description = await ai.getSeoMetaDescriptionFromContent(_content, oldDescription, prompt, serviceConfig);
+      const description = await ai.getSeoMetaDescriptionFromContent(_content, oldDescription, prompt, service?.slug);
 
       if (!description) {
         throw new Error(__('Sorry, there has been an issue while generating your SEO meta description.', 'filter-ai'));

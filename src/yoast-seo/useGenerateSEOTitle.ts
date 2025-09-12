@@ -12,6 +12,7 @@ import {
 } from '@/utils';
 import { useEffect } from '@wordpress/element';
 import { usePrompts } from '@/utils/ai/prompts/usePrompts';
+import { useService } from '@/utils/ai/services/useService';
 
 export const useGenerateSEOTitle = () => {
   const { settings } = useSettings();
@@ -19,8 +20,7 @@ export const useGenerateSEOTitle = () => {
   const { options, choice } = useSeoTitleOptionsModal();
 
   const prompt = usePrompts('yoast_seo_title_prompt');
-
-  const serviceConfig = settings?.yoast_seo_title_prompt_service;
+  const service = useService('yoast_seo_title_prompt_service');
 
   const { content, getSeoTitleTemplate, oldSeoTitle } = useSelect((select) => {
     const { getEditedPostAttribute } = select('core/editor') || {};
@@ -77,11 +77,13 @@ export const useGenerateSEOTitle = () => {
       scrollToField();
     }
 
-    const serviceName = serviceConfig?.name ? sprintf(__(' using %s', 'filter-ai'), serviceConfig.name) : '';
+    let message = __('SEO title has been updated', 'filter-ai');
 
-    showNotice({
-      message: sprintf(__('SEO title has been updated%s', 'filter-ai'), serviceName),
-    });
+    if (service?.metadata.name) {
+      message = sprintf(__('SEO title has been updated using %s', 'filter-ai'), service.metadata.name);
+    }
+
+    showNotice({ message });
   };
 
   const onClick = async () => {
@@ -92,7 +94,7 @@ export const useGenerateSEOTitle = () => {
     try {
       const _content = content || window.tinymce?.editors?.content?.getContent();
 
-      const titles = await ai.getSeoTitleFromContent(_content, oldSeoTitle, prompt, serviceConfig);
+      const titles = await ai.getSeoTitleFromContent(_content, oldSeoTitle, prompt, service?.slug);
 
       if (!titles) {
         throw new Error(__('Sorry, there has been an issue while generating your SEO title.', 'filter-ai'));

@@ -2,12 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { generateText } from './services';
 import { getSettings } from '@/settings';
 
-export const customiseText = async (
-  feature: string,
-  text: string,
-  prompt: string,
-  serviceConfig?: { service: string; name: string }
-) => {
+export const customiseText = async (feature: string, text: string, prompt: string, service?: string) => {
   if (!prompt) {
     throw new Error(__('Prompt missing, please check settings', 'filter-ai'));
   }
@@ -21,6 +16,6 @@ export const customiseText = async (
   return generateText({
     feature,
     prompt: `${settings?.common_prompt_prefix || ''} ${prompt} \`${text}\``,
-    service: serviceConfig?.service,
+    service,
   });
 };

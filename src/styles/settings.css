@@ -217,7 +217,6 @@
   line-height: 1.4;
   text-transform: uppercase;
   display: block;
-  margin-bottom: 8px;
   padding: 0px;
 }
 
@@ -246,4 +245,15 @@
 
 .notice.update-nag.inline ~ .filter-wrap {
   margin-top: 35px;
+}
+
+.filter-ai-selector-button,
+.filter-ai-selector-button.components-button.has-icon.has-text {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 6px 4px 6px 10px;
+}
+
+.filter-ai-selector-menu .components-popover__content {
+  border-radius: 8px;
 }

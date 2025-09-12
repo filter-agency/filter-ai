@@ -1,9 +1,10 @@
 import { DropdownMenu } from '@/components/dropdownMenu';
 import { useSettings } from '@/settings';
 import { ai, hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils';
+import { useService } from '@/utils/ai/services/useService';
 import { Button, Flex, Modal, TextareaControl } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import _ from 'underscore';
 
 type Props = {
@@ -20,15 +21,22 @@ const useControl = ({ id }: Props) => {
 
   const { settings } = useSettings();
 
+  const descriptionPromptService = useService('wc_product_description_prompt_service');
+  const excerptPromptService = useService('wc_product_excerpt_prompt_service');
+
   const data = useMemo(() => {
     switch (id) {
       case 'excerpt':
         return {
           enabled: settings?.wc_product_excerpt_enabled,
           promptPrefix: settings?.wc_product_excerpt_prompt,
-          serviceConfig: settings?.wc_product_excerpt_prompt_service,
+          service: excerptPromptService,
           loadingMessage: __('Short Description', 'filter-ai'),
           successMessage: __('Product short description has been updated', 'filter-ai'),
+          serviceSuccessMessage: sprintf(
+            __('Product short description has been updated using %s', 'filter-ai'),
+            excerptPromptService?.metadata.name
+          ),
           errorMessage: __(
             'Sorry, there has been an issue while generating your product short description.',
             'filter-ai'
@@ -40,15 +48,19 @@ const useControl = ({ id }: Props) => {
         return {
           enabled: settings?.wc_product_description_enabled,
           promptPrefix: settings?.wc_product_description_prompt,
-          serviceConfig: settings?.wc_product_description_prompt_service,
+          service: descriptionPromptService,
           loadingMessage: __('Description', 'filter-ai'),
           successMessage: __('Product description has been updated', 'filter-ai'),
+          serviceSuccessMessage: sprintf(
+            __('Product description has been updated using %s', 'filter-ai'),
+            descriptionPromptService?.metadata.name
+          ),
           errorMessage: __('Sorry, there has been an issue while generating your product description.', 'filter-ai'),
           generateLabel: __('Generate description', 'filter-ai'),
           regenerateLabel: __('Regenerate description', 'filter-ai'),
         };
     }
-  }, [id, settings]);
+  }, [id, settings, descriptionPromptService, excerptPromptService]);
 
   const updateValue = (newValue: string) => {
     const content = getElement(id);
@@ -76,8 +88,7 @@ const useControl = ({ id }: Props) => {
       const content = await ai.generateText({
         feature: `filter-ai-wc-product-${id}`,
         prompt,
-        service: data.serviceConfig?.service,
-        model: data.serviceConfig?.model,
+        service: data.service?.slug,
       });
 
       if (!content) {
@@ -86,8 +97,13 @@ const useControl = ({ id }: Props) => {
 
       updateValue(content);
 
-      const serviceName = data.serviceConfig?.name ? ` using ${data.serviceConfig.name}` : '';
-      showNotice({ message: `${data.successMessage}${serviceName}` });
+      let message = data.successMessage;
+
+      if (data.service?.metadata.name) {
+        message = data.serviceSuccessMessage;
+      }
+
+      showNotice({ message });
     } catch (error) {
       console.error(error);
 

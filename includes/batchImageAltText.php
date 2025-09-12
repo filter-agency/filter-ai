@@ -139,19 +139,8 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 		throw new Exception( esc_html__( 'Missing user', 'filter-ai' ) );
 	}
 
-	$settings       = filter_ai_get_settings();
-	$service_option = $settings['image_alt_text_prompt_service'];
-
-	if ( ! is_array( $service_option ) || empty( $service_option['service'] ) ) {
-		$service_slug = 'default';
-		$service_name = 'Default Service';
-	} else {
-		$service_slug = $service_option['service'];
-		$service_name = ! empty( $service_option['name'] )
-		? sanitize_text_field( $service_option['name'] )
-		: $service_slug;
-	}
-
+	$settings        = filter_ai_get_settings();
+	$service_slug    = $settings['image_alt_text_prompt_service'];
 	$current_user_id = get_current_user_id();
 	$metadata        = wp_get_attachment_metadata( $image_id );
 	$image_alt_text  = get_post_meta( $image_id, '_wp_attachment_image_alt', true );
@@ -192,18 +181,25 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 	try {
 		wp_set_current_user( $user_id );
 
-		if ( ! ai_services()->is_service_available( $service_name, $required_capabilities ) ) {
-			throw new Exception(
-				// translators: %s: AI service name.
-				sprintf( esc_html__( 'The requested AI service %s is not available or does not support the required features. Please check your settings.', 'filter-ai' ), $service_name )
+		$required_slugs = array();
+
+		if ( ! empty( $service_slug ) ) {
+			$required_slugs = array(
+				'slugs' => array( $service_slug ),
 			);
 		}
 
-		$service = ai_services()->get_available_service( $service_slug );
-
-		if ( false === $service ) {
+		if ( ai_services()->has_available_services( array_merge( $required_slugs, $required_capabilities ) ) === false ) {
 			throw new Exception( esc_html__( 'AI service not available', 'filter-ai' ) );
 		}
+
+		if ( ! empty( $service_slug ) ) {
+			$service = ai_services()->get_available_service( $service_slug );
+		} else {
+			$service = ai_services()->get_available_service( $required_capabilities );
+		}
+
+		update_option( 'filter_ai_last_ai_image_alt_text_service', $service->get_service_slug() );
 
 		$parts = new Parts();
 
@@ -254,17 +250,6 @@ add_action( 'filter_ai_batch_image_alt_text', 'filter_ai_process_batch_image_alt
 function filter_ai_api_batch_image_alt_text() {
 	check_ajax_referer( 'filter_ai_api', 'nonce' );
 
-	$body = json_decode( file_get_contents( 'php://input' ), true );
-
-	if ( isset( $body['service'] ) && is_array( $body['service'] ) && isset( $body['service']['name'] ) ) {
-		$service_name = sanitize_text_field( $body['service']['name'] );
-	} else {
-		// Use a user-friendly default name if none is provided.
-		$service_name = 'Default Service (Unknown)';
-	}
-
-	update_option( 'filter_ai_last_ai_image_alt_text_service', $service_name );
-
 	filter_ai_reset_batch( 'filter_ai_batch_image_alt_text' );
 
 	$posts_per_page = 500;
@@ -277,8 +262,6 @@ function filter_ai_api_batch_image_alt_text() {
 
 		if ( ! empty( $images ) ) {
 			foreach ( $images as $image_id ) {
-				$service_slug = isset( $body['service']['service'] ) ? sanitize_text_field( $body['service']['service'] ) : 'default';
-
 				// call action through a scheduled action
 				$action_ids[] = as_enqueue_async_action(
 					'filter_ai_batch_image_alt_text',
@@ -286,7 +269,6 @@ function filter_ai_api_batch_image_alt_text() {
 						array(
 							'image_id' => $image_id,
 							'user_id'  => get_current_user_id(),
-							'service'  => $service_slug,
 						),
 					),
 					'filter-ai-current'
@@ -338,7 +320,7 @@ function filter_ai_api_get_image_count() {
 		}
 	}
 
-	$last_run_service = get_option( 'filter_ai_last_ai_image_alt_text_service', 'N/A' );
+	$last_run_service = get_option( 'filter_ai_last_ai_image_alt_text_service', '' );
 
 	wp_send_json_success(
 		array(

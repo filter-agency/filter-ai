@@ -4,6 +4,7 @@ import { showNotice, ai, hideLoadingMessage, showLoadingMessage } from '@/utils'
 import { useMemo, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { usePrompts } from '@/utils/ai/prompts/usePrompts';
+import { useService } from '@/utils/ai/services/useService';
 
 type Props = {
   attributes: BlockEditProps['attributes'];
@@ -18,6 +19,7 @@ export const useGenerateAltText = ({ attributes, setAttributes }: Props) => {
   const { settings } = useSettings();
 
   const prompt = usePrompts('image_alt_text_prompt');
+  const service = useService('image_alt_text_prompt_service');
 
   const isEnabled = useMemo(() => {
     return settings?.image_alt_text_enabled && altTextKeys.some((key) => attributes.hasOwnProperty(key));
@@ -26,8 +28,6 @@ export const useGenerateAltText = ({ attributes, setAttributes }: Props) => {
   const isDisabled = useMemo(() => {
     return !urlKeys.some((key) => attributes.hasOwnProperty(key));
   }, [attributes]);
-
-  const serviceConfig = settings?.image_alt_text_prompt_service;
 
   const getAttribute = useCallback(
     (keys: string[]) => {
@@ -75,7 +75,7 @@ export const useGenerateAltText = ({ attributes, setAttributes }: Props) => {
       const url = await getAttachmentUrl();
       const oldAltText = getAttribute(altTextKeys);
 
-      const altText = await ai.getAltTextFromUrl(url, oldAltText, prompt, serviceConfig);
+      const altText = await ai.getAltTextFromUrl(url, oldAltText, prompt, service?.slug);
 
       if (!altText) {
         throw new Error(__('Sorry, there has been an issue while generating your alt text.', 'filter-ai'));
@@ -83,11 +83,13 @@ export const useGenerateAltText = ({ attributes, setAttributes }: Props) => {
 
       setAttribute(altText, altTextKeys);
 
-      const serviceName = serviceConfig?.name ? sprintf(__(' using %s', 'filter-ai'), serviceConfig.name) : '';
+      let message = __('Alt text has been updated', 'filter-ai');
 
-      showNotice({
-        message: sprintf(__('Alt text has been updated%s', 'filter-ai'), serviceName),
-      });
+      if (service?.metadata.name) {
+        message = sprintf(__('Alt text has been updated using %s', 'filter-ai'), service.metadata.name);
+      }
+
+      showNotice({ message });
     } catch (error) {
       console.error(error);
 

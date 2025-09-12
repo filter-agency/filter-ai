@@ -20,15 +20,14 @@ import { filterLogoWhite } from '@/assets/filter-logo';
 import { verticalDots } from '@/assets/vertical-dots';
 import { __ } from '@wordpress/i18n';
 import AIServiceNotice from '@/components/aiServiceNotice';
-import { chevronDown, chevronUp, check } from '@wordpress/icons';
+import { chevronDown, check } from '@wordpress/icons';
+import { useServices } from '@/utils/ai/services/useServices';
 
 type ShowButtonProps = {
   extraKey: string;
   extraValue: string;
   disabled?: boolean;
 };
-
-declare const wp: any;
 
 const Settings = () => {
   const [showExtra, setShowExtra] = useState<{ [key: string]: string }>(
@@ -44,30 +43,13 @@ const Settings = () => {
 
   const { settings, saveSettings } = useSettings();
 
-  const aiStore = wp.data.select('ai-services/ai');
+  const services = useServices();
 
-  const [AI_PROVIDERS, setAIProviders] = useState<Record<string, { slug: string; name: string }>>({});
-
-  useEffect(() => {
-    const buildProviders = async () => {
-      await wp.data.resolveSelect('ai-services/ai').getServices();
-      const allServices = aiStore.getServices?.() || {};
-
-      const providers: Record<string, { slug: string; name: string }> = {};
-      Object.values(allServices).forEach((service: any) => {
-        if (service.is_available) {
-          providers[service.slug] = {
-            slug: service.slug,
-            name: service.name,
-          };
-        }
-      });
-
-      setAIProviders(providers);
-    };
-
-    buildProviders();
-  }, [aiStore]);
+  const availableServices: typeof services = useMemo(() => {
+    return Object.values(services)
+      .filter((s) => s.is_available)
+      .reduce((a, c) => ({ ...a, [c.slug]: c }), {});
+  }, [services]);
 
   const isMatch = useMemo(() => {
     return _.isMatch(formData, settings);
@@ -147,16 +129,6 @@ const Settings = () => {
     );
   };
 
-  const getServiceSlug = (serviceData: any): string => {
-    if (typeof serviceData === 'string') {
-      return serviceData;
-    }
-    if (typeof serviceData === 'object' && serviceData?.service) {
-      return serviceData.service;
-    }
-    return '';
-  };
-
   useEffect(() => {
     if (!isMatch) {
       setFormData(settings);
@@ -221,7 +193,7 @@ const Settings = () => {
                       <label htmlFor={feature.toggle.key}>{feature.toggle.label}</label>
                       {feature.toggle.help && <div>{feature.toggle.help}</div>}
                     </div>
-                    <div style={!feature.showAiServiceSelector ? { marginRight: '34px' } : {}}>
+                    <div style={!feature.serviceKey ? { marginRight: '34px' } : {}}>
                       <FormToggle
                         onChange={() => {
                           onChange(feature.toggle.key, !formData?.[feature.toggle.key]);
@@ -231,7 +203,7 @@ const Settings = () => {
                         disabled={isDisabled}
                       />
                     </div>
-                    {feature.showAiServiceSelector && (
+                    {!!feature.serviceKey && (
                       <ShowButton
                         disabled={!formData?.[feature.toggle.key] || isDisabled}
                         extraKey={section.key}
@@ -239,64 +211,56 @@ const Settings = () => {
                       />
                     )}
                   </PanelRow>
-                  {feature.showAiServiceSelector && showExtra[section.key] === feature.key && (
+                  {!!feature.serviceKey && showExtra[section.key] === feature.key && (
                     <PanelRow>
                       <div style={{ flex: 1 }}>
                         <div
                           className="filter-ai-label-row"
                           style={!feature.prompt ? { display: 'flex', justifyContent: 'flex-end' } : {}}
                         >
-                          {feature.prompt && (
-                            <label style={{ margin: 0 }} className="filter-ai-label-title">
-                              {feature.prompt.label}
-                            </label>
-                          )}
-                          {feature.showAiServiceSelector && (
+                          {feature.prompt && <label className="filter-ai-label-title">{feature.prompt.label}</label>}
+                          {!!feature.serviceKey && (
                             <Dropdown
-                              popoverProps={{ placement: 'bottom-end' }}
+                              popoverProps={{ placement: 'bottom-end', className: 'filter-ai-selector-menu' }}
                               renderToggle={({ isOpen, onToggle }) => {
-                                const serviceKey = feature.prompt?.key
-                                  ? feature.prompt.key + '_service'
-                                  : feature.key + '_prompt_service';
-                                const serviceData = formData?.[serviceKey];
-
-                                const selectedServiceSlug = getServiceSlug(serviceData);
-
-                                const selectedServiceName =
-                                  AI_PROVIDERS[selectedServiceSlug]?.name || __('AI Service', 'filter-ai');
-                                const buttonLabel = `${__('AI Service', 'filter-ai')}: ${selectedServiceName}`;
+                                const serviceSlug = formData?.[feature.serviceKey!] as string;
+                                const service = availableServices[serviceSlug]?.metadata.name;
+                                const buttonLabel = __('AI Service', 'filter-ai');
 
                                 return (
                                   <Button
-                                    variant="secondary"
                                     onClick={onToggle}
                                     aria-expanded={isOpen}
-                                    icon={isOpen ? chevronUp : chevronDown}
+                                    icon={chevronDown}
                                     iconPosition="right"
+                                    className="filter-ai-selector-button"
                                   >
                                     {buttonLabel}
+                                    {service ? `: ${service}` : ''}
                                   </Button>
                                 );
                               }}
                               renderContent={() => {
-                                const serviceKey = feature.prompt?.key
-                                  ? feature.prompt.key + '_service'
-                                  : feature.key + '_prompt_service';
-
-                                const currentServiceData = formData?.[serviceKey];
-                                const currentServiceSlug = getServiceSlug(currentServiceData);
+                                const serviceSlug = formData?.[feature.serviceKey!];
 
                                 return (
                                   <MenuGroup>
-                                    {Object.values(AI_PROVIDERS).map((provider) => (
+                                    {Object.values(availableServices).map((service) => (
                                       <MenuItem
-                                        key={provider.slug}
-                                        icon={currentServiceSlug === provider.slug ? check : undefined}
+                                        key={service.slug}
+                                        icon={serviceSlug === service.slug ? check : undefined}
+                                        disabled={!service.is_available}
                                         onClick={() => {
-                                          onChange(serviceKey, provider.slug);
+                                          let newValue = '';
+
+                                          if (serviceSlug !== service.slug) {
+                                            newValue = service.slug;
+                                          }
+
+                                          onChange(feature.serviceKey!, newValue);
                                         }}
                                       >
-                                        {provider.name}
+                                        {service.metadata.name}
                                       </MenuItem>
                                     ))}
                                   </MenuGroup>
