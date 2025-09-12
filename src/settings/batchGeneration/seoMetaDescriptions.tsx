@@ -52,7 +52,7 @@ const SEOMetaDescriptions = () => {
         .catch(() => ({}));
 
       if (!data) {
-        throw new Error('no data');
+        throw new Error(__('no data', 'filter-ai'));
       }
 
       setCount((prevCount) => {

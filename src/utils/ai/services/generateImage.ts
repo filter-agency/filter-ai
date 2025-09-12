@@ -1,5 +1,4 @@
-import { getService } from './getService';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 const { enums } = window.aiServices.ai;
 const { select } = wp.data;
@@ -14,7 +13,6 @@ type GenerateImageProps = {
   candidateCount?: number;
   aspectRatio?: string;
   service?: string;
-  model?: string;
 };
 
 export const generateImage = async ({
@@ -23,30 +21,40 @@ export const generateImage = async ({
   candidateCount,
   aspectRatio,
   service,
-  model,
 }: GenerateImageProps): Promise<string[]> => {
   let resolvedService;
 
   if (service) {
-    const { isServiceAvailable, getAvailableService } = select('ai-services/ai');
+    const { isServiceAvailable, getAvailableService } = select(window.aiServices.ai.store);
 
     const availableService = getAvailableService(service);
 
     if (!availableService) {
       console.error(`[AI] Service "${service}" exists but is not configured properly (API key missing or disabled).`);
       throw new Error(
-        `The requested service "${service}" exists but is not configured properly. Please check API key or plugin settings.`
+        sprintf(
+          __(
+            'The requested service "%s" exists but is not configured properly. Please check API key or plugin settings.',
+            'filter-ai'
+          ),
+          service
+        )
       );
     } else if (!isServiceAvailable(service)) {
       console.error(`[AI] Service "${service}" is configured but not available for this feature/capability.`);
-      throw new Error(`The requested service "${service}" cannot be used for this feature. Check its capabilities.`);
+      throw new Error(
+        sprintf(
+          __('The requested service "%s" cannot be used for this feature. Check its capabilities.', 'filter-ai'),
+          service
+        )
+      );
     } else {
       resolvedService = availableService;
     }
   } else {
     // If no specific service is requested, find a default one that supports image generation
     console.error('[AI] No service requested. Attempting to find a default image generation service.');
-    const { getServicesByCapability } = select('ai-services/ai');
+    const { getServicesByCapability } = select(window.aiServices.ai.store);
     const imageServices = getServicesByCapability(aiCapability);
 
     if (imageServices.length > 0) {
@@ -60,7 +68,7 @@ export const generateImage = async ({
   }
 
   try {
-    const slug = resolvedService.getServiceSlug();
+    const metadata = resolvedService.getServiceMetadata();
 
     const resolvedModel = resolvedService.getModel({
       feature,
@@ -68,12 +76,11 @@ export const generateImage = async ({
       generationConfig: {
         candidateCount,
         aspectRatio,
-        ...(model ? { model } : {}),
       },
     });
 
     if (!resolvedModel || typeof resolvedModel.generateImage !== 'function') {
-      throw new Error(__(`No valid model found for service "${resolvedService?.getServiceSlug?.()}"`, 'filter-ai'));
+      throw new Error(sprintf(__('No valid model found for service %s', 'filter-ai'), metadata.name));
     }
 
     const candidates = await resolvedModel.generateImage(prompt);
