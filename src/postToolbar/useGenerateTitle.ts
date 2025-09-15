@@ -114,7 +114,6 @@ export const useGenerateTitle = () => {
       let oldTitle: string;
 
       if (isBlockEditor && blockEditorData.content !== null) {
-        // Correctly handle the potential null values from blockEditorData
         const data = getBlockEditorData(blockEditorData.content, blockEditorData.oldTitle || '');
         content = data.content;
         oldTitle = data.oldTitle;

@@ -127,7 +127,6 @@ export const useGenerateExcerpt = () => {
         throw new Error(__('No content available to generate an excerpt from.', 'filter-ai'));
       }
 
-      // Convert null to undefined to satisfy the expected type
       const generatedExcerpt = await ai.getExcerptFromContent(content, oldExcerpt ?? undefined, prompt);
       if (!generatedExcerpt) {
         throw new Error(__('Sorry, there has been an issue while generating your excerpt.', 'filter-ai'));
