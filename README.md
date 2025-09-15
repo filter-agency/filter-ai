@@ -37,7 +37,7 @@ The ZIP file can now be used to install Filter AI within WordPress.
 
 ## Usage
 
-Filter AI requires the plugin [AI Services](https://wordpress.org/plugins/ai-services/) which should be automatically installed if not already present. Once the AI Services plugin has been installed within WordPress use it to configure an API key for at least one AI service within _Settings > AI Services_.
+Filter AI requires the plugin [AI Services](https://wordpress.org/plugins/ai-services/) which should be automatically installed if not already present.
 
 Once Filter AI is active you should see a menu item in the admin menu which gives you access to the settings and batch capabilities.
 
