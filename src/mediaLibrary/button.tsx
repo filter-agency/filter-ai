@@ -45,7 +45,9 @@ const Events = _.extend({}, window?.Backbone?.Events);
 
         const modal = this.controller?.content?.view || this.modal;
 
-        if (modal && !document.getElementById('filter-ai-media-modal-container')) {
+        console.log({ modal });
+
+        if (modal && !modal.$el.find('.media-frame-title.filter-ai-media-frame-title').length) {
           modal.$el.find('.media-frame-title').addClass('filter-ai-media-frame-title');
 
           const container = document.createElement('div');
