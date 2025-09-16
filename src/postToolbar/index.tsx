@@ -4,8 +4,8 @@ import { useGenerateTitle } from './useGenerateTitle';
 import { useGenerateExcerpt } from './useGenerateExcerpt';
 import _ from 'underscore';
 import { useGenerateTags } from './useGenerateTags';
-import { useGenerateSEOTitle } from './useGenerateSEOTitle';
-import { useGenerateSEOMetaDescription } from './useGenerateSEOMetaDescription';
+import { useGenerateSEOTitle } from '../yoast-seo/useGenerateSEOTitle';
+import { useGenerateSEOMetaDescription } from '../yoast-seo/useGenerateSEOMetaDescription';
 
 const PostToolbar = () => {
   const generateTitle = useGenerateTitle();
@@ -27,7 +27,9 @@ const PostToolbar = () => {
 
 const addToolbar = () => {
   const id = 'filter-ai-post-toolbar-container';
-  const postActionsButton = document.documentElement.querySelector('.editor-all-actions-button');
+  const postActionsButton =
+    document.documentElement.querySelector('.editor-all-actions-button') ||
+    document.documentElement.querySelector('#misc-publishing-actions');
 
   if (!postActionsButton || document.getElementById(id)) {
     return;

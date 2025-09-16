@@ -3,7 +3,7 @@ import { ProductToolbar } from './ProductToolbar';
 
 const loadButton = (id: string, buttonsContainerId: string) => {
   const buttonId = `filter-ai-wc-${id}-toolbar-container`;
-  const productExcerptButtons = document.getElementById(buttonsContainerId);
+  const productExcerptButtons = document.querySelector(buttonsContainerId);
 
   if (!productExcerptButtons || document.getElementById(buttonId)) {
     return;
@@ -24,8 +24,8 @@ const load = () => {
     return;
   }
 
-  loadButton('content', 'wp-content-media-buttons');
-  loadButton('excerpt', 'wp-excerpt-media-buttons');
+  loadButton('content', '.woocommerce-product-description #wp-content-media-buttons');
+  loadButton('excerpt', '#woocommerce-product-data ~ #postexcerpt #wp-excerpt-media-buttons');
 };
 
 const observer = new MutationObserver(load);

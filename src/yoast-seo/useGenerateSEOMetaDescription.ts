@@ -2,7 +2,7 @@ import { useSettings } from '@/settings';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { ai, hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils';
-import {usePrompts} from "@/utils/ai/prompts/usePrompts";
+import { usePrompts } from '@/utils/ai/prompts/usePrompts';
 
 export const useGenerateSEOMetaDescription = () => {
   const { settings } = useSettings();
@@ -10,12 +10,12 @@ export const useGenerateSEOMetaDescription = () => {
   const prompt = usePrompts('yoast_seo_meta_description_prompt');
 
   const { content, oldDescription } = useSelect((select) => {
-    const { getEditedPostAttribute } = select('core/editor');
+    const { getEditedPostAttribute } = select('core/editor') || {};
     const { getDescription } = select('yoast-seo/editor');
 
     return {
       // @ts-expect-error Type 'never' has no call signatures.
-      content: getEditedPostAttribute('content'),
+      content: getEditedPostAttribute?.('content'),
       // @ts-expect-error Type 'never' has no call signatures.
       oldDescription: getDescription(),
     };
@@ -61,11 +61,9 @@ export const useGenerateSEOMetaDescription = () => {
     showLoadingMessage(__('SEO Meta Description', 'filter-ai'));
 
     try {
-      const description = await ai.getSeoMetaDescriptionFromContent(
-        content,
-        oldDescription,
-        prompt
-      );
+      const _content = content || window.tinymce?.editors?.content?.getContent();
+
+      const description = await ai.getSeoMetaDescriptionFromContent(_content, oldDescription, prompt);
 
       if (!description) {
         throw new Error(__('Sorry, there has been an issue while generating your SEO meta description.', 'filter-ai'));

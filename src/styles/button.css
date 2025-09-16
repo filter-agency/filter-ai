@@ -81,3 +81,15 @@
     height: 100%;
   }
 }
+
+#filter-ai-yst-seo-title-button,
+#filter-ai-yst-seo-meta-desc-button {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#minor-publishing #filter-ai-post-toolbar-container {
+  padding: 10px 10px 0;
+}
