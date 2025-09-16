@@ -40,7 +40,7 @@ export const useGenerateTitle = () => {
         throw new Error(__('Sorry, there has been an issue while generating your title.', 'filter-ai'));
       }
 
-      if (editPost) {
+      if (window.filter_ai_dependencies.block_editor && editPost) {
         editPost({ title: removeWrappingQuotes(title) });
       } else if (titleField) {
         titleField.value = title;

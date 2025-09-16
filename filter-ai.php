@@ -180,8 +180,9 @@ function filter_ai_enqueue_assets() {
 		'filter-ai-script',
 		'window.filter_ai_dependencies = ' . wp_json_encode(
 			array(
-				'wc'        => is_plugin_active( 'woocommerce/woocommerce.php' ),
-				'yoast_seo' => is_plugin_active( 'wordpress-seo/wp-seo.php' ) || is_plugin_active( 'wordpress-seo-premium/wp-seo-premium.php' ),
+				'wc'           => is_plugin_active( 'woocommerce/woocommerce.php' ),
+				'yoast_seo'    => is_plugin_active( 'wordpress-seo/wp-seo.php' ) || is_plugin_active( 'wordpress-seo-premium/wp-seo-premium.php' ),
+				'block_editor' => method_exists( get_current_screen(), 'is_block_editor' ) && get_current_screen()->is_block_editor(),
 			)
 		) . ';',
 		'before'

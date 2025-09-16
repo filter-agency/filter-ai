@@ -63,7 +63,7 @@ export const useGenerateTags = () => {
         throw new Error(errorMessage);
       }
 
-      if (editPost) {
+      if (window.filter_ai_dependencies.block_editor && editPost) {
         const newTagIds = [];
 
         for (let i = 0; i < tags.length; i++) {

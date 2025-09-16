@@ -51,7 +51,7 @@ export const useGenerateExcerpt = () => {
         throw new Error(__('Sorry, there has been an issue while generating your excerpt.', 'filter-ai'));
       }
 
-      if (editPost) {
+      if (window.filter_ai_dependencies.block_editor && editPost) {
         editPost({ excerpt });
       } else if (excerptField) {
         excerptField.value = excerpt;
