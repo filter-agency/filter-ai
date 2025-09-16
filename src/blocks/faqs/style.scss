@@ -1,0 +1,17 @@
+.wp-block-filter-ai-faqs .block-list-appender {
+  position: static;
+  text-align: center;
+
+  & .block-editor-button-block-appender {
+    width: 48px;
+    background-color: white;
+    display: inline-block;
+    line-height: 1;
+  }
+}
+
+.is-layout-contrained .wp-block-filter-ai-faqs {
+  max-width: var(--wp--style--global--content-size);
+  margin-left: auto;
+  margin-right: auto;
+}

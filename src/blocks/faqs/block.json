@@ -1,0 +1,19 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "title": "FAQs",
+  "description": "A block to generate FAQs",
+  "keywords": ["FAQ", "FAQs", "Frequently Asked Questions"],
+  "version": "1.0.0",
+  "textdomain": "filter-ai",
+  "name": "filter-ai/faqs",
+  "icon": "editor-ul",
+  "category": "filter-ai",
+  "attributes": {
+    "title": {
+      "type": "string"
+    }
+  },
+  "editorScript": "file:./index.js",
+  "style": "file:./style-index.css"
+}
