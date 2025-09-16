@@ -12,9 +12,9 @@ const FAQsSave = ({ attributes }: Props) => {
   // https://developers.google.com/search/docs/appearance/structured-data/faqpage
 
   return (
-    <div className="alignfull">
+    <div className="alignfull" style={{ backgroundColor: '#ff0' }}>
       <div {...blockProps} itemScope itemType="https://schema.org/FAQPage">
-        <RichText.Content tagName="h2" value={attributes.title} />
+        <RichText.Content tagName="h2" value={attributes.title} className="filter-ai-faqs-title" />
         <InnerBlocks.Content />
       </div>
     </div>

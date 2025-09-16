@@ -12,7 +12,7 @@ const faqsEdit = ({ attributes, setAttributes }: Props) => {
   const blockProps = useBlockProps();
 
   return [
-    <div className="alignfull">
+    <div className="alignfull" style={{ backgroundColor: '#ff0' }}>
       <div {...blockProps}>
         <RichText
           key="faqs-title-edit"
@@ -20,6 +20,7 @@ const faqsEdit = ({ attributes, setAttributes }: Props) => {
           onChange={(value) => setAttributes({ title: value })}
           tagName="h2"
           placeholder={__('Frequenty Asked Questions', 'filter-ai')}
+          className="filter-ai-faqs-title"
         />
         <InnerBlocks allowedBlocks={['filter-ai/faq-item']} renderAppender={InnerBlocks.ButtonBlockAppender} />
       </div>
