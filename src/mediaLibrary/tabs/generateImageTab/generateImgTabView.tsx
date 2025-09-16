@@ -33,7 +33,7 @@ const GenerateImgTabView = ({ callback }: Props) => {
       setSelectedIndexes([]);
     } catch (err) {
       console.error('Failed to generate images:', err);
-      let message = __('Image generation failed.');
+      let message = __('Image generation failed.', 'filter-ai');
       if (err instanceof Error) {
         message = err.message;
       } else if (typeof err === 'string') {

@@ -11,13 +11,13 @@ export const useGenerateSEOMetaDescription = () => {
 
   const { content, oldDescription } = useSelect((select) => {
     const { getEditedPostAttribute } = select('core/editor') || {};
-    const { getDescription } = select('yoast-seo/editor');
+    const { getDescription } = select('yoast-seo/editor') || {};
 
     return {
       // @ts-expect-error Type 'never' has no call signatures.
       content: getEditedPostAttribute?.('content'),
       // @ts-expect-error Type 'never' has no call signatures.
-      oldDescription: getDescription(),
+      oldDescription: getDescription?.(),
     };
   }, []);
 
