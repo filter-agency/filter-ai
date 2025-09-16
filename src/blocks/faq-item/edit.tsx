@@ -1,15 +1,21 @@
 import { __ } from '@wordpress/i18n';
 import { InnerBlocks, RichText, useBlockProps } from '@wordpress/block-editor';
+import { useEffect } from '@wordpress/element';
 
 type Attributes = Record<string, string>;
 
 type Props = {
   attributes: Attributes;
   setAttributes: (props: Attributes) => Attributes;
+  context: any;
 };
 
-const faqItemEdit = ({ attributes, setAttributes }: Props) => {
+const faqItemEdit = ({ attributes, setAttributes, context }: Props) => {
   const blockProps = useBlockProps();
+
+  useEffect(() => {
+    setAttributes({ heading_color: context['filter-ai/faqs/heading_color'] });
+  }, [setAttributes, context]);
 
   return (
     <div {...blockProps}>
@@ -20,10 +26,14 @@ const faqItemEdit = ({ attributes, setAttributes }: Props) => {
             value={attributes.question}
             onChange={(value) => setAttributes({ question: value })}
             placeholder={__('Question', 'filter-ai')}
+            tagName="h3"
+            style={{ color: attributes.heading_color }}
           />
         </div>
         <div className="filter-ai-faq-item-answer">
-          <InnerBlocks template={[['core/paragraph', { placeholder: __('Answer', 'filter-ai') }]]} />
+          <div>
+            <InnerBlocks template={[['core/paragraph', { placeholder: __('Answer', 'filter-ai') }]]} />
+          </div>
         </div>
       </div>
     </div>

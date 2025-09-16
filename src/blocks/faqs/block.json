@@ -12,6 +12,18 @@
   "attributes": {
     "title": {
       "type": "string"
+    },
+    "title_align": {
+      "type": "string",
+      "default": "center"
+    },
+    "background_color": {
+      "type": "string",
+      "default": "#fff"
+    },
+    "heading_color": {
+      "type": "string",
+      "default": "#000"
     }
   },
   "editorScript": "file:./index.js",
@@ -19,7 +31,9 @@
   "supports": {
     "html": false,
     "anchor": true,
-    "align": ["wide", "full"],
     "alignWide": true
+  },
+  "providesContext": {
+    "filter-ai/faqs/heading_color": "heading_color"
   }
 }

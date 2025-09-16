@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
-import { InnerBlocks, RichText, useBlockProps } from '@wordpress/block-editor';
+import { AlignmentToolbar, BlockControls, InnerBlocks, RichText, useBlockProps } from '@wordpress/block-editor';
 
-type Attributes = Record<string, string>;
+type Attributes = Record<string, string | undefined>;
 
 type Props = {
   attributes: Attributes;
@@ -11,29 +11,36 @@ type Props = {
 const faqsEdit = ({ attributes, setAttributes }: Props) => {
   const blockProps = useBlockProps();
 
-  return [
-    <div className="alignfull" style={{ backgroundColor: '#ff0' }}>
-      <div {...blockProps}>
-        <RichText
-          key="faqs-title-edit"
-          value={attributes.title}
-          onChange={(value) => setAttributes({ title: value })}
-          tagName="h2"
-          placeholder={__('Frequenty Asked Questions', 'filter-ai')}
-          className="filter-ai-faqs-title"
-        />
-        <InnerBlocks allowedBlocks={['filter-ai/faq-item']} renderAppender={InnerBlocks.ButtonBlockAppender} />
+  return (
+    <>
+      <BlockControls>
+        <AlignmentToolbar value={attributes.title_align} onChange={(value) => setAttributes({ title_align: value })} />
+      </BlockControls>
+      <div className="alignfull" style={{ backgroundColor: attributes.background_color }}>
+        <div {...blockProps}>
+          <RichText
+            key="faqs-title-edit"
+            value={attributes.title || ''}
+            onChange={(value) => setAttributes({ title: value })}
+            tagName="h2"
+            placeholder={__('Frequenty Asked Questions', 'filter-ai')}
+            className="filter-ai-faqs-title"
+            style={{
+              textAlign: attributes.title_align as React.CSSProperties['textAlign'],
+              color: attributes.heading_color,
+            }}
+          />
+          <InnerBlocks allowedBlocks={['filter-ai/faq-item']} renderAppender={InnerBlocks.ButtonBlockAppender} />
+        </div>
       </div>
-    </div>,
-  ];
+    </>
+  );
 };
 
 export default faqsEdit;
 
 /*
   todo
-  [ ] style similar to faqs on https://filter.agency/filter-ai/
-  [ ] change marker style to match https://filter.agency/filter-ai/
   [ ] add block sidebar settings
   * background colour
   * text colour (also updates marker colour)

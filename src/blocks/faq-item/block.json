@@ -12,8 +12,12 @@
   "attributes": {
     "question": {
       "type": "string"
+    },
+    "heading_color": {
+      "type": "string"
     }
   },
   "editorScript": "file:./index.js",
-  "style": "file:./style-index.css"
+  "style": "file:./style-index.css",
+  "usesContext": ["filter-ai/faqs/heading_color"]
 }

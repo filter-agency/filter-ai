@@ -1,10 +1,92 @@
+.wp-block-filter-ai-faq-item + .wp-block-filter-ai-faq-item {
+  //margin-top: var(--wp--preset--spacing--20);
+
+  &::before {
+    content: '';
+    background-color: currentColor;
+    opacity: 0.3;
+    width: 100%;
+    height: 1px;
+    display: block;
+  }
+}
+
 .filter-ai-faq-item {
 }
 
 .filter-ai-faq-item-question {
-  color: #000;
-  cursor: pointer;
+  padding-top: var(--wp--preset--spacing--30);
+  padding-bottom: var(--wp--preset--spacing--30);
+
+  h3 {
+    margin: 0;
+    display: inline-block;
+    font-size: 1rem;
+    font-weight: bold;
+  }
 }
 
-// .filter-ai-faq-item-answer {
+summary.filter-ai-faq-item-question {
+  cursor: pointer;
+  padding-right: 30px;
+  position: relative;
+
+  &::-webkit-details-marker,
+  &::marker {
+    content: none;
+  }
+
+  &::after {
+    content: '';
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 640'%3E%3Cpath d='M297.4 470.6C309.9 483.1 330.2 483.1 342.7 470.6L534.7 278.6C547.2 266.1 547.2 245.8 534.7 233.3C522.2 220.8 501.9 220.8 489.4 233.3L320 402.7L150.6 233.4C138.1 220.9 117.8 220.9 105.3 233.4C92.8 245.9 92.8 266.2 105.3 278.7L297.3 470.7z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: auto 24px;
+    background-position: center;
+    width: 20px;
+    height: 24px;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transition: transform 0.25s;
+    transform: translateY(-50%);
+
+    [open] & {
+      transform: translateY(-50%) scaleY(-1);
+    }
+  }
+
+  &:focus {
+    outline: 0;
+  }
+
+  &:focus-visible {
+    outline: 2px solid;
+    outline-offset: 0.25em;
+  }
+}
+
+// details .filter-ai-faq-item-answer {
+//   display: grid;
+//   grid-template-rows: 0fr;
+//   transition: grid-template-rows 1s ease;
 // }
+
+// details[open] .filter-ai-faq-item-answer {
+//   grid-template-rows: 1fr;
+// }
+
+.filter-ai-faq-item-answer {
+  font-size: 1rem;
+  line-height: 1.5;
+  padding-bottom: var(--wp--preset--spacing--30);
+
+  div {
+    *:first-child {
+      margin-top: 0;
+    }
+
+    *:last-child {
+      margin-bottom: 0;
+    }
+  }
+}

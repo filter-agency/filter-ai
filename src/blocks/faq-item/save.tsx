@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
+import { InnerBlocks, RichText, useBlockProps } from '@wordpress/block-editor';
 
 type Props = {
   attributes: Record<string, string>;
@@ -12,7 +12,7 @@ const FAQItemSave = ({ attributes }: Props) => {
     <div {...blockProps}>
       <details className="filter-ai-faq-item" itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
         <summary className="filter-ai-faq-item-question" itemProp="name">
-          {attributes.question}
+          <RichText.Content tagName="h3" value={attributes.question} style={{ color: attributes.heading_color }} />
         </summary>
         <div
           className="filter-ai-faq-item-answer"

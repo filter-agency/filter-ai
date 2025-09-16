@@ -8,13 +8,17 @@ type Props = {
 const FAQsSave = ({ attributes }: Props) => {
   const blockProps = useBlockProps.save(attributes);
 
-  // todo output faqs as json-ld
-  // https://developers.google.com/search/docs/appearance/structured-data/faqpage
-
   return (
-    <div className="alignfull" style={{ backgroundColor: '#ff0' }}>
+    <div className="alignfull" style={{ backgroundColor: attributes.background_color }}>
       <div {...blockProps} itemScope itemType="https://schema.org/FAQPage">
-        <RichText.Content tagName="h2" value={attributes.title} className="filter-ai-faqs-title" />
+        <RichText.Content
+          tagName="h2"
+          value={attributes.title}
+          className="filter-ai-faqs-title"
+          style={{
+            textAlign: attributes.title_align as React.CSSProperties['textAlign'],
+          }}
+        />
         <InnerBlocks.Content />
       </div>
     </div>
