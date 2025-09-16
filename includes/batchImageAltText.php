@@ -139,6 +139,8 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 		throw new Exception( esc_html__( 'Missing user', 'filter-ai' ) );
 	}
 
+	$settings        = filter_ai_get_settings();
+	$service_slug    = $settings['image_alt_text_prompt_service'];
 	$current_user_id = get_current_user_id();
 	$metadata        = wp_get_attachment_metadata( $image_id );
 	$image_alt_text  = get_post_meta( $image_id, '_wp_attachment_image_alt', true );
@@ -179,11 +181,25 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 	try {
 		wp_set_current_user( $user_id );
 
-		if ( ai_services()->has_available_services( $required_capabilities ) === false ) {
+		$required_slugs = array();
+
+		if ( ! empty( $service_slug ) ) {
+			$required_slugs = array(
+				'slugs' => array( $service_slug ),
+			);
+		}
+
+		if ( ai_services()->has_available_services( array_merge( $required_slugs, $required_capabilities ) ) === false ) {
 			throw new Exception( esc_html__( 'AI service not available', 'filter-ai' ) );
 		}
 
-		$service = ai_services()->get_available_service( $required_capabilities );
+		if ( ! empty( $service_slug ) ) {
+			$service = ai_services()->get_available_service( $service_slug );
+		} else {
+			$service = ai_services()->get_available_service( $required_capabilities );
+		}
+
+		update_option( 'filter_ai_last_ai_image_alt_text_service', $service->get_service_slug() );
 
 		$parts = new Parts();
 
@@ -201,14 +217,16 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 
 		$content = new Content( Content_Role::USER, $parts );
 
-		$candidates = $service->get_model(
+		$model = $service->get_model(
 			array_merge(
 				array(
 					'feature' => 'filter-ai-image-alt-text',
 				),
 				$required_capabilities,
 			)
-		)->generate_text( $content );
+		);
+
+		$candidates = $model->generate_text( $content );
 
 		$text = Helpers::get_text_from_contents(
 			Helpers::get_candidate_contents( $candidates )
@@ -302,6 +320,8 @@ function filter_ai_api_get_image_count() {
 		}
 	}
 
+	$last_run_service = get_option( 'filter_ai_last_ai_image_alt_text_service', '' );
+
 	wp_send_json_success(
 		array(
 			'images_count'                  => filter_ai_get_images_count(),
@@ -312,6 +332,7 @@ function filter_ai_api_get_image_count() {
 			'complete_actions_count'        => $action_count->complete,
 			'failed_actions_count'          => $action_count->failed,
 			'failed_actions'                => $failed_actions,
+			'last_run_service'              => $last_run_service,
 		)
 	);
 }

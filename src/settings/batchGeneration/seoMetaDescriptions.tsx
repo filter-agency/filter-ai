@@ -2,6 +2,7 @@ import { Button, Spinner, Panel, PanelBody, ProgressBar, Notice } from '@wordpre
 import { RawHTML, useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useSettings } from '../useSettings';
+import { useServices } from '@/utils/ai/services/useServices';
 
 const defaultCount = {
   posts: 0,
@@ -12,6 +13,7 @@ const defaultCount = {
   runningActions: 0,
   failedActions: 0,
   postTypes: [],
+  lastRunService: 'N/A',
 };
 
 type FailedAction = {
@@ -35,6 +37,8 @@ const SEOMetaDescriptions = () => {
 
   const { settings } = useSettings();
 
+  const services = useServices();
+
   const inProgress = useMemo(() => {
     return !!count.pendingActions || !!count.runningActions;
   }, [count]);
@@ -48,7 +52,7 @@ const SEOMetaDescriptions = () => {
         .catch(() => ({}));
 
       if (!data) {
-        throw new Error('no data');
+        throw new Error(__('no data', 'filter-ai'));
       }
 
       setCount((prevCount) => {
@@ -61,6 +65,7 @@ const SEOMetaDescriptions = () => {
           pendingActions: data.pending_actions_count,
           runningActions: data.running_actions_count,
           failedActions: data.failed_actions_count,
+          lastRunService: data.last_run_service,
         };
       });
 
@@ -103,7 +108,7 @@ const SEOMetaDescriptions = () => {
     } finally {
       getCount();
     }
-  }, []);
+  }, [settings?.yoast_seo_meta_description_prompt_service, getCount]);
 
   const cancel = useCallback(async () => {
     setIsCancelling(true);
@@ -183,6 +188,12 @@ const SEOMetaDescriptions = () => {
           </PanelBody>
           {!inProgress && count.actions > 0 && (
             <PanelBody title={__('Previous run stats', 'filter-ai')}>
+              <p>
+                {sprintf(
+                  __('AI Service: %s', 'filter-ai'),
+                  services?.[count.lastRunService]?.metadata.name ?? 'unknown'
+                )}
+              </p>
               <p>{sprintf(__('SEO meta descriptions processed: %s', 'filter-ai'), count.actions)}</p>
               <p>{sprintf(__('Completed SEO meta descriptions: %s', 'filter-ai'), count.completeActions)}</p>
               <p>{sprintf(__('Failed SEO meta descriptions %s', 'filter-ai'), count.failedActions)}</p>

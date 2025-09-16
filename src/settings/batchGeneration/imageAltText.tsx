@@ -4,6 +4,7 @@ import { useEffect, useCallback, useState, RawHTML } from '@wordpress/element';
 import { mimeTypes } from '@/utils';
 import { useSettings } from '../useSettings';
 import { __, sprintf } from '@wordpress/i18n';
+import { useServices } from '@/utils/ai/services/useServices';
 
 const defaultCount = {
   images: 0,
@@ -13,6 +14,7 @@ const defaultCount = {
   pendingActions: 0,
   runningActions: 0,
   failedActions: 0,
+  lastRunService: '',
 };
 
 type FailedAction = {
@@ -29,6 +31,8 @@ const ImageAltText = () => {
 
   const { settings } = useSettings();
 
+  const services = useServices();
+
   const types = useMemo(() => [...new Set(mimeTypes.values())], [mimeTypes]);
 
   const inProgress = useMemo(() => {
@@ -44,7 +48,7 @@ const ImageAltText = () => {
         .catch(() => ({}));
 
       if (!data) {
-        throw new Error('no data');
+        throw new Error(__('no data', 'filter-ai'));
       }
 
       setCount((prevCount) => ({
@@ -56,6 +60,7 @@ const ImageAltText = () => {
         pendingActions: data.pending_actions_count,
         runningActions: data.running_actions_count,
         failedActions: data.failed_actions_count,
+        lastRunService: data.last_run_service,
       }));
 
       setFailedActions(Object.values(data.failed_actions || {}));
@@ -95,7 +100,7 @@ const ImageAltText = () => {
     } finally {
       getCount();
     }
-  }, []);
+  }, [settings?.image_alt_text_prompt_service, getCount]);
 
   const cancel = useCallback(async () => {
     setIsCancelling(true);
@@ -152,6 +157,12 @@ const ImageAltText = () => {
           </PanelBody>
           {!inProgress && count.actions > 0 && (
             <PanelBody title={__('Previous run stats', 'filter-ai')}>
+              <p>
+                {sprintf(
+                  __('AI Service: %s', 'filter-ai'),
+                  services?.[count.lastRunService]?.metadata.name ?? 'unknown'
+                )}
+              </p>
               <p>{sprintf(__('Images processed: %s', 'filter-ai'), count.actions)}</p>
               <p>{sprintf(__('Completed images: %s', 'filter-ai'), count.completeActions)}</p>
               <p>{sprintf(__('Failed images %s', 'filter-ai'), count.failedActions)}</p>

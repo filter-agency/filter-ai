@@ -62,6 +62,8 @@ function filter_ai_process_batch_seo_meta_description( $args ) {
 		throw new Exception( esc_html__( 'Missing user', 'filter-ai' ) );
 	}
 
+	$settings             = filter_ai_get_settings();
+	$service_slug         = $settings['yoast_seo_meta_description_prompt_service'];
 	$post_type            = get_post_type( $post_id );
 	$current_user_id      = get_current_user_id();
 	$seo_meta_description = get_post_meta( $post_id, '_yoast_wpseo_metadesc', true );
@@ -85,11 +87,23 @@ function filter_ai_process_batch_seo_meta_description( $args ) {
 	try {
 		wp_set_current_user( $user_id );
 
-		if ( ai_services()->has_available_services( $required_capabilities ) === false ) {
+		$required_slugs = array();
+
+		if ( ! empty( $service_slug ) ) {
+			$required_slugs->slugs = [ $service_slug ];
+		}
+
+		if ( ai_services()->has_available_services( array_merge( $required_slugs, $required_capabilities ) ) === false ) {
 			throw new Exception( esc_html__( 'AI service not available', 'filter-ai' ) );
 		}
 
-		$service = ai_services()->get_available_service( $required_capabilities );
+		if ( ! empty( $service_slug ) ) {
+			$service = ai_services()->get_available_service( $service_slug );
+		} else {
+			$service = ai_services()->get_available_service( $required_capabilities );
+		}
+
+		update_option( 'filter_ai_last_seo_meta_description_service', $service->get_service_slug() );
 
 		$parts = new Parts();
 
@@ -225,6 +239,8 @@ function filter_ai_api_get_seo_meta_description_count() {
 		}
 	}
 
+	$last_run_service = get_option( 'filter_ai_last_seo_meta_description_service', '' );
+
 	wp_send_json_success(
 		array(
 			'post_types'             => $post_type_count,
@@ -236,6 +252,7 @@ function filter_ai_api_get_seo_meta_description_count() {
 			'complete_actions_count' => $action_count->complete,
 			'failed_actions_count'   => $action_count->failed,
 			'failed_actions'         => $failed_actions,
+			'last_run_service'       => $last_run_service,
 		)
 	);
 }

@@ -2,7 +2,12 @@ import { getSettings } from '@/settings';
 import { generateText } from './services';
 import { __ } from '@wordpress/i18n';
 
-export const getSeoTitleFromContent = async (content: string, oldTitle?: string, customPrompt?: string) => {
+export const getSeoTitleFromContent = async (
+  content: string,
+  oldTitle?: string,
+  customPrompt?: string,
+  service?: string
+) => {
   if (!content) {
     throw new Error(__('Please add some content first.', 'filter-ai'));
   }
@@ -17,5 +22,6 @@ export const getSeoTitleFromContent = async (content: string, oldTitle?: string,
   return generateText({
     feature: 'filter-ai-seo-title',
     prompt: `${prePrompt} ${promptDifference} ${customPrompt} ${content}`,
+    service,
   });
 };

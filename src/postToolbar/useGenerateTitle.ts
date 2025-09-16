@@ -1,14 +1,16 @@
 import { useSettings } from '@/settings';
 import { ai, hideLoadingMessage, removeWrappingQuotes, showLoadingMessage, showNotice } from '@/utils';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { usePrompts } from '@/utils/ai/prompts/usePrompts';
+import { useService } from '@/utils/ai/services/useService';
 
 export const useGenerateTitle = () => {
   const { settings } = useSettings();
   const { editPost } = useDispatch('core/editor') || {};
 
   const prompt = usePrompts('post_title_prompt');
+  const service = useService('post_title_prompt_service');
 
   const { content, oldTitle } = useSelect((select) => {
     const { getEditedPostAttribute } = select('core/editor') || {};
@@ -34,7 +36,7 @@ export const useGenerateTitle = () => {
       const titleField = document.getElementById('title') as HTMLInputElement;
       const _oldTitle = oldTitle || titleField?.value;
 
-      const title = await ai.getTitleFromContent(_content, _oldTitle, prompt);
+      const title = await ai.getTitleFromContent(_content, _oldTitle, prompt, service?.slug);
 
       if (!title) {
         throw new Error(__('Sorry, there has been an issue while generating your title.', 'filter-ai'));
@@ -46,7 +48,13 @@ export const useGenerateTitle = () => {
         titleField.value = title;
       }
 
-      showNotice({ message: __('Title has been updated', 'filter-ai') });
+      let message = __('Title has been updated', 'filter-ai');
+
+      if (service?.metadata.name) {
+        message = sprintf(__('Title has been updated using %s', 'filter-ai'), service.metadata.name);
+      }
+
+      showNotice({ message });
     } catch (error) {
       console.error(error);
 

@@ -1,14 +1,16 @@
 import { useSettings } from '@/settings';
 import { ai, hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { usePrompts } from '@/utils/ai/prompts/usePrompts';
+import { useService } from '@/utils/ai/services/useService';
 
 export const useGenerateExcerpt = () => {
   const { settings } = useSettings();
   const { editPost } = useDispatch('core/editor') || {};
 
   const prompt = usePrompts('post_excerpt_prompt');
+  const service = useService('post_excerpt_prompt_service');
 
   const { excerptPanelEnabled, content, oldExcerpt } = useSelect((select) => {
     const { getCurrentPostType, isEditorPanelEnabled, getEditedPostAttribute } = select('core/editor') || {};
@@ -45,7 +47,7 @@ export const useGenerateExcerpt = () => {
       const excerptField = document.getElementById('excerpt') as HTMLTextAreaElement;
       const _oldExcerpt = oldExcerpt || excerptField?.value;
 
-      const excerpt = await ai.getExcerptFromContent(_content, _oldExcerpt, prompt);
+      const excerpt = await ai.getExcerptFromContent(_content, _oldExcerpt, prompt, service?.slug);
 
       if (!excerpt) {
         throw new Error(__('Sorry, there has been an issue while generating your excerpt.', 'filter-ai'));
@@ -57,7 +59,13 @@ export const useGenerateExcerpt = () => {
         excerptField.value = excerpt;
       }
 
-      showNotice({ message: __('Excerpt has been updated', 'filter-ai') });
+      let message = __('Excerpt has been updated', 'filter-ai');
+
+      if (service?.metadata.name) {
+        message = sprintf(__('Excerpt has been updated using %s', 'filter-ai'), service.metadata.name);
+      }
+
+      showNotice({ message });
     } catch (error) {
       console.error(error);
 

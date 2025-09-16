@@ -15,6 +15,14 @@
   gap: 24px;
 }
 
+.filter-ai-settings .components-button.is-secondary.has-icon > svg {
+  margin-left: -2px;
+  margin-right: -10px;
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+}
+
 .filter-ai-settings-header {
   background-color: #012f5f;
   background-image: url('../assets/fade-bg.png');
@@ -203,6 +211,26 @@
   }
 }
 
+.filter-ai-label-title {
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-transform: uppercase;
+  display: block;
+  padding: 0px;
+}
+
+.filter-ai-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.components-menu-item__button.components-button .components-menu-items__item-icon.has-icon-right {
+  margin-left: 0px;
+}
+
 .filter-wrap {
   margin: 10px 20px 0 2px;
 }
@@ -217,4 +245,15 @@
 
 .notice.update-nag.inline ~ .filter-wrap {
   margin-top: 35px;
+}
+
+.filter-ai-selector-button,
+.filter-ai-selector-button.components-button.has-icon.has-text {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 6px 4px 6px 10px;
+}
+
+.filter-ai-selector-menu .components-popover__content {
+  border-radius: 8px;
 }

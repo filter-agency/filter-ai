@@ -8,6 +8,7 @@ import { useSelect } from '@wordpress/data';
 import { ToolbarButton } from '@/components/toolbarButton';
 import { __, sprintf } from '@wordpress/i18n';
 import { usePrompts } from '@/utils/ai/prompts/usePrompts';
+import { useService } from '@/utils/ai/services/useService';
 
 const tones = [
   {
@@ -22,6 +23,13 @@ const tones = [
   { key: 'helpful', label: __('Helpful', 'filter-ai') },
 ];
 
+type PromptKey =
+  | 'customise_text_rewrite_prompt'
+  | 'customise_text_expand_prompt'
+  | 'customise_text_condense_prompt'
+  | 'customise_text_summarise_prompt'
+  | 'customise_text_change_tone_prompt';
+
 type OnClick = (promptKey: string, params?: Record<string, string>) => Promise<void>;
 
 export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps) => {
@@ -31,10 +39,57 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
   const { settings } = useSettings();
 
   const rewritePrompt = usePrompts('customise_text_rewrite_prompt');
+  const rewritePromptService = useService('customise_text_rewrite_prompt_service');
+
   const expandPrompt = usePrompts('customise_text_expand_prompt');
+  const expandPromptService = useService('customise_text_expand_prompt_service');
+
   const condensePrompt = usePrompts('customise_text_condense_prompt');
+  const condensePromptService = useService('customise_text_condense_prompt_service');
+
   const summarisePrompt = usePrompts('customise_text_summarise_prompt');
+  const summarisePromptService = useService('customise_text_summarise_prompt_service');
+
   const changeTonePrompt = usePrompts('customise_text_change_tone_prompt');
+  const changeTonePromptService = useService('customise_text_change_tone_prompt_service');
+
+  const promptConfigs = useMemo(
+    () => ({
+      customise_text_rewrite_prompt: {
+        prompt: rewritePrompt,
+        service: rewritePromptService,
+      },
+      customise_text_expand_prompt: {
+        prompt: expandPrompt,
+        service: expandPromptService,
+      },
+      customise_text_condense_prompt: {
+        prompt: condensePrompt,
+        service: condensePromptService,
+      },
+      customise_text_summarise_prompt: {
+        prompt: summarisePrompt,
+        service: summarisePromptService,
+      },
+      customise_text_change_tone_prompt: {
+        prompt: changeTonePrompt,
+        service: changeTonePromptService,
+      },
+    }),
+    [
+      rewritePrompt,
+      expandPrompt,
+      condensePrompt,
+      summarisePrompt,
+      changeTonePrompt,
+      rewritePromptService,
+      expandPromptService,
+      condensePromptService,
+      summarisePromptService,
+      changeTonePromptService,
+      settings,
+    ]
+  );
 
   const { selectionStart, selectionEnd, hasMultiSelection } = useSelect(
     (select) => {
@@ -62,18 +117,29 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
     return selectionStart.clientId === selectionEnd.clientId && selectionStart.offset !== selectionEnd.offset;
   }, [selectionStart, selectionEnd]);
 
-  const { type, label } = useMemo(() => {
+  const label = useMemo(() => {
     switch (name) {
       case 'core/heading':
-        return { type: 'heading', label: __('Heading', 'filter-ai') };
+        return __('Heading', 'filter-ai');
       case 'core/list-item':
-        return { type: 'list item', label: __('List Item', 'filter-ai') };
+        return __('List Item', 'filter-ai');
       default:
-        return { type: 'text', label: __('Text', 'filter-ai') };
+        return __('Text', 'filter-ai');
     }
   }, [name]);
 
   const onClick: OnClick = async (promptKey, params) => {
+    const isValidPromptKey = (key: string): key is PromptKey => {
+      return key in promptConfigs;
+    };
+
+    if (!isValidPromptKey(promptKey)) {
+      console.error(`Invalid prompt key: ${promptKey}`);
+      return;
+    }
+
+    const { prompt, service } = promptConfigs[promptKey as PromptKey] || {};
+
     if (promptKey === 'customise_text_summarise_prompt') {
       showLoadingMessage(label, 'summarising');
     } else {
@@ -94,22 +160,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
         value: hasSelection ? slice(content, selectionStart.offset, selectionEnd.offset) : content,
       });
 
-      let prompt = (() => {
-        switch (promptKey) {
-          case 'customise_text_rewrite_prompt':
-            return rewritePrompt;
-          case 'customise_text_expand_prompt':
-            return expandPrompt;
-          case 'customise_text_condense_prompt':
-            return condensePrompt;
-          case 'customise_text_summarise_prompt':
-            return summarisePrompt;
-          case 'customise_text_change_tone_prompt':
-            return changeTonePrompt;
-          default:
-            return null;
-        }
-      })();
+      let finalPrompt = prompt;
 
       if (typeof prompt !== 'string') {
         throw new Error(
@@ -122,14 +173,16 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
 
       if (params) {
         for (const key in params) {
-          prompt = prompt.replace(new RegExp(`{{${key}}}`, 'g'), params[key]);
+          finalPrompt = finalPrompt.replace(new RegExp(`{{${key}}}`, 'g'), params[key]);
         }
       }
 
-      let newText = await ai.customiseText(feature, text, prompt);
+      let newText = await ai.customiseText(feature, text, finalPrompt, service?.slug);
 
       if (!newText) {
-        throw new Error(sprintf(__('Sorry, there has been an issue while generating your %s', 'filter-ai'), label));
+        throw new Error(
+          sprintf(__('Sorry, there has been an issue while generating your %s', 'filter-ai'), label.toLowerCase())
+        );
       }
 
       newText = removeWrappingQuotes(newText);
@@ -149,7 +202,17 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
           setAttributes({ content: newText });
         }
 
-        showNotice({ message: sprintf(__('Your %s has been updated', 'filter-ai'), label.toLowerCase()) });
+        let message = sprintf(__('Your %s has been updated', 'filter-ai'), label.toLowerCase());
+
+        if (service?.metadata.name) {
+          message = sprintf(
+            __('Your %s has been updated using %s', 'filter-ai'),
+            label.toLowerCase(),
+            service.metadata.name
+          );
+        }
+
+        showNotice({ message });
       }
     } catch (error) {
       console.error(error);
@@ -243,6 +306,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
                   <NavigableMenu role="menu">
                     {tones.map((tone) => (
                       <MenuItem
+                        key={tone.key}
                         onClick={() => {
                           onClose();
                           onClick('customise_text_change_tone_prompt', {
