@@ -1,4 +1,4 @@
-import { FilterAISettings } from './useSettings';
+import { FilterAISettings } from '../useSettings';
 import { __ } from '@wordpress/i18n';
 
 type Toggle = {

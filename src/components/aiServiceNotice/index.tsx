@@ -13,10 +13,10 @@ export default function AIServiceNotice() {
         {createInterpolateElement(
           sprintf(
             __(`No AI service is configured. Please add an API key in the %s plugin settings.`, 'filter-ai'),
-            `<a>AI Services</a>`
+            `<a>Filter AI</a>`
           ),
           {
-            a: <a href="/wp-admin/options-general.php?page=ais_services" />,
+            a: <a href="/wp-admin/admin.php?page=filter_ai#api_keys" />,
           }
         )}
       </Notice>
