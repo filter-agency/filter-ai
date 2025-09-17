@@ -2,10 +2,13 @@ import { Notice } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
+import { useAIPlugin } from '@/utils';
 
 export default function AIServiceNotice() {
+  const aiPlugin = useAIPlugin();
+
   // @ts-expect-error Type 'never' has no call signatures.
-  const AIService = useSelect((select) => select(window.aiServices.ai.store)?.getAvailableService(), []);
+  const AIService = useSelect((select) => select(aiPlugin?.ai?.store)?.getAvailableService(), [aiPlugin]);
 
   if (AIService === null) {
     return (

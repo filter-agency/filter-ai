@@ -1,64 +1,42 @@
-import { sprintf, __ } from '@wordpress/i18n';
+import { waitForAIPlugin } from '@/utils/useAIPlugin';
+import { select } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 
-const { enums, helpers } = window.aiServices?.ai || {};
-const { select } = wp.data;
+const getTextFromContents = async (contents: any) => {
+  const aiPlugin = await waitForAIPlugin();
 
-declare var wp: any;
-
-export const aiCapability = enums?.AiCapability;
-
-const getTextFromContents = (contents: any) => {
-  return helpers.getTextFromContents(contents).replaceAll('\n\n\n\n', '\n\n');
+  return aiPlugin?.ai.helpers.getTextFromContents(contents).replaceAll('\n\n\n\n', '\n\n');
 };
 
 type Props = {
   prompt: string;
   feature: string;
-  capabilities?: Array<typeof aiCapability>;
+  capabilities?: Array<string>;
   parts?: any;
   service?: string;
   model?: string;
 };
 
-export const generateText = async ({
-  prompt,
-  feature,
-  capabilities = [aiCapability.TEXT_GENERATION],
-  parts = [],
-  service,
-}: Props) => {
+export const generateText = async ({ prompt, feature, capabilities = [], parts = [], service }: Props) => {
+  const aiPlugin = await waitForAIPlugin();
+
+  if (!aiPlugin) {
+    throw new Error(__('Error loading AI plugin', 'filter-ai'));
+  }
+
+  if (!capabilities.length) {
+    capabilities = [aiPlugin.ai.enums.AiCapability.TEXT_GENERATION];
+  }
+
+  // @ts-expect-error
+  const { isServiceAvailable, getAvailableService } = select(aiPlugin.ai.store);
+
   let resolvedService;
 
-  await wp.data.resolveSelect(window.aiServices.ai.store).getServices();
-
-  if (service) {
-    const { isServiceAvailable, getAvailableService } = select(window.aiServices.ai.store);
-
-    const availableService = getAvailableService(service);
-
-    if (!availableService) {
-      // Service exists but not configured (API key missing, disabled, etc.)
-      throw new Error(
-        sprintf(
-          __(
-            'The requested service "%s" exists but is not configured properly. Please check API key or plugin settings.',
-            'filter-ai'
-          ),
-          service
-        )
-      );
-    } else if (!isServiceAvailable(service)) {
-      // Service is configured but cannot handle this capability
-      throw new Error(
-        sprintf(
-          __('The requested service "%s" cannot be used for this feature. Check its capabilities.', 'filter-ai'),
-          service
-        )
-      );
-    } else {
-      // Service is available and usable
-      resolvedService = availableService;
-    }
+  if (service && isServiceAvailable(service)) {
+    resolvedService = getAvailableService(service);
+  } else {
+    resolvedService = getAvailableService({ capabilities });
   }
 
   if (!resolvedService || !prompt || !feature) {
@@ -68,7 +46,7 @@ export const generateText = async ({
   try {
     const candidates = await resolvedService.generateText(
       {
-        role: enums.ContentRole.USER,
+        role: aiPlugin.ai.enums.ContentRole.USER,
         parts: [
           {
             text: prompt,
@@ -82,7 +60,9 @@ export const generateText = async ({
       }
     );
 
-    return getTextFromContents(helpers.getCandidateContents(candidates));
+    const text = await getTextFromContents(aiPlugin.ai.helpers.getCandidateContents(candidates));
+
+    return text;
   } finally {
     // empty finally as the catch is handled by parent
   }

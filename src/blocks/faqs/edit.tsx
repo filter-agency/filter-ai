@@ -8,7 +8,7 @@ import {
   useBlockProps,
 } from '@wordpress/block-editor';
 import { BaseControl, Button, ColorPicker, PanelBody, PanelRow, TextControl } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { ai, hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils';
 import { useSelect } from '@wordpress/data';
 import { usePrompts } from '@/utils/ai/prompts/usePrompts';
@@ -54,7 +54,7 @@ const faqsEdit = ({ attributes, setAttributes }: Props) => {
     };
   }, []);
 
-  const generate = async () => {
+  const generate = useCallback(async () => {
     showLoadingMessage(__('FAQs', 'filter-ai'));
 
     try {
@@ -67,6 +67,9 @@ const faqsEdit = ({ attributes, setAttributes }: Props) => {
       console.log({ faqs });
 
       // todo update faqs
+      /*
+"[{question:"What environments do bears inhabit?",answer:"Bears live in diverse environments ranging from the Arctic's frozen regions to dense tropical forests."},{question:"Why are bears important to ecosystems?",answer:"They act as apex predators, help in seed dispersal, and maintain ecological balance."},{question:"What threats are bears currently facing?",answer:"Bears are threatened by climate change, habitat destruction, and human activities."},{question:"How do bears contribute to seed distribution?",answer:"By consuming fruits and plants, bears spread seeds through their droppings, aiding plant growth."},{question:"What is the significance of bear conservation efforts?",answer:"Conservation is essential to protect bear populations and preserve the health of their natural habitats."}]"
+      */
 
       let message = __('FAQs has been added', 'filter-ai');
 
@@ -83,7 +86,7 @@ const faqsEdit = ({ attributes, setAttributes }: Props) => {
     } finally {
       hideLoadingMessage();
     }
-  };
+  }, [content, numberOfItems, oldFAQs, prompt, service, showNotice, hideLoadingMessage, showLoadingMessage]);
 
   return (
     <>

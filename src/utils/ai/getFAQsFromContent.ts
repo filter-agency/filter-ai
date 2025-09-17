@@ -20,7 +20,7 @@ export const getFAQsFromContent = async (
 
   const prompt = customPrompt?.replace('{{number}}', numberOfItems);
 
-  const prePrompt = settings?.yoast_seo_title_pre_prompt || '';
+  const prePrompt = settings?.generate_faq_section_pre_prompt || '';
 
   return generateText({
     feature: 'filter-ai-post-faqs',
