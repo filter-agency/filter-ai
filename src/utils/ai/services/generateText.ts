@@ -1,11 +1,11 @@
 import { sprintf, __ } from '@wordpress/i18n';
 
-const { enums, helpers } = window.aiServices.ai;
+const { enums, helpers } = window.aiServices?.ai || {};
 const { select } = wp.data;
 
 declare var wp: any;
 
-export const aiCapability = enums.AiCapability;
+export const aiCapability = enums?.AiCapability;
 
 const getTextFromContents = (contents: any) => {
   return helpers.getTextFromContents(contents).replaceAll('\n\n\n\n', '\n\n');

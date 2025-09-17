@@ -1,9 +1,9 @@
 {
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
-  "title": "FAQs",
+  "title": "Filter AI FAQs",
   "description": "A block to generate FAQs",
-  "keywords": ["FAQ", "FAQs", "Frequently Asked Questions"],
+  "keywords": ["FAQ", "FAQs", "Frequently Asked Questions", "Filter AI"],
   "version": "1.0.0",
   "textdomain": "filter-ai",
   "name": "filter-ai/faqs",
