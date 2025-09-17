@@ -13,11 +13,11 @@
     "question": {
       "type": "string"
     },
-    "heading_color": {
+    "headingColor": {
       "type": "string"
     }
   },
   "editorScript": "file:./index.js",
   "style": "file:./style-index.css",
-  "usesContext": ["filter-ai/faqs/heading_color"]
+  "usesContext": ["filter-ai/faqs/heading-color"]
 }

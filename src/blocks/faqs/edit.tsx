@@ -16,7 +16,7 @@ const faqsEdit = ({ attributes, setAttributes }: Props) => {
       <BlockControls>
         <AlignmentToolbar value={attributes.title_align} onChange={(value) => setAttributes({ title_align: value })} />
       </BlockControls>
-      <div className="alignfull" style={{ backgroundColor: attributes.background_color }}>
+      <div className="alignfull" style={{ backgroundColor: attributes.backgroundColor }}>
         <div {...blockProps}>
           <RichText
             key="faqs-title-edit"
@@ -27,7 +27,7 @@ const faqsEdit = ({ attributes, setAttributes }: Props) => {
             className="filter-ai-faqs-title"
             style={{
               textAlign: attributes.title_align as React.CSSProperties['textAlign'],
-              color: attributes.heading_color,
+              color: attributes.headingColor,
             }}
           />
           <InnerBlocks allowedBlocks={['filter-ai/faq-item']} renderAppender={InnerBlocks.ButtonBlockAppender} />

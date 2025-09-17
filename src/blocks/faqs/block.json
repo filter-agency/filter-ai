@@ -13,27 +13,28 @@
     "title": {
       "type": "string"
     },
-    "title_align": {
+    "titleAlign": {
       "type": "string",
       "default": "center"
     },
-    "background_color": {
+    "backgroundColor": {
       "type": "string",
       "default": "#fff"
     },
-    "heading_color": {
+    "headingColor": {
       "type": "string",
       "default": "#000"
     }
   },
   "editorScript": "file:./index.js",
   "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
   "supports": {
     "html": false,
     "anchor": true,
     "alignWide": true
   },
   "providesContext": {
-    "filter-ai/faqs/heading_color": "heading_color"
+    "filter-ai/faqs/heading-color": "headingColor"
   }
 }

@@ -16,7 +16,7 @@ const FAQsSave = ({ attributes }: Props) => {
           value={attributes.title}
           className="filter-ai-faqs-title"
           style={{
-            textAlign: attributes.title_align as React.CSSProperties['textAlign'],
+            textAlign: attributes.titleAlign as React.CSSProperties['textAlign'],
           }}
         />
         <InnerBlocks.Content />

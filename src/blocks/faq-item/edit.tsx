@@ -14,7 +14,7 @@ const faqItemEdit = ({ attributes, setAttributes, context }: Props) => {
   const blockProps = useBlockProps();
 
   useEffect(() => {
-    setAttributes({ heading_color: context['filter-ai/faqs/heading_color'] });
+    setAttributes({ headingColor: context['filter-ai/faqs/heading-color'] });
   }, [setAttributes, context]);
 
   return (
@@ -27,7 +27,7 @@ const faqItemEdit = ({ attributes, setAttributes, context }: Props) => {
             onChange={(value) => setAttributes({ question: value })}
             placeholder={__('Question', 'filter-ai')}
             tagName="h3"
-            style={{ color: attributes.heading_color }}
+            style={{ color: attributes.headingColor }}
           />
         </div>
         <div className="filter-ai-faq-item-answer">
