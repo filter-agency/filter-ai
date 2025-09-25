@@ -69,8 +69,8 @@ const APIKeys = () => {
           <h2>{__('API Keys', 'filter-ai')}</h2>
         </PanelHeader>
         {Object.values(services).map((service) => (
-          <PanelBody>
-            <Control key={service.slug} service={service} />
+          <PanelBody key={service.slug}>
+            <Control service={service} />
           </PanelBody>
         ))}
       </Panel>
