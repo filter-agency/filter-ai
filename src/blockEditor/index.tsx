@@ -11,20 +11,13 @@ const ImagePlaceholderFilter = (BlockEdit: ComponentType<BlockEditProps>) =>
 
     return (
       <>
-        {/* Always render the original BlockEdit component */}
         <BlockEdit {...props} />
 
-        {/* Conditionally render the new component */}
         {isImageBlock && (
-          <ImagePlaceholderToolbar
-            attributes={props.attributes}
-            isSelected={props.isSelected}
-            blockEditProps={props} // Pass the full props object
-          />
+          <ImagePlaceholderToolbar attributes={props.attributes} isSelected={props.isSelected} blockEditProps={props} />
         )}
       </>
     );
   };
 
-// Apply the filter with a unique name
 addFilter('editor.BlockEdit', 'filter-ai/image-placeholder-filter', ImagePlaceholderFilter);
