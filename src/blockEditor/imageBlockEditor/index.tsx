@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button, Modal } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import { createRoot } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
 import { BlockEditProps } from '@/types';
@@ -35,7 +36,7 @@ export const ImagePlaceholderToolbar = ({ attributes, isSelected, blockEditProps
 
       createRoot(container).render(
         <Button variant="secondary" className="is-next-40px-default-size" onClick={() => setIsOpen(true)}>
-          Generate AI Image
+          {__('Generate AI Image', 'filter-ai')}
         </Button>
       );
     });
