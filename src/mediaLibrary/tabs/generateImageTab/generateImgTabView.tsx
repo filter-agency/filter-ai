@@ -12,12 +12,11 @@ import { useService } from '@/utils/ai/services/useService';
 type ImportedImage = {
   url: string;
   id?: number;
-  alt?: string;
 };
 
 type Props = {
   callback?: (image?: ImportedImage) => void;
-  insertMode?: boolean; // true when inserting into block, false for media library only
+  insertMode?: boolean;
 };
 
 const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
@@ -62,7 +61,6 @@ const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
   };
 
   const toggleSelectImage = (index: number) => {
-    // In insert mode, only allow single selection
     if (insertMode) {
       setSelectedIndexes([index]);
     } else {
@@ -93,13 +91,11 @@ const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
 
       refreshMediaLibrary();
 
-      // If in insert mode and callback provided, insert the first image
       if (insertMode && callback && imported.length > 0) {
         const firstImage = imported[0];
         callback({
           url: firstImage.url,
           id: firstImage.id,
-          alt: prompt, // Use the prompt as alt text
         });
       } else {
         callback?.();
@@ -194,7 +190,7 @@ const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
                     onClick={() => toggleSelectImage(i)}
                     disabled={importing}
                   >
-                    <img src={img} alt={`Generated ${i + 1}`} className="filter-ai-image" />
+                    <img src={img} className="filter-ai-image" />
                   </button>
                 );
               })}

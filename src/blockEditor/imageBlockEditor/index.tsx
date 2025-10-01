@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Button, Modal } from '@wordpress/components';
 import { createRoot } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
 import { BlockEditProps } from '@/types';
 import GenerateImgTabView from '@/mediaLibrary/tabs/generateImageTab/generateImgTabView';
 
@@ -12,7 +13,6 @@ type Props = {
 
 export const ImagePlaceholderToolbar = ({ attributes, isSelected, blockEditProps }: Props) => {
   const { setAttributes } = blockEditProps;
-
   const [isOpen, setIsOpen] = useState(false);
 
   const hasImage = attributes?.url || attributes?.id;
@@ -44,13 +44,30 @@ export const ImagePlaceholderToolbar = ({ attributes, isSelected, blockEditProps
     return () => observer.disconnect();
   }, [shouldInjectButton]);
 
-  const handleInsertImage = (image?: { url: string; id?: number; alt?: string }) => {
+  const { altText } = useSelect(
+    (select) => {
+      if (!attributes?.id) return { altText: '' };
+
+      const coreSelect = select('core') as any; // <--- cast here
+      const attachment = coreSelect.getEntityRecord('postType', 'attachment', attributes.id);
+
+      return { altText: attachment?.alt_text || '' };
+    },
+    [attributes?.id]
+  );
+
+  useEffect(() => {
+    if (altText && altText !== attributes?.alt) {
+      setAttributes({ alt: altText });
+    }
+  }, [altText, attributes?.alt, setAttributes]);
+
+  const handleInsertImage = (image?: { url: string; id?: number }) => {
     if (!image) return;
 
     setAttributes({
       url: image.url,
       id: image.id,
-      alt: image.alt || '',
     });
     setIsOpen(false);
   };
