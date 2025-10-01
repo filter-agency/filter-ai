@@ -1,36 +1,32 @@
-import { useEffect } from 'react';
-import { Button } from '@wordpress/components';
+import { useEffect, useState } from 'react';
+import { Button, Modal } from '@wordpress/components';
 import { createRoot } from '@wordpress/element';
 import { BlockEditProps } from '@/types';
+import GenerateImgTabView from '@/mediaLibrary/tabs/generateImageTab/generateImgTabView';
 
 type Props = {
   attributes: BlockEditProps['attributes'];
   isSelected: BlockEditProps['isSelected'];
-  // We pass the full props object to use inside the button's onClick
   blockEditProps: BlockEditProps;
 };
 
 export const ImagePlaceholderToolbar = ({ attributes, isSelected, blockEditProps }: Props) => {
-  // Check if image already exists
-  const hasImage = attributes?.url || attributes?.id;
+  const { setAttributes } = blockEditProps;
 
-  // This is the condition from the original file
+  const [isOpen, setIsOpen] = useState(false);
+
+  const hasImage = attributes?.url || attributes?.id;
   const shouldInjectButton = !hasImage && isSelected;
 
   useEffect(() => {
     if (!shouldInjectButton) return;
 
     const observer = new MutationObserver(() => {
-      // Find the selected block first
       const selectedBlock = document.querySelector('.is-selected[data-type^="core/"]');
       if (!selectedBlock) return;
 
-      // Find the fieldset within the selected block only
       const fieldset = selectedBlock.querySelector('.components-placeholder__fieldset');
-
-      if (!fieldset || fieldset.querySelector('.filter-ai-generate-image-button')) {
-        return;
-      }
+      if (!fieldset || fieldset.querySelector('.filter-ai-generate-image-button')) return;
 
       const container = document.createElement('div');
       container.className = 'filter-ai-generate-image-button';
@@ -38,24 +34,39 @@ export const ImagePlaceholderToolbar = ({ attributes, isSelected, blockEditProps
       fieldset.appendChild(container);
 
       createRoot(container).render(
-        <Button
-          variant="secondary"
-          className="is-next-40px-default-size"
-          onClick={() => {
-            console.log('Generate AI Image clicked', blockEditProps);
-            // TODO: Implement image generation logic
-          }}
-        >
+        <Button variant="secondary" className="is-next-40px-default-size" onClick={() => setIsOpen(true)}>
           Generate AI Image
         </Button>
       );
     });
 
     observer.observe(document.body, { childList: true, subtree: true });
-
     return () => observer.disconnect();
-  }, [shouldInjectButton, blockEditProps]);
+  }, [shouldInjectButton]);
 
-  // This component doesn't render any visible UI itself; it uses a side effect (useEffect)
-  return null;
+  const handleInsertImage = (image?: { url: string; id?: number; alt?: string }) => {
+    if (!image) return;
+
+    setAttributes({
+      url: image.url,
+      id: image.id,
+      alt: image.alt || '',
+    });
+    setIsOpen(false);
+  };
+
+  return (
+    <>
+      {isOpen && (
+        <Modal
+          title="AI Image Generator"
+          onRequestClose={() => setIsOpen(false)}
+          shouldCloseOnClickOutside={true}
+          className="filter-ai-generator-modal"
+        >
+          <GenerateImgTabView callback={handleInsertImage} insertMode={true} />
+        </Modal>
+      )}
+    </>
+  );
 };

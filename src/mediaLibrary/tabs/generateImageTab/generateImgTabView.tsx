@@ -9,11 +9,18 @@ import { useSelect } from '@wordpress/data';
 import AIServiceNotice from '@/components/aiServiceNotice';
 import { useService } from '@/utils/ai/services/useService';
 
-type Props = {
-  callback?: () => void;
+type ImportedImage = {
+  url: string;
+  id?: number;
+  alt?: string;
 };
 
-const GenerateImgTabView = ({ callback }: Props) => {
+type Props = {
+  callback?: (image?: ImportedImage) => void;
+  insertMode?: boolean; // true when inserting into block, false for media library only
+};
+
+const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
   const [prompt, setPrompt] = useState('');
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [selectedIndexes, setSelectedIndexes] = useState<number[]>([]);
@@ -57,7 +64,12 @@ const GenerateImgTabView = ({ callback }: Props) => {
   };
 
   const toggleSelectImage = (index: number) => {
-    setSelectedIndexes((prev) => (prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]));
+    // In insert mode, only allow single selection
+    if (insertMode) {
+      setSelectedIndexes([index]);
+    } else {
+      setSelectedIndexes((prev) => (prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]));
+    }
   };
 
   const handleImportSelected = async () => {
@@ -73,17 +85,27 @@ const GenerateImgTabView = ({ callback }: Props) => {
     showLoadingMessage(__('Images', 'filter-ai'), 'importing');
 
     try {
-      const imported = await Promise.all(
+      const imported = (await Promise.all(
         selectedIndexes.map((index) =>
           uploadGeneratedImageToMediaLibrary(generatedImages[index], `filter-ai-image-${index + 1}`, prompt)
         )
       ).catch((error) => {
         throw new Error(error?.message || error);
-      });
+      })) as ImportedImage[];
 
       refreshMediaLibrary();
 
-      callback?.();
+      // If in insert mode and callback provided, insert the first image
+      if (insertMode && callback && imported.length > 0) {
+        const firstImage = imported[0];
+        callback({
+          url: firstImage.url,
+          id: firstImage.id,
+          alt: prompt, // Use the prompt as alt text
+        });
+      } else {
+        callback?.();
+      }
 
       showNotice({
         message: sprintf(
@@ -133,10 +155,12 @@ const GenerateImgTabView = ({ callback }: Props) => {
         )}
       </p>
       <p>
-        {__(
-          'Once your images are generated, you can choose one or more of those to import into your Media Library.',
-          'filter-ai'
-        )}
+        {insertMode
+          ? __('Once your images are generated, select one to insert into your block.', 'filter-ai')
+          : __(
+              'Once your images are generated, you can choose one or more of those to import into your Media Library.',
+              'filter-ai'
+            )}
       </p>
 
       <div className="filter-ai-form">
@@ -159,7 +183,9 @@ const GenerateImgTabView = ({ callback }: Props) => {
 
         {generatedImages.length > 0 && (
           <>
-            <h3>{__('Select images to import', 'filter-ai')}</h3>
+            <h3>
+              {insertMode ? __('Select an image to insert', 'filter-ai') : __('Select images to import', 'filter-ai')}
+            </h3>
             <Grid columns={3} gap={3} className="filter-ai-image-grid ">
               {generatedImages.map((img, i) => {
                 const isSelected = selectedIndexes.includes(i);
@@ -181,7 +207,11 @@ const GenerateImgTabView = ({ callback }: Props) => {
               className="filter-ai-import-button"
               disabled={importing || selectedIndexes.length === 0}
             >
-              {importing ? __('Importing...', 'filter-ai') : __('Import Selected', 'filter-ai')}
+              {importing
+                ? __('Importing...', 'filter-ai')
+                : insertMode
+                  ? __('Insert Selected', 'filter-ai')
+                  : __('Import Selected', 'filter-ai')}
             </Button>
           </>
         )}
