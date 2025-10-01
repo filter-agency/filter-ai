@@ -49,7 +49,7 @@ export const ImagePlaceholderToolbar = ({ attributes, isSelected, blockEditProps
     (select) => {
       if (!attributes?.id) return { altText: '' };
 
-      const coreSelect = select('core') as any; // <--- cast here
+      const coreSelect = select('core') as any;
       const attachment = coreSelect.getEntityRecord('postType', 'attachment', attributes.id);
 
       return { altText: attachment?.alt_text || '' };
