@@ -38,6 +38,7 @@
   "dependencies": {
     "@lottiefiles/dotlottie-react": "^0.14.1",
     "@wordpress/block-editor": "^14.15.0",
+    "@wordpress/blocks": "^15.5.0",
     "@wordpress/components": "^29.6.0",
     "@wordpress/data": "^10.20.0",
     "@wordpress/element": "^6.20.0",

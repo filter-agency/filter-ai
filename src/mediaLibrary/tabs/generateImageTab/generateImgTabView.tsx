@@ -2,7 +2,7 @@ import { getGeneratedImages } from '@/utils/ai/getGeneratedImages';
 import { uploadGeneratedImageToMediaLibrary, refreshMediaLibrary } from '@/utils/ai/uploadGeneratedImage';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Button, TextareaControl, __experimentalGrid as Grid } from '@wordpress/components';
-import { hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils';
+import { hideLoadingMessage, showLoadingMessage, showNotice, useAIPlugin } from '@/utils';
 import { useState, useEffect } from '@wordpress/element';
 import { useSettings } from '@/settings';
 import { useSelect } from '@wordpress/data';
@@ -22,10 +22,12 @@ const GenerateImgTabView = ({ callback }: Props) => {
 
   const { settings } = useSettings();
 
+  const aiPlugin = useAIPlugin();
+
   const service = useService('generate_image_prompt_service');
 
   // @ts-expect-error Type 'never' has no call signatures.
-  const AIService = useSelect((select) => select(window.aiServices.ai.store)?.getAvailableService(), []);
+  const AIService = useSelect((select) => select(aiPlugin?.ai?.store)?.getAvailableService(), [aiPlugin]);
 
   const handleGenerate = async () => {
     setLoading(true);

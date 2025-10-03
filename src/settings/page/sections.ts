@@ -246,6 +246,26 @@ export const sections: Section[] = [
     ],
   },
   {
+    header: __('FAQ', 'filter-ai'),
+    key: 'faq',
+    features: [
+      {
+        key: 'generate_faq_section',
+        serviceKey: 'generate_faq_section_prompt_service',
+        toggle: {
+          key: 'generate_faq_section_enabled',
+          label: __('Generate FAQ section', 'filter-ai'),
+          help: __('Generate a FAQ section based on the post content.', 'filter-ai'),
+        },
+        prompt: {
+          key: 'generate_faq_section_prompt',
+          label: __('Generate FAQ section prompt', 'filter-ai'),
+          defaultValue: defaultSettings.generate_faq_section_prompt,
+        },
+      },
+    ],
+  },
+  {
     header: __('WooCommerce', 'filter-ai'),
     key: 'wc',
     features: [

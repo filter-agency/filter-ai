@@ -1,4 +1,4 @@
-import { useSelect, register, createReduxStore, dispatch } from '@wordpress/data';
+import { useSelect, register, createReduxStore, dispatch, resolveSelect } from '@wordpress/data';
 
 const storeName = 'filter-ai/notice-store';
 
@@ -42,7 +42,9 @@ const store = createReduxStore?.(storeName, {
   },
 });
 
-register(store);
+if (!resolveSelect(store)) {
+  register(store);
+}
 
 export const useNotice = (dependencies = []) => useSelect((select) => select(store).getNotice(), dependencies);
 

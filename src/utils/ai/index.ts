@@ -6,6 +6,7 @@ import { customiseText } from './customiseText';
 import { generateText } from './services';
 import { getSeoTitleFromContent } from './getSeoTitleFromContent';
 import { getSeoMetaDescriptionFromContent } from './getSeoMetaDescriptionFromContent';
+import { getFAQsFromContent } from './getFAQsFromContent';
 
 export const ai = {
   getAltTextFromUrl,
@@ -16,4 +17,5 @@ export const ai = {
   generateText,
   getSeoTitleFromContent,
   getSeoMetaDescriptionFromContent,
+  getFAQsFromContent,
 };
