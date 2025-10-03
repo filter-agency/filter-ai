@@ -85,7 +85,9 @@ const faqsEdit = ({ attributes, setAttributes, clientId }: Props) => {
         throw new Error(__('Sorry, there has been an issue while generating your FAQs.', 'filter-ai'));
       }
 
-      const newInnerBlocks = JSON.parse(faqs)?.map((faq: FAQ) =>
+      const newInnerBlocks = JSON.parse(
+        faqs.replace(/question:/g, '\"question\":').replace(/answer:/g, '\"answer\":')
+      )?.map((faq: FAQ) =>
         createBlock(
           'filter-ai/faq-item',
           {
