@@ -67,7 +67,7 @@ function filter_ai_get_default_settings() {
 		'customise_text_change_tone_prompt_service' => '',
 
 		'generate_faq_section_enabled'              => true,
-		'generate_faq_section_pre_prompt'           => esc_html__( 'For the following prompt please respond with the following JSON string format: `[{question:"...",answer:"..."}]`', 'filter-ai' ),
+		'generate_faq_section_pre_prompt'           => esc_html__( 'For the following prompt please respond with the following JSON string format: `[{"question":"...","answer":"..."}]`', 'filter-ai' ),
 		'generate_faq_section_prompt'               => esc_html__( 'Please can you come up with up to {{number}} FAQs, each consisting of a question and a brief answer, based on the following content:', 'filter-ai' ),
 		'generate_faq_section_prompt_service'       => '',
 

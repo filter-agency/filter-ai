@@ -13,6 +13,10 @@
 
   .filter-ai-faqs-title {
     margin-top: 0;
+
+    &:empty {
+      display: none;
+    }
   }
 
   .block-list-appender {

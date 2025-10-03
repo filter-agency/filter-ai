@@ -8,17 +8,25 @@ import {
   useBlockProps,
 } from '@wordpress/block-editor';
 import { BaseControl, Button, ColorPicker, PanelBody, PanelRow, TextControl } from '@wordpress/components';
-import { useCallback, useState } from '@wordpress/element';
+import { createInterpolateElement, useCallback, useMemo, useState } from '@wordpress/element';
 import { ai, hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils';
-import { useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { usePrompts } from '@/utils/ai/prompts/usePrompts';
 import { useService } from '@/utils/ai/services/useService';
+import { createBlock } from '@wordpress/blocks';
+import { useSettings } from '@/settings';
 
-type Attributes = Record<string, string | undefined>;
+type Attributes = Record<string, any>;
 
 type Props = {
   attributes: Attributes;
   setAttributes: (props: Attributes) => Attributes;
+  clientId: string;
+};
+
+type FAQ = {
+  question: string;
+  answer: string;
 };
 
 const extractFAQs = (content: string) => {
@@ -33,12 +41,17 @@ const extractFAQs = (content: string) => {
   return { _oldFAQs, _content };
 };
 
-const faqsEdit = ({ attributes, setAttributes }: Props) => {
+const faqsEdit = ({ attributes, setAttributes, clientId }: Props) => {
   const [numberOfItems, setNumberOfItems] = useState('5');
 
   const blockProps = useBlockProps();
   const prompt = usePrompts('generate_faq_section_prompt');
   const service = useService('generate_faq_section_prompt_service');
+  const { settings } = useSettings();
+
+  const isEnabled = useMemo(() => settings?.generate_faq_section_enabled, [settings]);
+
+  const { replaceInnerBlocks } = useDispatch('core/block-editor');
 
   const { content, oldFAQs } = useSelect((select) => {
     const { getEditedPostAttribute } = select('core/editor') || {};
@@ -54,6 +67,14 @@ const faqsEdit = ({ attributes, setAttributes }: Props) => {
     };
   }, []);
 
+  const existingInnerBlocks = useSelect(
+    (select) => {
+      // @ts-expect-error Property 'getBlocks' does not exist on type 'never'.
+      return select('core/block-editor').getBlocks(clientId);
+    },
+    [clientId]
+  );
+
   const generate = useCallback(async () => {
     showLoadingMessage(__('FAQs', 'filter-ai'));
 
@@ -64,17 +85,22 @@ const faqsEdit = ({ attributes, setAttributes }: Props) => {
         throw new Error(__('Sorry, there has been an issue while generating your FAQs.', 'filter-ai'));
       }
 
-      console.log({ faqs });
+      const newInnerBlocks = JSON.parse(faqs)?.map((faq: FAQ) =>
+        createBlock(
+          'filter-ai/faq-item',
+          {
+            question: faq.question,
+          },
+          [createBlock('core/paragraph', { content: faq.answer })]
+        )
+      );
 
-      // todo update faqs
-      /*
-"[{question:"What environments do bears inhabit?",answer:"Bears live in diverse environments ranging from the Arctic's frozen regions to dense tropical forests."},{question:"Why are bears important to ecosystems?",answer:"They act as apex predators, help in seed dispersal, and maintain ecological balance."},{question:"What threats are bears currently facing?",answer:"Bears are threatened by climate change, habitat destruction, and human activities."},{question:"How do bears contribute to seed distribution?",answer:"By consuming fruits and plants, bears spread seeds through their droppings, aiding plant growth."},{question:"What is the significance of bear conservation efforts?",answer:"Conservation is essential to protect bear populations and preserve the health of their natural habitats."}]"
-      */
+      replaceInnerBlocks(clientId, [...existingInnerBlocks, ...newInnerBlocks]);
 
-      let message = __('FAQs has been added', 'filter-ai');
+      let message = __('FAQs have been added', 'filter-ai');
 
       if (service?.metadata.name) {
-        message = sprintf(__('FAQs has been added using %s', 'filter-ai'), service.metadata.name);
+        message = sprintf(__('FAQs have been added using %s', 'filter-ai'), service.metadata.name);
       }
 
       showNotice({ message });
@@ -91,28 +117,39 @@ const faqsEdit = ({ attributes, setAttributes }: Props) => {
   return (
     <>
       <InspectorControls>
-        <PanelBody title={__('Generate FAQs', 'filter-ai')} initialOpen>
+        <PanelBody title={__('Generate FAQ Content', 'filter-ai')} initialOpen={isEnabled}>
           <PanelRow>
-            <fieldset>
-              <TextControl
-                value={numberOfItems}
-                onChange={(value) => setNumberOfItems(value)}
-                label={__('Number of items', 'filter-ai')}
-                type="number"
-              />
-              <Button
-                onClick={generate}
-                variant="secondary"
-                disabled={
-                  !numberOfItems ||
-                  isNaN(parseInt(numberOfItems)) ||
-                  parseInt(numberOfItems) < 1 ||
-                  parseInt(numberOfItems) > 10
-                }
-              >
-                {__('Generate', 'filter-ai')}
-              </Button>
-            </fieldset>
+            {isEnabled ? (
+              <fieldset>
+                <TextControl
+                  value={numberOfItems}
+                  onChange={(value) => setNumberOfItems(value)}
+                  label={__('Number of items', 'filter-ai')}
+                  type="number"
+                />
+                <Button
+                  onClick={generate}
+                  variant="secondary"
+                  disabled={
+                    !numberOfItems ||
+                    isNaN(parseInt(numberOfItems)) ||
+                    parseInt(numberOfItems) < 1 ||
+                    parseInt(numberOfItems) > 10
+                  }
+                >
+                  {__('Generate', 'filter-ai')}
+                </Button>
+              </fieldset>
+            ) : (
+              <p>
+                {createInterpolateElement(
+                  sprintf(__('Please activate within the %s settings.', 'filter-ai'), `<a>Filter AI</a>`),
+                  {
+                    a: <a href="/wp-admin/admin.php?page=filter_ai" />,
+                  }
+                )}
+              </p>
+            )}
           </PanelRow>
         </PanelBody>
         <PanelBody title={__('FAQs Styling', 'filter-ai')} initialOpen={false}>
@@ -163,13 +200,3 @@ const faqsEdit = ({ attributes, setAttributes }: Props) => {
 };
 
 export default faqsEdit;
-
-/*
-  todo
-  [ ] add block sidebar settings
-  * background colour
-  * text colour (also updates marker colour)
-  * "Generate FAQs Content" section
-  ** field to enter number of faqs to create (default 5)
-  [ ] disable section if settings turned off
-*/
