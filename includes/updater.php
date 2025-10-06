@@ -119,7 +119,6 @@ if ( ! class_exists( 'filter_ai_updater' ) ) {
 			$res->requires      = $remote->requires;
 			$res->author        = $remote->author;
 			$res->homepage      = $remote->homepage;
-			$res->donate_link   = $remote->donate_link;
 			$res->download_link = $remote->download_url;
 			$res->trunk         = $remote->download_url;
 			$res->requires_php  = $remote->requires_php;

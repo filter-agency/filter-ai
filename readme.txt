@@ -1,6 +1,5 @@
 === Filter AI === 
 Contributors: filter, paulhalfpenny
-Donate link: https://filteraiplugin.com/donate
 Tags: ai, seo, content, alt-text, image-generation, woocommerce, yoast
 Requires at least: 5.5 
 Tested up to: 6.8
