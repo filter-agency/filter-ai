@@ -178,7 +178,7 @@ const faqsEdit = ({ attributes, setAttributes, clientId }: Props) => {
         </PanelBody>
       </InspectorControls>
       <BlockControls>
-        <AlignmentToolbar value={attributes.title_align} onChange={(value) => setAttributes({ titleAlign: value })} />
+        <AlignmentToolbar value={attributes.titleAlign} onChange={(value) => setAttributes({ titleAlign: value })} />
       </BlockControls>
       <div className="alignfull" style={{ backgroundColor: attributes.backgroundColor }}>
         <div {...blockProps}>
@@ -187,10 +187,9 @@ const faqsEdit = ({ attributes, setAttributes, clientId }: Props) => {
             value={attributes.title || ''}
             onChange={(value) => setAttributes({ title: value })}
             tagName="h2"
-            placeholder={__('Frequenty Asked Questions', 'filter-ai')}
             className="filter-ai-faqs-title"
             style={{
-              textAlign: attributes.title_align as React.CSSProperties['textAlign'],
+              textAlign: attributes.titleAlign as React.CSSProperties['textAlign'],
               color: attributes.headingColor,
             }}
           />

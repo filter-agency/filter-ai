@@ -11,7 +11,8 @@
   "category": "filter-ai",
   "attributes": {
     "title": {
-      "type": "string"
+      "type": "string",
+      "default": "Frequently Asked Questions"
     },
     "titleAlign": {
       "type": "string",

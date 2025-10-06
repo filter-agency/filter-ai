@@ -9,7 +9,7 @@ const FAQsSave = ({ attributes }: Props) => {
   const blockProps = useBlockProps.save(attributes);
 
   return (
-    <div className="alignfull" style={{ backgroundColor: attributes.background_color }}>
+    <div className="alignfull" style={{ backgroundColor: attributes.backgroundColor }}>
       <div {...blockProps} itemScope itemType="https://schema.org/FAQPage">
         <RichText.Content
           tagName="h2"
