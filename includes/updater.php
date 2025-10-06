@@ -112,18 +112,18 @@ if ( ! class_exists( 'filter_ai_updater' ) ) {
 
 			$res = new stdClass();
 
-			$res->name           = $remote->name;
-			$res->slug           = $remote->slug;
-			$res->version        = $remote->version;
-			$res->tested         = $remote->tested;
-			$res->requires       = $remote->requires;
-			$res->author         = $remote->author;
-			$res->author_profile = $remote->author_profile;
-			$res->homepage       = $remote->homepage;
-			$res->download_link  = $remote->download_url;
-			$res->trunk          = $remote->download_url;
-			$res->requires_php   = $remote->requires_php;
-			$res->last_updated   = $remote->last_updated;
+			$res->name          = $remote->name;
+			$res->slug          = $remote->slug;
+			$res->version       = $remote->version;
+			$res->tested        = $remote->tested;
+			$res->requires      = $remote->requires;
+			$res->author        = $remote->author;
+			$res->homepage      = $remote->homepage;
+			$res->donate_link   = $remote->donate_link;
+			$res->download_link = $remote->download_url;
+			$res->trunk         = $remote->download_url;
+			$res->requires_php  = $remote->requires_php;
+			$res->last_updated  = $remote->last_updated;
 
 			$res->sections = array(
 				'description'  => $remote->sections->description,
