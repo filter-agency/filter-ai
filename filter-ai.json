@@ -3,7 +3,7 @@
   "slug": "filter-ai",
   "version": "1.3.1",
   "requires": "5.5",
-  "tested": "6.8.2",
+  "tested": "6.8",
   "requires_php": "7.4",
   "last_updated": "2025-08-06 09:38",
   "download_url": "https://github.com/filter-agency/filter-ai/releases/download/v1.3.1/filter-ai.zip",
