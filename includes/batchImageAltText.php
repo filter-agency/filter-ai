@@ -306,7 +306,7 @@ function filter_ai_api_batch_image_alt_text() {
 	filter_ai_reset_batch( 'filter_ai_batch_image_alt_text' );
 
 	$posts_per_page = 500;
-	$images_count   = filter_ai_get_images_without_alt_text_count();
+	$images_count   = filter_ai_get_images_without_alt_text_count( 'supported' );
 	$total_pages    = ceil( $images_count / $posts_per_page );
 	$action_ids     = array();
 
