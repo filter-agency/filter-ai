@@ -103,7 +103,7 @@ function filter_ai_process_batch_seo_title( $args ) {
 		$required_slugs = array();
 
 		if ( ! empty( $service_slug ) ) {
-			$required_slugs->slugs = [ $service_slug ];
+			$required_slugs['slugs'] = [ $service_slug ];
 		}
 
 		if ( ai_services()->has_available_services( array_merge( $required_slugs, $required_capabilities ) ) === false ) {
