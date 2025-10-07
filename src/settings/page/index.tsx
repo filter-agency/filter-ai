@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { createRoot, useState, useEffect, useMemo } from '@wordpress/element';
 import _ from 'underscore';
-import { filterLogoWhite } from '@/assets/filter-logo';
+import { filterAILogo } from '@/assets/filter-logo';
 import { __ } from '@wordpress/i18n';
 import AIServiceNotice from '@/components/aiServiceNotice';
 import Features from './features';
@@ -64,7 +64,7 @@ const Settings = () => {
     <div className="filter-ai-settings">
       <header className="filter-ai-settings-header">
         <div className="filter-ai-settings-header-content">
-          <img src={filterLogoWhite} alt={__('Filter AI logo', 'filter-ai')} />
+          <img src={filterAILogo} alt={__('Filter AI logo', 'filter-ai')} />
           <div>
             <h1>{__('Filter AI Plugin Settings', 'filter-ai')}</h1>
             <p>{__('Customise your settings for the Filter AI plugin here.', 'filter-ai')}</p>
