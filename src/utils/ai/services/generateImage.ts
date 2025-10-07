@@ -1,11 +1,6 @@
+import { waitForAIPlugin } from '@/utils/useAIPlugin';
+import { select } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
-
-const { enums } = window.aiServices.ai;
-const { select } = wp.data;
-
-declare var wp: any;
-
-export const aiCapability = enums.AiCapability.IMAGE_GENERATION;
 
 type GenerateImageProps = {
   prompt: string;
@@ -22,48 +17,26 @@ export const generateImage = async ({
   aspectRatio,
   service,
 }: GenerateImageProps): Promise<string[]> => {
-  let resolvedService;
+  const aiPlugin = await waitForAIPlugin();
 
-  if (service) {
-    const { isServiceAvailable, getAvailableService } = select(window.aiServices.ai.store);
-
-    const availableService = getAvailableService(service);
-
-    if (!availableService) {
-      console.error(`[AI] Service "${service}" exists but is not configured properly (API key missing or disabled).`);
-      throw new Error(
-        sprintf(
-          __(
-            'The requested service "%s" exists but is not configured properly. Please check API key or plugin settings.',
-            'filter-ai'
-          ),
-          service
-        )
-      );
-    } else if (!isServiceAvailable(service)) {
-      console.error(`[AI] Service "${service}" is configured but not available for this feature/capability.`);
-      throw new Error(
-        sprintf(
-          __('The requested service "%s" cannot be used for this feature. Check its capabilities.', 'filter-ai'),
-          service
-        )
-      );
-    } else {
-      resolvedService = availableService;
-    }
-  } else {
-    // If no specific service is requested, find a default one that supports image generation
-    console.error('[AI] No service requested. Attempting to find a default image generation service.');
-    const { getServicesByCapability } = select(window.aiServices.ai.store);
-    const imageServices = getServicesByCapability(aiCapability);
-
-    if (imageServices.length > 0) {
-      resolvedService = imageServices[0];
-      console.error(`[AI] Resolved default service: ${resolvedService?.getServiceSlug?.()}`);
-    }
+  if (!aiPlugin) {
+    throw new Error(__('Error loading AI plugin', 'filter-ai'));
   }
 
-  if (!service || !prompt || !feature) {
+  const capabilities = [aiPlugin.ai.enums.AiCapability.IMAGE_GENERATION];
+
+  // @ts-expect-error
+  const { isServiceAvailable, getAvailableService } = select(aiPlugin.ai.store);
+
+  let resolvedService;
+
+  if (service && isServiceAvailable(service)) {
+    resolvedService = getAvailableService({ slugs: [service], capabilities });
+  } else {
+    resolvedService = getAvailableService({ capabilities });
+  }
+
+  if (!resolvedService || !prompt || !feature) {
     return [];
   }
 
@@ -72,7 +45,7 @@ export const generateImage = async ({
 
     const resolvedModel = resolvedService.getModel({
       feature,
-      capabilities: [aiCapability],
+      capabilities,
       generationConfig: {
         candidateCount,
         aspectRatio,

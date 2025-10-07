@@ -1,9 +1,14 @@
+import { waitForAIPlugin } from '@/utils/useAIPlugin';
 import { resolveSelect } from '@wordpress/data';
 
-const { store } = window.aiServices.ai;
-
 export const getService = async (capabilities: string[] = []) => {
-  const aiService = await resolveSelect(store);
+  const aiPlugin = await waitForAIPlugin();
+
+  if (!aiPlugin) {
+    return null;
+  }
+
+  const aiService = await resolveSelect(aiPlugin.ai);
 
   await aiService.getServices();
 

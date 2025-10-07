@@ -1,24 +1,26 @@
-import { showNotice } from '@/utils';
+import { showNotice, useAIPlugin } from '@/utils';
 import { Button, FlexItem, Panel, PanelBody, PanelHeader } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-const { store: aiSettingsStore } = window.aiServices.settings;
-const { ApiKeyControl } = window.aiServices.components;
 
 type Service = {
   slug: string;
 };
 
 const Control = ({ service }: { service: Service }) => {
-  const apiKey = useSelect((select) => {
-    // @ts-expect-error
-    const { getApiKey } = select(aiSettingsStore) || {};
-    return getApiKey?.(service.slug);
-  }, []);
+  const aiPlugin = useAIPlugin();
 
-  const { setApiKey } = useDispatch(aiSettingsStore);
+  const apiKey = useSelect(
+    (select) => {
+      // @ts-expect-error
+      const { getApiKey } = select(aiPlugin?.settings?.store) || {};
+      return getApiKey?.(service.slug);
+    },
+    [aiPlugin]
+  );
+
+  const { setApiKey } = useDispatch(aiPlugin?.settings?.store);
 
   // The callback receives the service slug as second parameter.
   const onChangeApiKey = useCallback(
@@ -26,17 +28,26 @@ const Control = ({ service }: { service: Service }) => {
     [setApiKey]
   );
 
-  return <ApiKeyControl service={service} apiKey={apiKey} onChangeApiKey={onChangeApiKey} />;
+  if (!aiPlugin?.components.ApiKeyControl) {
+    return null;
+  }
+
+  return <aiPlugin.components.ApiKeyControl service={service} apiKey={apiKey} onChangeApiKey={onChangeApiKey} />;
 };
 
 const APIKeys = () => {
-  const services: Record<string, Service> = useSelect((select) => {
-    // @ts-expect-error
-    const { getServices } = select(aiSettingsStore) || {};
-    return getServices?.() || {};
-  }, []);
+  const aiPlugin = useAIPlugin();
 
-  const { saveSettings } = useDispatch(aiSettingsStore);
+  const services: Record<string, Service> = useSelect(
+    (select) => {
+      // @ts-expect-error
+      const { getServices } = select(aiPlugin?.settings?.store) || {};
+      return getServices?.() || {};
+    },
+    [aiPlugin]
+  );
+
+  const { saveSettings } = useDispatch(aiPlugin?.settings?.store);
 
   const saveChanges = () => {
     saveSettings()
@@ -58,8 +69,8 @@ const APIKeys = () => {
           <h2>{__('API Keys', 'filter-ai')}</h2>
         </PanelHeader>
         {Object.values(services).map((service) => (
-          <PanelBody>
-            <Control key={service.slug} service={service} />
+          <PanelBody key={service.slug}>
+            <Control service={service} />
           </PanelBody>
         ))}
       </Panel>

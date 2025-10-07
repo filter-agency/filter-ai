@@ -1,9 +1,16 @@
 import { getBase64Image, getMimeType, supportedMimeTypes } from '@/utils/image';
-import { generateText, aiCapability } from './services';
+import { generateText } from './services';
 import { __, sprintf } from '@wordpress/i18n';
 import { getSettings } from '@/settings';
+import { waitForAIPlugin } from '@/utils/useAIPlugin';
 
 export const getAltTextFromUrl = async (url: string, oldAltText?: string, prompt?: string, service?: string) => {
+  const aiPlugin = await waitForAIPlugin();
+
+  if (!aiPlugin) {
+    throw new Error(__('Error loading AI plugin', 'filter-ai'));
+  }
+
   if (!url) {
     throw new Error(__('Please select an image.', 'filter-ai'));
   }
@@ -29,7 +36,7 @@ export const getAltTextFromUrl = async (url: string, oldAltText?: string, prompt
   return generateText({
     feature: 'filter-ai-image-alt-text',
     prompt: `${settings?.common_prompt_prefix || ''} ${promptDifference} ${prompt}`,
-    capabilities: [aiCapability.MULTIMODAL_INPUT, aiCapability.TEXT_GENERATION],
+    capabilities: [aiPlugin.ai.enums.AiCapability.MULTIMODAL_INPUT, aiPlugin.ai.enums.AiCapability.TEXT_GENERATION],
     parts: [
       {
         inlineData: {

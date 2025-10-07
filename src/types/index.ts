@@ -15,5 +15,6 @@ declare global {
     tinymce: any;
     YoastSEO: any;
     tagBox: any;
+    jQuery: any;
   }
 }

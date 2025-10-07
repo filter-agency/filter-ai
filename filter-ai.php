@@ -202,3 +202,38 @@ add_filter(
 		return 60;
 	}
 );
+
+/**
+ * Add block category
+ *
+ * @param array[] $block_categories Array of categories for block types.
+ *
+ * @return array[] Returns an array containing array of categories for block types including our custom ones.
+ */
+function register_custom_block_category( $block_categories ) {
+	return array_merge(
+		$block_categories,
+		[
+			[
+				'slug'  => 'filter-ai',
+				'title' => esc_html__( 'Filter AI', 'filter-ai' ),
+			],
+		]
+	);
+}
+
+add_filter( 'block_categories_all', 'register_custom_block_category', 10, 1 );
+
+/**
+ * Registers the FAQs block using the metadata loaded from the `block.json` file.
+ * Behind the scenes, it registers also all assets so they can be enqueued
+ * through the block editor in the corresponding context.
+ *
+ * @see https://developer.wordpress.org/reference/functions/register_block_type/
+ */
+function filter_ai_faqs_block_init() {
+	register_block_type_from_metadata( __DIR__ . '/build/blocks/faq-item' );
+	register_block_type_from_metadata( __DIR__ . '/build/blocks/faqs' );
+}
+
+add_action( 'init', 'filter_ai_faqs_block_init' );

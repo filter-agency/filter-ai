@@ -144,8 +144,6 @@ type GenerateAltTextPayload = {
 
         const modal = this.controller?.content?.view || this.modal;
 
-        console.log({ modal });
-
         if (modal && !modal.$el.find('.media-frame-title.filter-ai-media-frame-title').length) {
           modal.$el.find('.media-frame-title').addClass('filter-ai-media-frame-title');
 
