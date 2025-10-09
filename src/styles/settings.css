@@ -261,3 +261,21 @@
 .filter-ai-selector-menu .components-popover__content {
   border-radius: 8px;
 }
+
+.filter-ai-settings-seo-title-template {
+  display: inline-flex;
+  flex-direction: row;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+
+  & .filter-ai-settings-seo-title-template-item {
+    color: #0f172a;
+    background-color: #e2e8f0;
+    border-radius: 17px;
+    font-size: 12px;
+    line-height: 1.25;
+    font-weight: 500;
+    padding: 2px 8px;
+  }
+}

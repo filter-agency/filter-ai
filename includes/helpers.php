@@ -191,3 +191,34 @@ function filter_ai_get_posts_missing_meta_query( $query_key, $paged = 1, $posts_
 
 	return $query;
 }
+
+/**
+ * Get posts for a specific post_type that has a specific meta query
+ *
+ * @param string $query_key Query key
+ * @param int    $paged Page number
+ * @param int    $posts_per_page Number of posts per page
+ * @param string $post_type Post type
+ *
+ * @return WP_Query Return WP_Query
+ */
+function filter_ai_get_posts_has_meta_query( $query_key, $paged = 1, $posts_per_page = 500, $post_type = 'any' ) {
+	$query = new WP_Query(
+		array(
+			'post_type'              => $post_type,
+			'public'                 => true,
+			'posts_per_page'         => $posts_per_page,
+			'paged'                  => $paged,
+			'meta_query'             => array(
+				array(
+					'key'     => $query_key,
+					'compare' => 'EXISTS',
+				),
+			),
+			'update_post_term_cache' => false,
+			'fields'                 => 'ids',
+		)
+	);
+
+	return $query;
+}

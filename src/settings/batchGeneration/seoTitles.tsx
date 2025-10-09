@@ -7,6 +7,7 @@ import { useServices } from '@/utils/ai/services/useServices';
 const defaultCount = {
   posts: 0,
   postsWithout: 0,
+  postsWith: 0,
   actions: 0,
   completeActions: 0,
   pendingActions: 0,
@@ -24,7 +25,30 @@ type FailedAction = {
 type PostType = {
   label: string;
   total: number;
-  missing: number;
+  default: number;
+  custom: number;
+};
+
+const getDefaultTemplate = (template?: string) => {
+  if (!template) {
+    return [];
+  }
+
+  const items = template.split(' ');
+
+  return items.map((item) => {
+    switch (item) {
+      case '%%sep%%':
+        return 'Separator';
+      case '%%sitename%%':
+        return 'Site title';
+      default:
+        return item
+          .toLowerCase()
+          .replace(/%/g, '')
+          .replace(/\b\w/g, (c) => c.toUpperCase());
+    }
+  });
 };
 
 const SEOTitles = () => {
@@ -34,6 +58,7 @@ const SEOTitles = () => {
   const [isGenerateButtonDisabled, setIsGenerateButtonDisabled] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [postTypes, setPostTypes] = useState<PostType[]>([]);
+  const [defaultTemplate, setDefaultTemplate] = useState<string[]>([]);
 
   const { settings } = useSettings();
 
@@ -59,7 +84,8 @@ const SEOTitles = () => {
         return {
           ...prevCount,
           posts: data.total_count,
-          postsWithout: data.total_missing_count,
+          postsWithout: data.total_default_count,
+          postsWith: data.total_custom_count,
           actions: data.actions_count,
           completeActions: data.complete_actions_count,
           pendingActions: data.pending_actions_count,
@@ -78,6 +104,8 @@ const SEOTitles = () => {
           return 0;
         }) || []
       );
+
+      setDefaultTemplate(getDefaultTemplate(data.yoast_seo_titles?.['title-page']));
 
       if (!!data.pending_actions_count || !!data.running_actions_count) {
         setTimeout(getCount, 1000);
@@ -156,7 +184,7 @@ const SEOTitles = () => {
           <PanelBody>
             <p>
               {sprintf(
-                __('Generate missing SEO titles for the following post types: %s.', 'filter-ai'),
+                __('Generate SEO titles for the following post types: %s.', 'filter-ai'),
                 postTypes
                   ?.slice(0, -1)
                   .map((type) => type.label)
@@ -166,13 +194,15 @@ const SEOTitles = () => {
               )}
             </p>
             <p>{sprintf(__('Total posts: %s', 'filter-ai'), count.posts)}</p>
-            <p>{sprintf(__('Posts missing SEO titles: %s', 'filter-ai'), count.postsWithout)}</p>
+            <p>{sprintf(__('Posts with default SEO title: %s', 'filter-ai'), count.postsWithout)}</p>
+            <p>{sprintf(__('Posts with custom SEO title: %s', 'filter-ai'), count.postsWith)}</p>
             <table>
               <thead>
                 <tr>
                   <th></th>
                   <th>{__('Total', 'filter-ai')}</th>
-                  <th>{__('Missing', 'filter-ai')}</th>
+                  <th>{__('Default', 'filter-ai')}</th>
+                  <th>{__('Custom', 'filter-ai')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -180,12 +210,22 @@ const SEOTitles = () => {
                   <tr key={index}>
                     <td>{type.label}</td>
                     <td>{type.total}</td>
-                    <td>{type.missing}</td>
+                    <td>{type.default}</td>
+                    <td>{type.custom}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </PanelBody>
+          {!!defaultTemplate?.length && (
+            <PanelBody title={__('Default Yoast SEO title template', 'filter-ai')} initialOpen={false}>
+              <div className="filter-ai-settings-seo-title-template">
+                {defaultTemplate.map((item) => (
+                  <span className="filter-ai-settings-seo-title-template-item">{item}</span>
+                ))}
+              </div>
+            </PanelBody>
+          )}
           {!inProgress && count.actions > 0 && (
             <PanelBody title={__('Previous run stats', 'filter-ai')}>
               <p>

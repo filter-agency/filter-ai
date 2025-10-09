@@ -33,8 +33,21 @@ function filter_ai_get_posts_missing_seo_title( $paged, $posts_per_page ) {
  *
  * @return number Number of posts
  */
-function filter_ai_get_posts_missing_seo_title_count( $post_type = 'any' ) {
+function filter_ai_get_posts_default_seo_title_count( $post_type = 'any' ) {
 	$query = filter_ai_get_posts_missing_meta_query( '_yoast_wpseo_title', 1, 1, $post_type );
+
+	return $query->found_posts;
+}
+
+/**
+ * Get count for a specific post_type that has the _yoast_wpseo_title meta
+ *
+ * @param string $post_type Post type
+ *
+ * @return number Number of posts
+ */
+function filter_ai_get_posts_custom_seo_title_count( $post_type = 'any' ) {
+	$query = filter_ai_get_posts_has_meta_query( '_yoast_wpseo_title', 1, 1, $post_type );
 
 	return $query->found_posts;
 }
@@ -90,7 +103,7 @@ function filter_ai_process_batch_seo_title( $args ) {
 		$required_slugs = array();
 
 		if ( ! empty( $service_slug ) ) {
-			$required_slugs->slugs = [ $service_slug ];
+			$required_slugs['slugs'] = [ $service_slug ];
 		}
 
 		if ( ai_services()->has_available_services( array_merge( $required_slugs, $required_capabilities ) ) === false ) {
@@ -158,7 +171,7 @@ function filter_ai_api_batch_seo_title() {
 	filter_ai_reset_batch( 'filter_ai_batch_seo_title' );
 
 	$posts_per_page = 500;
-	$posts_count    = filter_ai_get_posts_missing_seo_title_count();
+	$posts_count    = filter_ai_get_posts_default_seo_title_count();
 	$total_pages    = ceil( $posts_count / $posts_per_page );
 	$action_ids     = array();
 
@@ -213,7 +226,8 @@ function filter_ai_api_get_seo_title_count() {
 			$post_type_count[] = array(
 				'label'   => $value->label,
 				'total'   => filter_ai_get_posts_count( $key ),
-				'missing' => filter_ai_get_posts_missing_seo_title_count( $key ),
+				'default' => filter_ai_get_posts_default_seo_title_count( $key ),
+				'custom'  => filter_ai_get_posts_custom_seo_title_count( $key ),
 			);
 		}
 	}
@@ -256,7 +270,8 @@ function filter_ai_api_get_seo_title_count() {
 		array(
 			'post_types'             => $post_type_count,
 			'total_count'            => filter_ai_get_posts_count(),
-			'total_missing_count'    => filter_ai_get_posts_missing_seo_title_count(),
+			'total_default_count'    => filter_ai_get_posts_default_seo_title_count(),
+			'total_custom_count'     => filter_ai_get_posts_custom_seo_title_count(),
 			'actions_count'          => $action_count->total,
 			'pending_actions_count'  => $action_count->pending,
 			'running_actions_count'  => $action_count->running,
@@ -264,6 +279,7 @@ function filter_ai_api_get_seo_title_count() {
 			'failed_actions_count'   => $action_count->failed,
 			'failed_actions'         => $failed_actions,
 			'last_run_service'       => $last_run_service,
+			'yoast_seo_titles'       => get_option( 'wpseo_titles', [] ),
 		)
 	);
 }
