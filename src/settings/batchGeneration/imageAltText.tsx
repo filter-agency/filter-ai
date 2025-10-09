@@ -8,7 +8,8 @@ import { useServices } from '@/utils/ai/services/useServices';
 
 const defaultCount = {
   images: 0,
-  imagesWithoutAltText: 0,
+  unsupportedImagesWithoutAltText: 0,
+  supportedImagesWithoutAltText: 0,
   actions: 0,
   completeActions: 0,
   pendingActions: 0,
@@ -54,7 +55,8 @@ const ImageAltText = () => {
       setCount((prevCount) => ({
         ...prevCount,
         images: data.images_count,
-        imagesWithoutAltText: data.images_without_alt_text_count,
+        unsupportedImagesWithoutAltText: data.unsupported_images_without_alt_text_count,
+        supportedImagesWithoutAltText: data.supported_images_without_alt_text_count,
         actions: data.actions_count,
         completeActions: data.complete_actions_count,
         pendingActions: data.pending_actions_count,
@@ -153,7 +155,15 @@ const ImageAltText = () => {
               )}
             </p>
             <p>{sprintf(__('Total images: %s', 'filter-ai'), count.images)}</p>
-            <p>{sprintf(__('Images missing alt text: %s', 'filter-ai'), count.imagesWithoutAltText)}</p>
+            <p>
+              {sprintf(
+                __('Unsupported images missing alt text: %s', 'filter-ai'),
+                count.unsupportedImagesWithoutAltText
+              )}
+            </p>
+            <p>
+              {sprintf(__('Supported images missing alt text: %s', 'filter-ai'), count.supportedImagesWithoutAltText)}
+            </p>
           </PanelBody>
           {!inProgress && count.actions > 0 && (
             <PanelBody title={__('Previous run stats', 'filter-ai')}>
@@ -185,7 +195,7 @@ const ImageAltText = () => {
             </PanelBody>
           )}
 
-          {!inProgress && count.imagesWithoutAltText > 0 && (
+          {!inProgress && count.supportedImagesWithoutAltText > 0 && (
             <PanelBody>
               <Button
                 variant="primary"

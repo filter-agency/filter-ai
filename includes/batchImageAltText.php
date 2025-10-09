@@ -13,11 +13,35 @@ require_once __DIR__ . '/settings.php';
 require_once __DIR__ . '/helpers.php';
 
 /**
+ * Get list of all image mime types
+ *
+ * @return string[] Array of all image mime types
+ */
+function filter_ai_all_mime_types() {
+	$post_mime_types = array(
+		'image/jpeg',
+		'image/gif',
+		'image/png',
+		'image/bmp',
+		'image/tiff',
+		'image/webp',
+		'image/avif',
+		'image/x-icon',
+		'image/heic',
+		'image/heif',
+		'image/heic-sequence',
+		'image/heif-sequence',
+	);
+
+	return implode( ',', $post_mime_types );
+}
+
+/**
  * Get list of supported image mime types
  *
  * @return string[] Array of supported image mime types
  */
-function filter_ai_mime_types() {
+function filter_ai_supported_mime_types() {
 	$post_mime_types = array(
 		// disable avif as Open AI doesn't currently suport it
 		// https://platform.openai.com/docs/guides/images-vision?api-mode=responses#image-input-requirements
@@ -32,6 +56,26 @@ function filter_ai_mime_types() {
 }
 
 /**
+ * Get list of unsupported image mime types
+ *
+ * @return string[] Array of unsupported image mime types
+ */
+function filter_ai_unsupported_mime_types() {
+	$post_mime_types = array(
+		'image/bmp',
+		'image/tiff',
+		'image/avif',
+		'image/x-icon',
+		'image/heic',
+		'image/heif',
+		'image/heic-sequence',
+		'image/heif-sequence',
+	);
+
+	return implode( ',', $post_mime_types );
+}
+
+/**
  * Get all images
  *
  * @return int Returns number of images
@@ -39,7 +83,7 @@ function filter_ai_mime_types() {
 function filter_ai_get_images_count() {
 	$args = array(
 		'post_type'              => 'attachment',
-		'post_mime_type'         => filter_ai_mime_types(),
+		'post_mime_type'         => filter_ai_all_mime_types(),
 		'post_status'            => 'inherit',
 		'posts_per_page'         => 1,
 		'paged'                  => 1,
@@ -56,15 +100,22 @@ function filter_ai_get_images_count() {
 /**
  * Get all images without alt text query
  *
- * @param int $paged Page number
- * @param int $posts_per_page Number of posts per page
+ * @param int    $paged Page number
+ * @param int    $posts_per_page Number of posts per page
+ * @param string $type 'supported' / 'unsupported' mime types
  *
  * @return WP_Query Returns WP_Query
  */
-function filter_ai_get_images_without_alt_text_query( $paged = 1, $posts_per_page = 500 ) {
+function filter_ai_get_images_without_alt_text_query( $paged = 1, $posts_per_page = 500, $type = 'supported' ) {
+	$mime_type = filter_ai_supported_mime_types();
+
+	if ( 'unsupported' === $type ) {
+		$mime_type = filter_ai_unsupported_mime_types();
+	}
+
 	$args = array(
 		'post_type'              => 'attachment',
-		'post_mime_type'         => filter_ai_mime_types(),
+		'post_mime_type'         => $mime_type,
 		'posts_per_page'         => $posts_per_page,
 		'paged'                  => $paged,
 		'post_status'            => 'inherit',
@@ -107,10 +158,12 @@ function filter_ai_get_images_without_alt_text( $paged, $posts_per_page ) {
 /**
  * Get number of all images without alt text
  *
+ * @param string $type 'supported' / 'unsupported' mime types
+ *
  * @return int Return number of images without alt text
  */
-function filter_ai_get_images_without_alt_text_count() {
-	$query = filter_ai_get_images_without_alt_text_query( 1, 1 );
+function filter_ai_get_images_without_alt_text_count( $type ) {
+	$query = filter_ai_get_images_without_alt_text_query( 1, 1, $type );
 
 	return $query->found_posts;
 }
@@ -164,7 +217,7 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 		throw new Exception( esc_html__( 'Missing image mime type', 'filter-ai' ) );
 	}
 
-	$mime_types = filter_ai_mime_types();
+	$mime_types = filter_ai_supported_mime_types();
 
 	if ( ! strpos( $mime_types, $image_mime_type ) ) {
 		// return rather throw so we don't cause lots of errors with the auto generation
@@ -253,7 +306,7 @@ function filter_ai_api_batch_image_alt_text() {
 	filter_ai_reset_batch( 'filter_ai_batch_image_alt_text' );
 
 	$posts_per_page = 500;
-	$images_count   = filter_ai_get_images_without_alt_text_count();
+	$images_count   = filter_ai_get_images_without_alt_text_count( 'supported' );
 	$total_pages    = ceil( $images_count / $posts_per_page );
 	$action_ids     = array();
 
@@ -324,15 +377,16 @@ function filter_ai_api_get_image_count() {
 
 	wp_send_json_success(
 		array(
-			'images_count'                  => filter_ai_get_images_count(),
-			'images_without_alt_text_count' => filter_ai_get_images_without_alt_text_count(),
-			'actions_count'                 => $action_count->total,
-			'pending_actions_count'         => $action_count->pending,
-			'running_actions_count'         => $action_count->running,
-			'complete_actions_count'        => $action_count->complete,
-			'failed_actions_count'          => $action_count->failed,
-			'failed_actions'                => $failed_actions,
-			'last_run_service'              => $last_run_service,
+			'images_count'                              => filter_ai_get_images_count(),
+			'unsupported_images_without_alt_text_count' => filter_ai_get_images_without_alt_text_count( 'unsupported' ),
+			'supported_images_without_alt_text_count'   => filter_ai_get_images_without_alt_text_count( 'supported' ),
+			'actions_count'                             => $action_count->total,
+			'pending_actions_count'                     => $action_count->pending,
+			'running_actions_count'                     => $action_count->running,
+			'complete_actions_count'                    => $action_count->complete,
+			'failed_actions_count'                      => $action_count->failed,
+			'failed_actions'                            => $failed_actions,
+			'last_run_service'                          => $last_run_service,
 		)
 	);
 }
