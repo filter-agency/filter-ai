@@ -1,6 +1,7 @@
 <?php
 /**
  * Plugin Name: Filter AI
+ * Plugin URI: https://filteraiplugin.com
  * Description: Meet your digital sidekick: Filter AI, a plugin that tackles your to-do list faster than you can say 'procrastination'!
  * Version: 1.4.0
  * Author: Filter
@@ -27,7 +28,6 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/batchImageAltText.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/batchSEOTitle.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/batchSEOMetaDescription.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/dynamicReplaceAltText.php';
-require_once plugin_dir_path( __FILE__ ) . 'includes/updater.php';
 
 /**
  *  Add settings link to the plugin action links
