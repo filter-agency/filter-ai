@@ -4,12 +4,18 @@ import { Children, cloneElement, createElement, useState } from '@wordpress/elem
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 
-const GenerateImageButton = ({ onSelect }: any) => {
+const GenerateImageButton = ({ onSelect, isGallery }: any) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleInsertImage = (image: any) => {
     if (!image) return;
-    onSelect({ url: image.url, id: image.id });
+
+    if (isGallery) {
+      onSelect([image]);
+    } else {
+      onSelect({ url: image.url, id: image.id });
+    }
+
     setIsOpen(false);
   };
 
@@ -41,13 +47,12 @@ const updateMediaPlaceholder = (Component: any) => {
       return createElement(Component, props);
     }
 
-    if (props.multiple || props.gallery) {
-      return createElement(Component, props);
-    }
+    let isGallery = false;
+    const blockTitle = props.labels?.title || '';
+    const lowerTitle = blockTitle.toLowerCase();
 
-    const allowedTypes = props.allowedTypes || [];
-    if (allowedTypes.length !== 1 || allowedTypes[0] !== 'image') {
-      return createElement(Component, props);
+    if (lowerTitle.includes('gallery') || lowerTitle.includes('multiple images')) {
+      isGallery = true;
     }
 
     if (props?.placeholder) {
@@ -58,10 +63,10 @@ const updateMediaPlaceholder = (Component: any) => {
             content,
             {},
             ...Children.toArray(content.props.children),
-            <GenerateImageButton onSelect={props.onSelect} />
+            <GenerateImageButton onSelect={props.onSelect} isGallery={isGallery} />
           );
         } else {
-          newContent = <GenerateImageButton onSelect={props.onSelect} />;
+          newContent = <GenerateImageButton onSelect={props.onSelect} isGallery={isGallery} />;
         }
         return props?.placeholder?.(newContent) || newContent;
       };
@@ -71,7 +76,7 @@ const updateMediaPlaceholder = (Component: any) => {
     return createElement(
       Component,
       props,
-      <GenerateImageButton onSelect={props.onSelect} />,
+      <GenerateImageButton onSelect={props.onSelect} isGallery={isGallery} />,
       ...Children.toArray(props.children)
     );
   };
