@@ -13,7 +13,7 @@ const GenerateImageButton = ({ onSelect, isGallery }: any) => {
     if (isGallery) {
       onSelect([image]);
     } else {
-      onSelect({ url: image.url, id: image.id });
+      onSelect(image);
     }
 
     setIsOpen(false);

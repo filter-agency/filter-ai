@@ -95,10 +95,7 @@ const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
 
       if (insertMode && callback && imported.length > 0) {
         const firstImage = imported[0];
-        callback({
-          url: firstImage.url,
-          id: firstImage.id,
-        });
+        callback(firstImage);
       } else {
         callback?.();
       }
