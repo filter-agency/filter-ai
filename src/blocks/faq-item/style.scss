@@ -1,6 +1,4 @@
 .wp-block-filter-ai-faq-item + .wp-block-filter-ai-faq-item {
-  //margin-top: var(--wp--preset--spacing--20);
-
   &::before {
     content: '';
     background-color: currentColor;

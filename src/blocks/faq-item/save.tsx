@@ -11,7 +11,7 @@ const FAQItemSave = ({ attributes }: Props) => {
   return (
     <div {...blockProps}>
       <details className="filter-ai-faq-item" itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
-        <summary className="filter-ai-faq-item-question" itemProp="name" style={{ color: attributes.headingColor }}>
+        <summary className="filter-ai-faq-item-question" itemProp="name">
           <RichText.Content tagName="h3" value={attributes.question} />
         </summary>
         <div

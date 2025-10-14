@@ -27,7 +27,6 @@ const faqItemEdit = ({ attributes, setAttributes, context }: Props) => {
             onChange={(value) => setAttributes({ question: value })}
             placeholder={__('Question', 'filter-ai')}
             tagName="h3"
-            style={{ color: attributes.headingColor }}
           />
         </div>
         <div className="filter-ai-faq-item-answer">
