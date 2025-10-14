@@ -1,5 +1,5 @@
 === Filter AI === 
-Contributors: filter, paulhalfpenny
+Contributors: filter, paulhalfpenny, robertmeacher
 Tags: ai, seo, content, alt-text, image-generation, woocommerce, yoast
 Requires at least: 6.3 
 Tested up to: 6.8
