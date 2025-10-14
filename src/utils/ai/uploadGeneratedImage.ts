@@ -12,7 +12,7 @@ export const refreshMediaLibrary = () => {
   refreshTimeout = setTimeout(() => {
     const mediaFrame = window?.wp?.media?.frame;
 
-    if (mediaFrame) {
+    if (mediaFrame && mediaFrame.content?.get()) {
       const library = mediaFrame.content.get().collection;
       if (library) {
         library.props.set('ignore', Date.now());

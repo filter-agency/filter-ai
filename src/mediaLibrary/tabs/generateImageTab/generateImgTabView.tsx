@@ -9,11 +9,17 @@ import { useSelect } from '@wordpress/data';
 import AIServiceNotice from '@/components/aiServiceNotice';
 import { useService } from '@/utils/ai/services/useService';
 
-type Props = {
-  callback?: () => void;
+type ImportedImage = {
+  url: string;
+  id?: number;
 };
 
-const GenerateImgTabView = ({ callback }: Props) => {
+type Props = {
+  callback?: (image?: ImportedImage) => void;
+  insertMode?: boolean;
+};
+
+const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
   const [prompt, setPrompt] = useState('');
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [selectedIndexes, setSelectedIndexes] = useState<number[]>([]);
@@ -57,7 +63,11 @@ const GenerateImgTabView = ({ callback }: Props) => {
   };
 
   const toggleSelectImage = (index: number) => {
-    setSelectedIndexes((prev) => (prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]));
+    if (insertMode) {
+      setSelectedIndexes([index]);
+    } else {
+      setSelectedIndexes((prev) => (prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]));
+    }
   };
 
   const handleImportSelected = async () => {
@@ -73,17 +83,22 @@ const GenerateImgTabView = ({ callback }: Props) => {
     showLoadingMessage(__('Images', 'filter-ai'), 'importing');
 
     try {
-      const imported = await Promise.all(
+      const imported = (await Promise.all(
         selectedIndexes.map((index) =>
           uploadGeneratedImageToMediaLibrary(generatedImages[index], `filter-ai-image-${index + 1}`, prompt)
         )
       ).catch((error) => {
         throw new Error(error?.message || error);
-      });
+      })) as ImportedImage[];
 
       refreshMediaLibrary();
 
-      callback?.();
+      if (insertMode && callback && imported.length > 0) {
+        const firstImage = imported[0];
+        callback(firstImage);
+      } else {
+        callback?.();
+      }
 
       showNotice({
         message: sprintf(
@@ -133,10 +148,12 @@ const GenerateImgTabView = ({ callback }: Props) => {
         )}
       </p>
       <p>
-        {__(
-          'Once your images are generated, you can choose one or more of those to import into your Media Library.',
-          'filter-ai'
-        )}
+        {insertMode
+          ? __('Once your images are generated, select one to insert into your block.', 'filter-ai')
+          : __(
+              'Once your images are generated, you can choose one or more of those to import into your Media Library.',
+              'filter-ai'
+            )}
       </p>
 
       <div className="filter-ai-form">
@@ -159,7 +176,9 @@ const GenerateImgTabView = ({ callback }: Props) => {
 
         {generatedImages.length > 0 && (
           <>
-            <h3>{__('Select images to import', 'filter-ai')}</h3>
+            <h3>
+              {insertMode ? __('Select an image to insert', 'filter-ai') : __('Select images to import', 'filter-ai')}
+            </h3>
             <Grid columns={3} gap={3} className="filter-ai-image-grid ">
               {generatedImages.map((img, i) => {
                 const isSelected = selectedIndexes.includes(i);
@@ -170,7 +189,7 @@ const GenerateImgTabView = ({ callback }: Props) => {
                     onClick={() => toggleSelectImage(i)}
                     disabled={importing}
                   >
-                    <img src={img} alt={`Generated ${i + 1}`} className="filter-ai-image" />
+                    <img src={img} className="filter-ai-image" />
                   </button>
                 );
               })}
@@ -181,7 +200,11 @@ const GenerateImgTabView = ({ callback }: Props) => {
               className="filter-ai-import-button"
               disabled={importing || selectedIndexes.length === 0}
             >
-              {importing ? __('Importing...', 'filter-ai') : __('Import Selected', 'filter-ai')}
+              {importing
+                ? __('Importing...', 'filter-ai')
+                : insertMode
+                  ? __('Insert Selected', 'filter-ai')
+                  : __('Import Selected', 'filter-ai')}
             </Button>
           </>
         )}
