@@ -23,6 +23,10 @@
     ],
     "fix-cs": [
       "@php ./vendor/bin/phpcbf --ignore=*/packages/*,*/vendor/*"
+    ],
+    "post-install-cmd": [
+      "npm install",
+      "npm run build"
     ]
   },
   "extra": {

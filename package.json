@@ -5,7 +5,8 @@
   "license": "GPL-3.0",
   "main": "build/scripts.js",
   "scripts": {
-    "build": "wp-scripts build && wp-scripts plugin-zip",
+    "build": "wp-scripts build",
+    "plugin-zip": "wp-scripts build && wp-scripts plugin-zip",
     "start": "wp-scripts start",
     "prepare": "husky",
     "typecheck": "tsc"
