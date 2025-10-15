@@ -262,6 +262,12 @@
   border-radius: 8px;
 }
 
+.filter-ai-settings-seo-title-templates {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .filter-ai-settings-seo-title-template {
   display: inline-flex;
   flex-direction: row;

@@ -228,6 +228,7 @@ function filter_ai_api_get_seo_title_count() {
 				'total'   => filter_ai_get_posts_count( $key ),
 				'default' => filter_ai_get_posts_default_seo_title_count( $key ),
 				'custom'  => filter_ai_get_posts_custom_seo_title_count( $key ),
+				'key'     => $key,
 			);
 		}
 	}
