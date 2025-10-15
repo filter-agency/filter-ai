@@ -23,10 +23,17 @@ type FailedAction = {
 };
 
 type PostType = {
+  key: string;
   label: string;
   total: number;
   default: number;
   custom: number;
+};
+
+type Template = {
+  key: string;
+  label: string;
+  template: string[];
 };
 
 const getDefaultTemplate = (template?: string) => {
@@ -58,7 +65,7 @@ const SEOTitles = () => {
   const [isGenerateButtonDisabled, setIsGenerateButtonDisabled] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [postTypes, setPostTypes] = useState<PostType[]>([]);
-  const [defaultTemplate, setDefaultTemplate] = useState<string[]>([]);
+  const [defaultTemplates, setDefaultTemplates] = useState<Template[]>([]);
 
   const { settings } = useSettings();
 
@@ -97,15 +104,32 @@ const SEOTitles = () => {
 
       setFailedActions(Object.values(data.failed_actions || {}));
 
-      setPostTypes(
+      const post_types =
         data.post_types?.sort((a: PostType, b: PostType) => {
           if (a.label < b.label) return -1;
           if (a.label > b.label) return 1;
           return 0;
-        }) || []
-      );
+        }) || [];
 
-      setDefaultTemplate(getDefaultTemplate(data.yoast_seo_titles?.['title-page']));
+      setPostTypes(post_types);
+
+      const templates = post_types
+        .map((postType: PostType) => {
+          const template = data.yoast_seo_titles?.[`title-${postType.key}`] || '';
+
+          if (!template) {
+            return null;
+          }
+
+          return {
+            key: postType.key,
+            label: postType.label,
+            template: getDefaultTemplate(template),
+          };
+        })
+        .filter((item: Template) => item.key);
+
+      setDefaultTemplates(templates);
 
       if (!!data.pending_actions_count || !!data.running_actions_count) {
         setTimeout(getCount, 1000);
@@ -217,15 +241,26 @@ const SEOTitles = () => {
               </tbody>
             </table>
           </PanelBody>
-          {!!defaultTemplate?.length && (
+
+          {!!defaultTemplates?.length && (
             <PanelBody title={__('Default Yoast SEO title template', 'filter-ai')} initialOpen={false}>
-              <div className="filter-ai-settings-seo-title-template">
-                {defaultTemplate.map((item) => (
-                  <span className="filter-ai-settings-seo-title-template-item">{item}</span>
+              <div className="filter-ai-settings-seo-title-templates">
+                {defaultTemplates.map((defaultTemplate) => (
+                  <div key={defaultTemplate.key}>
+                    <fieldset className="filter-ai-settings-seo-title-template">
+                      <legend>{defaultTemplate.label}</legend>
+                      {defaultTemplate?.template.map((item, index) => (
+                        <span className="filter-ai-settings-seo-title-template-item" key={index}>
+                          {item}
+                        </span>
+                      ))}
+                    </fieldset>
+                  </div>
                 ))}
               </div>
             </PanelBody>
           )}
+
           {!inProgress && count.actions > 0 && (
             <PanelBody title={__('Previous run stats', 'filter-ai')}>
               <p>
