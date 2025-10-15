@@ -7,7 +7,7 @@ import {
   RichText,
   useBlockProps,
 } from '@wordpress/block-editor';
-import { BaseControl, Button, ColorPicker, PanelBody, PanelRow, TextControl } from '@wordpress/components';
+import { Button, PanelBody, PanelRow, TextControl } from '@wordpress/components';
 import { createInterpolateElement, useCallback, useMemo, useState } from '@wordpress/element';
 import { ai, hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -44,7 +44,7 @@ const extractFAQs = (content: string) => {
 const faqsEdit = ({ attributes, setAttributes, clientId }: Props) => {
   const [numberOfItems, setNumberOfItems] = useState('5');
 
-  const blockProps = useBlockProps();
+  const blockProps = useBlockProps({ className: 'alignfull' });
   const prompt = usePrompts('generate_faq_section_prompt');
   const service = useService('generate_faq_section_prompt_service');
   const { settings } = useSettings();
@@ -154,44 +154,20 @@ const faqsEdit = ({ attributes, setAttributes, clientId }: Props) => {
             )}
           </PanelRow>
         </PanelBody>
-        <PanelBody title={__('FAQs Styling', 'filter-ai')} initialOpen={false}>
-          <PanelRow>
-            <fieldset>
-              <BaseControl label={__('Background Color', 'filter-ai')}>
-                <ColorPicker
-                  color={attributes.backgroundColor}
-                  onChange={(value) => setAttributes({ backgroundColor: value })}
-                />
-              </BaseControl>
-            </fieldset>
-          </PanelRow>
-          <PanelRow>
-            <fieldset>
-              <BaseControl label={__('Heading Color', 'filter-ai')}>
-                <ColorPicker
-                  color={attributes.headingColor}
-                  onChange={(value) => setAttributes({ headingColor: value })}
-                />
-              </BaseControl>
-            </fieldset>
-          </PanelRow>
-        </PanelBody>
       </InspectorControls>
       <BlockControls>
-        <AlignmentToolbar value={attributes.title_align} onChange={(value) => setAttributes({ titleAlign: value })} />
+        <AlignmentToolbar value={attributes.titleAlign} onChange={(value) => setAttributes({ titleAlign: value })} />
       </BlockControls>
-      <div className="alignfull" style={{ backgroundColor: attributes.backgroundColor }}>
-        <div {...blockProps}>
+      <div {...blockProps}>
+        <div className="inner">
           <RichText
             key="faqs-title-edit"
             value={attributes.title || ''}
             onChange={(value) => setAttributes({ title: value })}
             tagName="h2"
-            placeholder={__('Frequenty Asked Questions', 'filter-ai')}
             className="filter-ai-faqs-title"
             style={{
-              textAlign: attributes.title_align as React.CSSProperties['textAlign'],
-              color: attributes.headingColor,
+              textAlign: attributes.titleAlign as React.CSSProperties['textAlign'],
             }}
           />
           <InnerBlocks allowedBlocks={['filter-ai/faq-item']} renderAppender={InnerBlocks.ButtonBlockAppender} />
