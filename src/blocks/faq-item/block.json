@@ -19,7 +19,8 @@
   "supports": {
     "color": {
       "background": false,
-      "text": false
+      "text": false,
+      "heading": true
     }
   }
 }
