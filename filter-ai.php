@@ -237,3 +237,21 @@ function filter_ai_faqs_block_init() {
 }
 
 add_action( 'init', 'filter_ai_faqs_block_init' );
+
+/**
+ * Ignore vendor packages and external library directories when running the plugin check plugin.
+ *
+ * @param array[] $dirs_to_ignore An array of directories to ignore.
+ *
+ * @return array[] Returns an array of directories to ignore.
+ */
+function filter_ai_wp_plugin_check_ignore_directories( $dirs_to_ignore ) {
+	return array_merge(
+		$dirs_to_ignore,
+		array(
+			'packages',
+		)
+	);
+}
+
+add_filter( 'wp_plugin_check_ignore_directories', 'filter_ai_wp_plugin_check_ignore_directories', 10, 2 );
