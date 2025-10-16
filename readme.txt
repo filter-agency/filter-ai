@@ -1,6 +1,6 @@
 === Filter AI === 
 Contributors: filter, paulhalfpenny, robertmeacher, guyhillary, davecpage, ianharrisfilter
-Tags: ai, seo, content, alt-text, image-generation, woocommerce, yoast
+Tags: ai, seo, content, alt-text, image-generation
 Requires at least: 6.3 
 Tested up to: 6.8
 Stable tag: 1.4.0
