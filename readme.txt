@@ -80,8 +80,8 @@ Yes. The ALT text generation feature is designed to improve accessibility by pro
 
 == Upgrade Notice ==
 
-= 1.3.1 =
-**Bug fixes:** Improve messaging across the settings and generation pages
+= 1.4.0 =
+This update includes a new generate FAQs block and new options to select an AI service per feature along with various improvements and bug fixes.
 
 == Upgrade Notice ==
 
