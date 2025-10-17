@@ -83,11 +83,6 @@ Yes. The ALT text generation feature is designed to improve accessibility by pro
 = 1.4.0 =
 This update includes a new generate FAQs block and new options to select an AI service per feature along with various improvements and bug fixes.
 
-== Upgrade Notice ==
-
-= 1.4.0 =
-This update includes a new generate FAQs block and new options to select an AI service per feature along with various improvements and bug fixes.
-
 == Changelog ==
 
 = 1.4.0 =
