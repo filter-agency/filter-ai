@@ -31,10 +31,12 @@
   },
   "files": [
     "filter-ai.php",
+    "assets",
     "build",
     "includes",
     "composer.json",
-    "packages"
+    "packages",
+    "src"
   ],
   "dependencies": {
     "@lottiefiles/dotlottie-react": "^0.14.1",
