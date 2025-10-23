@@ -132,6 +132,10 @@ register_activation_hook( __FILE__, 'filter_ai_activate' );
  */
 function filter_ai_uninstall() {
 	delete_option( 'filter_ai_settings' );
+	delete_option( 'filter_ai_last_ai_image_alt_text_service' );
+	delete_option( 'filter_ai_last_seo_meta_description_service' );
+	delete_option( 'filter_ai_last_seo_title_service' );
+	delete_option( 'filter_ai_last_ai_image_alt_text_service' );
 }
 
 register_uninstall_hook( __FILE__, 'filter_ai_uninstall' );
