@@ -2,6 +2,10 @@
   "name": "filter-agency/filter-ai",
   "description": "Powerful AI content creation tools integrated directly into the WordPress editor for effortless content generation.",
   "type": "wordpress-plugin",
+  "dist": {
+    "url": "https://github.com/filter-agency/filter-ai/releases/latest/download/filter-ai.zip",
+    "type": "zip"
+  },
   "license": "GPL-3.0",
   "require": {
     "php": ">=7.4",
