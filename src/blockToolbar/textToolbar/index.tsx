@@ -9,6 +9,9 @@ import {
   showGrammarCheckModal,
   useGrammarCheckModal,
   resetGrammarCheckModal,
+  setCustomiseTextOptionsModal,
+  useCustomiseTextOptionsModal,
+  resetCustomiseTextOptionsModal,
 } from '@/utils';
 import { BlockEditProps } from '@/types';
 import { useSettings } from '@/settings';
@@ -147,6 +150,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
   }, [name]);
 
   const grammarModal = useGrammarCheckModal();
+  const TextOptionsModal = useCustomiseTextOptionsModal();
 
   const onClick: OnClick = async (promptKey, params) => {
     const isValidPromptKey = (key: string): key is PromptKey => {
@@ -222,42 +226,56 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
       }
 
       let newText = await ai.customiseText(feature, text, finalPrompt, service?.slug);
+      if (promptKey === 'customise_text_summarise_prompt') {
+        let newText = await ai.customiseText(feature, text, finalPrompt, service?.slug);
 
-      if (!newText) {
+        if (!newText) {
+          throw new Error(
+            sprintf(__('Sorry, there has been an issue while generating your %s', 'filter-ai'), label.toLowerCase())
+          );
+        }
+
+        newText = removeWrappingQuotes(newText);
+        await navigator.clipboard.writeText(newText);
+        showNotice({ message: __('Summary has been copied to your clipboard', 'filter-ai') });
+
+        return;
+      }
+
+      const [option1, option2, option3] = await Promise.all([
+        ai.customiseText(feature, text, finalPrompt, service?.slug),
+        ai.customiseText(feature, text, finalPrompt, service?.slug),
+        ai.customiseText(feature, text, finalPrompt, service?.slug),
+      ]);
+
+      if (!option1 || !option2 || !option3) {
         throw new Error(
           sprintf(__('Sorry, there has been an issue while generating your %s', 'filter-ai'), label.toLowerCase())
         );
       }
 
-      newText = removeWrappingQuotes(newText);
+      const generatedOptions = [
+        removeWrappingQuotes(option1),
+        removeWrappingQuotes(option2),
+        removeWrappingQuotes(option3),
+      ];
 
-      if (promptKey === 'customise_text_summarise_prompt') {
-        await navigator.clipboard.writeText(newText);
-
-        showNotice({ message: __('Summary has been copied to your clipboard', 'filter-ai') });
-      } else {
-        if (hasSelection) {
-          const newValue = insert(content, newText, selectionStart.offset, selectionEnd.offset);
-
-          setAttributes({ content: toHTMLString({ value: newValue }) });
-
-          setTimeout(() => document.getSelection()?.empty(), 0);
-        } else {
-          setAttributes({ content: newText });
-        }
-
-        let message = sprintf(__('Your %s has been updated', 'filter-ai'), label.toLowerCase());
-
-        if (service?.metadata.name) {
-          message = sprintf(
-            __('Your %s has been updated using %s', 'filter-ai'),
-            label.toLowerCase(),
-            service.metadata.name
-          );
-        }
-
-        showNotice({ message });
-      }
+      setCustomiseTextOptionsModal({
+        options: generatedOptions,
+        choice: '',
+        context: {
+          content: attributes.content,
+          hasSelection,
+          selectionStart,
+          selectionEnd,
+          label,
+          serviceName: service?.metadata.name,
+          feature,
+          text,
+          prompt: finalPrompt,
+          service: service?.slug,
+        },
+      });
     } catch (error) {
       console.error(error);
 
@@ -322,6 +340,31 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
       }
     }
   }, [grammarModal.choice, grammarModal.context]);
+
+  useEffect(() => {
+    const { choice, options, context } = TextOptionsModal;
+
+    if (choice && !options.length && context) {
+      const { content, hasSelection, selectionStart, selectionEnd, label, serviceName } = context;
+
+      if (hasSelection) {
+        const richContent = typeof content === 'string' ? create({ text: content }) : content;
+        const newValue = insert(richContent, choice, selectionStart.offset, selectionEnd.offset);
+        setAttributes({ content: toHTMLString({ value: newValue }) });
+        setTimeout(() => document.getSelection()?.empty(), 0);
+      } else {
+        setAttributes({ content: choice });
+      }
+
+      let message = sprintf(__('Your %s has been updated', 'filter-ai'), label.toLowerCase());
+      if (serviceName) {
+        message = sprintf(__('Your %s has been updated using %s', 'filter-ai'), label.toLowerCase(), serviceName);
+      }
+      showNotice({ message });
+
+      resetCustomiseTextOptionsModal();
+    }
+  }, [TextOptionsModal, setAttributes]);
 
   if (
     hasMultiSelection ||
