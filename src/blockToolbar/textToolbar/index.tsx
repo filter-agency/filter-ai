@@ -15,8 +15,8 @@ import {
 } from '@/utils';
 import { BlockEditProps } from '@/types';
 import { useSettings } from '@/settings';
-import { insert, toHTMLString, slice, create } from '@wordpress/rich-text';
 import { useSelect, select, dispatch } from '@wordpress/data';
+import { insert, toHTMLString, slice, create } from '@wordpress/rich-text';
 import { ToolbarButton } from '@/components/toolbarButton';
 import { __, sprintf } from '@wordpress/i18n';
 import { usePrompts } from '@/utils/ai/prompts/usePrompts';
@@ -347,22 +347,51 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
     if (choice && !options.length && context) {
       const { content, hasSelection, selectionStart, selectionEnd, label, serviceName } = context;
 
-      if (hasSelection) {
-        const richContent = typeof content === 'string' ? create({ text: content }) : content;
-        const newValue = insert(richContent, choice, selectionStart.offset, selectionEnd.offset);
-        setAttributes({ content: toHTMLString({ value: newValue }) });
+      try {
+        const blockEditor = select('core/block-editor');
+        const blockDispatcher = dispatch('core/block-editor') as {
+          updateBlockAttributes: (clientId: string, attributes: Record<string, any>) => void;
+        };
+
+        const startId = selectionStart?.clientId;
+        const endId = selectionEnd?.clientId;
+        const sameBlock = startId && endId && startId === endId;
+        const targetBlockId = sameBlock ? startId : endId;
+
+        const targetBlock = blockEditor.getBlock(targetBlockId);
+
+        if (targetBlock) {
+          if (Object.prototype.hasOwnProperty.call(targetBlock.attributes, 'content')) {
+            blockDispatcher.updateBlockAttributes(targetBlockId, {
+              content: choice,
+            });
+          } else {
+            setAttributes({ content: choice });
+          }
+        } else if (hasSelection) {
+          const richContent = typeof content === 'string' ? create({ text: content }) : content;
+          const newValue = insert(richContent, choice, selectionStart.offset, selectionEnd.offset);
+          setAttributes({ content: toHTMLString({ value: newValue }) });
+        } else {
+          setAttributes({ content: choice });
+        }
+
         setTimeout(() => document.getSelection()?.empty(), 0);
-      } else {
-        setAttributes({ content: choice });
-      }
 
-      let message = sprintf(__('Your %s has been updated', 'filter-ai'), label.toLowerCase());
-      if (serviceName) {
-        message = sprintf(__('Your %s has been updated using %s', 'filter-ai'), label.toLowerCase(), serviceName);
+        let message = sprintf(__('Your %s has been updated', 'filter-ai'), label.toLowerCase());
+        if (serviceName) {
+          message = sprintf(__('Your %s has been updated using %s', 'filter-ai'), label.toLowerCase(), serviceName);
+        }
+        showNotice({ message });
+      } catch (error) {
+        console.error('Error updating block content:', error);
+        showNotice({
+          message: __('There was an issue replacing the text content.', 'filter-ai'),
+          type: 'error',
+        });
+      } finally {
+        resetCustomiseTextOptionsModal();
       }
-      showNotice({ message });
-
-      resetCustomiseTextOptionsModal();
     }
   }, [TextOptionsModal, setAttributes]);
 
