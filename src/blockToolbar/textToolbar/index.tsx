@@ -139,7 +139,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
     }
   }, [name]);
 
-  const { choice, options, context } = useCustomiseTextOptionsModal();
+  const { choice, options, context, type } = useCustomiseTextOptionsModal();
 
   const onClick: OnClick = async (promptKey, params) => {
     const isValidPromptKey = (key: string): key is PromptKey => {
@@ -225,6 +225,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
       ];
 
       setCustomiseTextOptionsModal({
+        type: 'text',
         options: generatedOptions,
         choice: '',
         context: {
@@ -251,7 +252,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
   };
 
   useEffect(() => {
-    if (choice && !options.length && context) {
+    if (choice && !options.length && context && type === 'text') {
       const { content, hasSelection, selectionStart, selectionEnd, label, serviceName } = context;
 
       try {
@@ -300,7 +301,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
         resetCustomiseTextOptionsModal();
       }
     }
-  }, [choice, options, context, setAttributes]);
+  }, [choice, options, context, type, setAttributes]);
 
   if (
     hasMultiSelection ||

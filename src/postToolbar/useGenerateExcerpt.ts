@@ -1,5 +1,12 @@
 import { useSettings } from '@/settings';
-import { ai, hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils';
+import {
+  ai,
+  hideLoadingMessage,
+  removeWrappingQuotes,
+  showLoadingMessage,
+  showNotice,
+  setCustomiseTextOptionsModal,
+} from '@/utils';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { usePrompts } from '@/utils/ai/prompts/usePrompts';
@@ -39,7 +46,7 @@ export const useGenerateExcerpt = () => {
   }, []);
 
   const onClick = async () => {
-    showLoadingMessage(__('Excerpt', 'filter-ai'));
+    showLoadingMessage(__('Generating Excerpts', 'filter-ai'));
 
     try {
       const _content = content || window.tinymce?.editors?.content?.getContent();
@@ -47,25 +54,33 @@ export const useGenerateExcerpt = () => {
       const excerptField = document.getElementById('excerpt') as HTMLTextAreaElement;
       const _oldExcerpt = oldExcerpt || excerptField?.value;
 
-      const excerpt = await ai.getExcerptFromContent(_content, _oldExcerpt, prompt, service?.slug);
+      const [excerpt1, excerpt2, excerpt3] = await Promise.all([
+        ai.getExcerptFromContent(_content, _oldExcerpt, prompt, service?.slug),
+        ai.getExcerptFromContent(_content, _oldExcerpt, prompt, service?.slug),
+        ai.getExcerptFromContent(_content, _oldExcerpt, prompt, service?.slug),
+      ]);
 
-      if (!excerpt) {
-        throw new Error(__('Sorry, there has been an issue while generating your excerpt.', 'filter-ai'));
+      if (!excerpt1 || !excerpt2 || !excerpt3) {
+        throw new Error(__('Sorry, there has been an issue while generating your excerpts.', 'filter-ai'));
       }
 
-      if (window.filter_ai_dependencies.block_editor && editPost) {
-        editPost({ excerpt });
-      } else if (excerptField) {
-        excerptField.value = excerpt;
-      }
-
-      let message = __('Excerpt has been updated', 'filter-ai');
-
-      if (service?.metadata.name) {
-        message = sprintf(__('Excerpt has been updated using %s', 'filter-ai'), service.metadata.name);
-      }
-
-      showNotice({ message });
+      setCustomiseTextOptionsModal({
+        options: [removeWrappingQuotes(excerpt1), removeWrappingQuotes(excerpt2), removeWrappingQuotes(excerpt3)],
+        choice: '',
+        type: 'excerpt',
+        context: {
+          content: _content,
+          text: _oldExcerpt,
+          prompt,
+          service: service?.slug,
+          serviceName: service?.metadata.name,
+          hasSelection: false,
+          selectionStart: null,
+          selectionEnd: null,
+          label: __('Excerpt', 'filter-ai'),
+          feature: 'excerpt',
+        },
+      });
     } catch (error) {
       console.error(error);
 

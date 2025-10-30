@@ -1,8 +1,7 @@
 import { useSettings } from '@/settings';
-import { ai, hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils';
-import { useDispatch, useSelect, resolveSelect, dispatch } from '@wordpress/data';
+import { ai, hideLoadingMessage, showLoadingMessage, showNotice, setCustomiseTextOptionsModal } from '@/utils';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
-import { cleanForSlug } from '@wordpress/url';
 import { usePrompts } from '@/utils/ai/prompts/usePrompts';
 import { useService } from '@/utils/ai/services/useService';
 
@@ -25,7 +24,6 @@ export const useGenerateTags = () => {
     // @ts-expect-error Type 'never' has no call signatures.
     const taxonomy = getTaxonomy('post_tag');
 
-    // based on logic within https://github.com/WordPress/gutenberg/blob/trunk/packages/editor/src/components/post-taxonomies/index.js
     const _tagsEnabled = taxonomy?.types.includes(postType) && taxonomy?.visibility?.show_ui;
 
     // @ts-expect-error Type 'never' has no call signatures.
@@ -46,12 +44,12 @@ export const useGenerateTags = () => {
   }, []);
 
   const onClick = async () => {
-    showLoadingMessage(__('Tags', 'filter-ai'));
+    showLoadingMessage(__('Generating Tags', 'filter-ai'));
 
     try {
       const _content = content || window.tinymce?.editors?.content?.getContent();
       const _postTags =
-        (postTags.length
+        (postTags?.length
           ? postTags
           : document
               .getElementById('tax-input-post_tag')
@@ -59,55 +57,33 @@ export const useGenerateTags = () => {
               ?.value?.split(',')
               .map((i: string) => i.trim())) || [];
 
-      const tags = await ai.getTagsFromContent(_content, _postTags, prompt, service?.slug);
+      const [tags1, tags2, tags3] = await Promise.all([
+        ai.getTagsFromContent(_content, _postTags, prompt, service?.slug),
+        ai.getTagsFromContent(_content, _postTags, prompt, service?.slug),
+        ai.getTagsFromContent(_content, _postTags, prompt, service?.slug),
+      ]);
 
-      if (!tags) {
+      if (!tags1 || !tags2 || !tags3) {
         throw new Error(errorMessage);
       }
 
-      if (window.filter_ai_dependencies.block_editor && editPost) {
-        const newTagIds = [];
-
-        for (let i = 0; i < tags.length; i++) {
-          // check if tag already exists
-          const existingTag = await resolveSelect('core').getEntityRecords('taxonomy', 'post_tag', {
-            slug: cleanForSlug(tags[i]),
-          });
-
-          if (existingTag?.[0]?.id) {
-            newTagIds.push(existingTag[0].id);
-            continue;
-          }
-
-          // add tag if they don't exist
-          // @ts-expect-error Property 'saveEntityRecord' does not exist on type '{}'.
-          const newTag = await dispatch('core')?.saveEntityRecord('taxonomy', 'post_tag', { name: tags[i] });
-
-          if (newTag?.id) {
-            newTagIds.push(newTag.id);
-          }
-        }
-
-        if (newTagIds.length === 0) {
-          throw new Error(errorMessage);
-        }
-
-        editPost({ tags: [...new Set([...postTagIds, ...newTagIds])] });
-      } else if (window.tagBox) {
-        const tagsdiv = document.getElementById('post_tag');
-        const tempElement = document.createElement('div');
-        tempElement.textContent = tags.join(',');
-
-        window.tagBox.flushTags(tagsdiv, tempElement);
-      }
-
-      let message = __('Tags have been updated', 'filter-ai');
-
-      if (service?.metadata.name) {
-        message = sprintf(__('Tags have been updated using %s', 'filter-ai'), service.metadata.name);
-      }
-
-      showNotice({ message });
+      setCustomiseTextOptionsModal({
+        options: [tags1.join(', '), tags2.join(', '), tags3.join(', ')],
+        choice: '',
+        type: 'tags',
+        context: {
+          content: _content,
+          text: _postTags?.join(', ') || '',
+          prompt,
+          service: service?.slug,
+          serviceName: service?.metadata.name,
+          hasSelection: false,
+          selectionStart: null,
+          selectionEnd: null,
+          label: __('Tags', 'filter-ai'),
+          feature: 'tags',
+        },
+      });
     } catch (error) {
       console.error(error);
 
