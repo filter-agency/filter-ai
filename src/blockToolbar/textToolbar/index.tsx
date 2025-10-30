@@ -261,6 +261,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
       ];
 
       setCustomiseTextOptionsModal({
+        type: 'text',
         options: generatedOptions,
         choice: '',
         context: {

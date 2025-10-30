@@ -2,9 +2,12 @@ import { createReduxStore, dispatch, register, useSelect, resolveSelect } from '
 
 const storeName = 'filter-ai/customise-text-options-modal-store';
 
+type CustomiseType = 'text' | 'title' | 'excerpt' | 'tags';
+
 type State = {
   options: string[];
   choice: string;
+  type?: CustomiseType;
   context?: {
     content: any;
     hasSelection: boolean;
@@ -65,5 +68,5 @@ export const setCustomiseTextOptionsModal = (newState: Partial<State>) => {
 };
 
 export const resetCustomiseTextOptionsModal = () => {
-  dispatch(store).setCustomiseTextOptionsModal({ choice: '', options: [], context: undefined });
+  dispatch(store).setCustomiseTextOptionsModal({ choice: '', options: [], context: undefined, type: undefined });
 };
