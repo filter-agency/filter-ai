@@ -186,7 +186,7 @@ const Features = () => {
                       disabled={isDisabled}
                     />
                   </div>
-                  {!!feature.serviceKey && (
+                  {(!!feature.serviceKey || !!feature.prompt) && (
                     <ShowButton
                       disabled={!formData?.[feature.toggle.key] || isDisabled}
                       extraKey={section.key}
@@ -194,7 +194,7 @@ const Features = () => {
                     />
                   )}
                 </PanelRow>
-                {!!feature.serviceKey && showExtra[section.key] === feature.key && (
+                {(!!feature.serviceKey || !!feature.prompt) && showExtra[section.key] === feature.key && (
                   <PanelRow>
                     <div style={{ flex: 1 }}>
                       <div
