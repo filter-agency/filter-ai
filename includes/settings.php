@@ -124,6 +124,32 @@ function filter_ai_get_option_schema_properties() {
 }
 
 /**
+ * Sanitize settings
+ *
+ * @param mixed{} $settings The settings to be sanitized
+ *
+ * @return mixed{} Sanitized settings
+ */
+function filter_ai_sanitize_settings( $settings ) {
+	$properties = filter_ai_get_option_schema_properties();
+	$sanitized  = array();
+
+	foreach ( $settings as $key => $value ) {
+		$type = $properties[ $key ]['type'] ?? 'text';
+
+		switch ( $type ) {
+			case 'boolean':
+				$sanitized[ $key ] = rest_sanitize_boolean( $value );
+				break;
+			default:
+				$sanitized[ $key ] = sanitize_text_field( $value );
+		}
+	}
+
+	return $sanitized;
+}
+
+/**
  *  Register settings
  */
 function filter_ai_settings_init() {
@@ -134,14 +160,17 @@ function filter_ai_settings_init() {
 		'options',
 		'filter_ai_settings',
 		array(
-			'type'         => 'object',
-			'show_in_rest' => array(
+			'type'              => 'object',
+			'show_in_rest'      => array(
 				'schema' => array(
 					'type'       => 'object',
 					'properties' => $properties,
 				),
 			),
-			'default'      => $default_settings,
+			'default'           => $default_settings,
+			'sanitize_callback' => function ( $opt ) use ( $properties ) {
+				return filter_ai_sanitize_settings( $opt );
+			},
 		)
 	);
 }
