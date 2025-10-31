@@ -3,6 +3,11 @@
  * Settings functions
  */
 
+// Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Get default settings
  *

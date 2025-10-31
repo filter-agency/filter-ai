@@ -3,6 +3,11 @@
  * Helper functions for batch jobs
  */
 
+// Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Reset group_id for scheduled actions to help us track the current actions
  *

@@ -3,6 +3,11 @@
  * Common batch functions
  */
 
+// Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * API handler to trigger Action Scheduler queue
  */
