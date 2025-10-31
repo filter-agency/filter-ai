@@ -20,7 +20,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 define( 'FILTER_AI_PATH', plugin_dir_path( __FILE__ ) );
 
-require_once plugin_dir_path( __FILE__ ) . 'packages/action-scheduler/action-scheduler.php';
+if ( ! class_exists( 'ActionScheduler' ) ) {
+	require_once plugin_dir_path( __FILE__ ) . 'packages/action-scheduler/action-scheduler.php';
+}
 
 require_once plugin_dir_path( __FILE__ ) . 'includes/settings.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/batch.php';
