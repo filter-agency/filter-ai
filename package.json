@@ -31,7 +31,6 @@
   },
   "files": [
     "filter-ai.php",
-    "assets",
     "build",
     "includes",
     "composer.json",
