@@ -176,7 +176,7 @@ const Features = () => {
                     <label htmlFor={feature.toggle.key}>{feature.toggle.label}</label>
                     {feature.toggle.help && <div>{feature.toggle.help}</div>}
                   </div>
-                  <div style={!feature.serviceKey ? { marginRight: '34px' } : {}}>
+                  <div style={!feature.serviceKey && !feature.prompt ? { marginRight: '34px' } : {}}>
                     <FormToggle
                       onChange={() => {
                         onChange(feature.toggle.key, !formData?.[feature.toggle.key]);
@@ -186,7 +186,7 @@ const Features = () => {
                       disabled={isDisabled}
                     />
                   </div>
-                  {!!feature.serviceKey && (
+                  {(!!feature.serviceKey || !!feature.prompt) && (
                     <ShowButton
                       disabled={!formData?.[feature.toggle.key] || isDisabled}
                       extraKey={section.key}
@@ -194,7 +194,7 @@ const Features = () => {
                     />
                   )}
                 </PanelRow>
-                {!!feature.serviceKey && showExtra[section.key] === feature.key && (
+                {(!!feature.serviceKey || !!feature.prompt) && showExtra[section.key] === feature.key && (
                   <PanelRow>
                     <div style={{ flex: 1 }}>
                       <div
