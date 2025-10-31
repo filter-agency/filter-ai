@@ -362,9 +362,7 @@ function filter_ai_api_get_image_count() {
 
 	if ( ! empty( $failed_actions_raw ) ) {
 		foreach ( $failed_actions_raw as $action_id => $action ) {
-			$logger = ActionScheduler::logger();
-			$logs   = $logger->get_logs( $action_id );
-
+			$logs    = filter_ai_get_action_logs( $action_id );
 			$message = null;
 
 			if ( ! empty( $logs ) ) {
