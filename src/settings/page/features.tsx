@@ -176,7 +176,7 @@ const Features = () => {
                     <label htmlFor={feature.toggle.key}>{feature.toggle.label}</label>
                     {feature.toggle.help && <div>{feature.toggle.help}</div>}
                   </div>
-                  <div style={!feature.serviceKey ? { marginRight: '34px' } : {}}>
+                  <div style={!feature.serviceKey && !feature.prompt ? { marginRight: '34px' } : {}}>
                     <FormToggle
                       onChange={() => {
                         onChange(feature.toggle.key, !formData?.[feature.toggle.key]);
