@@ -3,7 +3,7 @@ import { useLoadingMessage } from './store';
 import { createRoot, useMemo } from '@wordpress/element';
 
 const LoadingMessage = () => {
-  const { type = 'generating', label = 'test' } = useLoadingMessage();
+  const { type = 'generating', label } = useLoadingMessage();
 
   const title = useMemo(() => {
     switch (type) {
