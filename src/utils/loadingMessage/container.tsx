@@ -3,7 +3,7 @@ import { useLoadingMessage } from './store';
 import { createRoot, useMemo } from '@wordpress/element';
 
 const LoadingMessage = () => {
-  const { type = 'generating', label } = useLoadingMessage();
+  const { type = 'generating', label = 'test' } = useLoadingMessage();
 
   const title = useMemo(() => {
     switch (type) {
@@ -50,9 +50,7 @@ const LoadingMessage = () => {
         </p>
         <p>{__('This can take a few moments.', 'filter-ai')}</p>
         <div className="filter-ai-loading-message-animation">
-          <video style={{ width: '100%', height: '100%' }} autoPlay muted loop playsInline controls={false}>
-            <source src={require('@/assets/loading.webm')?.default} type="video/webm" />
-          </video>
+          <img src={require('@/assets/loading.gif')} style={{ width: '100%', height: '100%' }} />
         </div>
       </div>
     </>

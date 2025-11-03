@@ -27,14 +27,6 @@ module.exports = {
           },
         ],
       },
-      {
-        test: /\.webm$/,
-        use: [
-          {
-            loader: 'file-loader',
-          },
-        ],
-      },
     ],
   },
   resolve: {
