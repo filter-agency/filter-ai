@@ -118,6 +118,7 @@ function filter_ai_get_images_without_alt_text_query( $paged = 1, $posts_per_pag
 		$mime_type = filter_ai_unsupported_mime_types();
 	}
 
+	// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Reason: filtering by specific meta key
 	$args = array(
 		'post_type'              => 'attachment',
 		'post_mime_type'         => $mime_type,
@@ -140,6 +141,7 @@ function filter_ai_get_images_without_alt_text_query( $paged = 1, $posts_per_pag
 		'update_post_term_cache' => false,
 		'fields'                 => 'ids',
 	);
+	// phpcs:enable
 
 	$query = new WP_Query( $args );
 
