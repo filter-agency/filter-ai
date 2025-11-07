@@ -28,6 +28,7 @@ type PromptKey =
   | 'customise_text_expand_prompt'
   | 'customise_text_condense_prompt'
   | 'customise_text_summarise_prompt'
+  | 'customise_text_check_grammar_prompt'
   | 'customise_text_change_tone_prompt';
 
 type OnClick = (promptKey: string, params?: Record<string, string>) => Promise<void>;
@@ -50,6 +51,9 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
   const summarisePrompt = usePrompts('customise_text_summarise_prompt');
   const summarisePromptService = useService('customise_text_summarise_prompt_service');
 
+  const checkGrammarPrompt = usePrompts('customise_text_check_grammar_prompt');
+  const checkGrammarPromptService = useService('customise_text_check_grammar_service');
+
   const changeTonePrompt = usePrompts('customise_text_change_tone_prompt');
   const changeTonePromptService = useService('customise_text_change_tone_prompt_service');
 
@@ -71,6 +75,10 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
         prompt: summarisePrompt,
         service: summarisePromptService,
       },
+      customise_text_check_grammar_prompt: {
+        prompt: checkGrammarPrompt,
+        service: checkGrammarPromptService,
+      },
       customise_text_change_tone_prompt: {
         prompt: changeTonePrompt,
         service: changeTonePromptService,
@@ -86,6 +94,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
       expandPromptService,
       condensePromptService,
       summarisePromptService,
+      checkGrammarPromptService,
       changeTonePromptService,
       settings,
     ]
@@ -231,6 +240,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
       settings?.customise_text_expand_enabled,
       settings?.customise_text_condense_enabled,
       settings?.customise_text_summarise_enabled,
+      settings?.customise_text_check_grammar_prompt,
       settings?.customise_text_change_tone_enabled,
     ].some((setting) => !!setting)
   ) {
@@ -279,6 +289,16 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
               }}
             >
               {__('Summarise', 'filter-ai')}
+            </MenuItem>
+          )}
+          {settings?.customise_text_check_grammar_enabled && (
+            <MenuItem
+              onClick={() => {
+                onClose();
+                onClick('customise_text_check_grammar_prompt', { type: label.toLowerCase() });
+              }}
+            >
+              {__('Check Grammar', 'filter-ai')}
             </MenuItem>
           )}
           {settings?.customise_text_change_tone_enabled && (
