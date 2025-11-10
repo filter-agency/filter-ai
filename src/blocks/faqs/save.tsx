@@ -6,7 +6,14 @@ type Props = {
 };
 
 const FAQsSave = ({ attributes }: Props) => {
-  const blockProps = useBlockProps.save(attributes);
+  let { className = '', ...rest } = attributes;
+
+  if (!className.includes('alignfull')) {
+    className += ' alignfull';
+    className = className.trim();
+  }
+
+  const blockProps = useBlockProps.save({ ...rest, className });
 
   return (
     <div {...blockProps} itemScope itemType="https://schema.org/FAQPage">
