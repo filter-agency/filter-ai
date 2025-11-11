@@ -6,14 +6,8 @@ type Props = {
 };
 
 const SummarySave = ({ attributes }: Props) => {
-  let { className = '', ...rest } = attributes;
-
-  if (!className.includes('alignfull')) {
-    className += ' alignfull';
-    className = className.trim();
-  }
-
-  const blockProps = useBlockProps.save({ ...rest, className });
+  const className = ((attributes?.className || '') + ' alignfull').trim();
+  const blockProps = useBlockProps.save({ ...attributes, className });
 
   return (
     <div {...blockProps}>

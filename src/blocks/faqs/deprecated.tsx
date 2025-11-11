@@ -6,6 +6,24 @@ type Props = {
 };
 
 const v1 = {
+  attributes: {
+    title: {
+      type: 'string',
+      default: 'Frequently Asked Questions',
+    },
+    titleAlign: {
+      type: 'string',
+      default: 'center',
+    },
+    backgroundColor: {
+      type: 'string',
+      default: '',
+    },
+    textColor: {
+      type: 'string',
+      default: '',
+    },
+  },
   save: ({ attributes }: Props) => {
     const blockProps = useBlockProps.save(attributes);
 
@@ -24,6 +42,12 @@ const v1 = {
         </div>
       </div>
     );
+  },
+  migrate: (attributes: Props['attributes']) => {
+    return {
+      ...attributes,
+      className: ((attributes?.className || '') + ' alignfull').trim(),
+    };
   },
 };
 
