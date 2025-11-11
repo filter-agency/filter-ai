@@ -12,3 +12,4 @@ import './yoast-seo';
 import './utils/notice/container';
 import './utils/loadingMessage/container';
 import './utils/seoTitleOptionsModal/container';
+import './utils/checkGrammarModal/container';

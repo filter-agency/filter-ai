@@ -1,6 +1,13 @@
 import { MenuItem, Popover, NavigableMenu } from '@wordpress/components';
 import { useMemo, useState } from '@wordpress/element';
-import { hideLoadingMessage, showLoadingMessage, showNotice, ai, removeWrappingQuotes } from '@/utils';
+import {
+  hideLoadingMessage,
+  showLoadingMessage,
+  showNotice,
+  ai,
+  removeWrappingQuotes,
+  showGrammarCheckModal,
+} from '@/utils';
 import { BlockEditProps } from '@/types';
 import { useSettings } from '@/settings';
 import { insert, toHTMLString, slice, create } from '@wordpress/rich-text';
@@ -184,6 +191,30 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
         for (const key in params) {
           finalPrompt = finalPrompt.replace(new RegExp(`{{${key}}}`, 'g'), params[key]);
         }
+      }
+
+      if (promptKey === 'customise_text_check_grammar_prompt') {
+        const correctedText = await ai.customiseText(feature, text, finalPrompt, service?.slug);
+
+        console.log('showGrammarCheckModal');
+
+        if (!correctedText) {
+          throw new Error(sprintf(__('Sorry, there has been an issue while checking grammar', 'filter-ai')));
+        }
+
+        showGrammarCheckModal({
+          originalText: text,
+          correctedText: removeWrappingQuotes(correctedText),
+          context: {
+            content: attributes.content,
+            hasSelection,
+            selectionStart,
+            selectionEnd,
+            serviceName: service?.metadata.name,
+          },
+        });
+
+        return;
       }
 
       let newText = await ai.customiseText(feature, text, finalPrompt, service?.slug);
