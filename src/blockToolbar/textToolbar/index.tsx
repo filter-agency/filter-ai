@@ -242,23 +242,17 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
         return;
       }
 
-      const [option1, option2, option3] = await Promise.all([
-        ai.customiseText(feature, text, finalPrompt, service?.slug),
-        ai.customiseText(feature, text, finalPrompt, service?.slug),
-        ai.customiseText(feature, text, finalPrompt, service?.slug),
-      ]);
+      const promises = Array.from({ length: 3 }, () => ai.customiseText(feature, text, finalPrompt, service?.slug));
 
-      if (!option1 || !option2 || !option3) {
+      const options = await Promise.all(promises);
+
+      if (options.some((opt) => !opt)) {
         throw new Error(
           sprintf(__('Sorry, there has been an issue while generating your %s', 'filter-ai'), label.toLowerCase())
         );
       }
 
-      const generatedOptions = [
-        removeWrappingQuotes(option1),
-        removeWrappingQuotes(option2),
-        removeWrappingQuotes(option3),
-      ];
+      const generatedOptions = options.map(removeWrappingQuotes);
 
       setCustomiseTextOptionsModal({
         type: 'text',

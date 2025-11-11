@@ -116,12 +116,12 @@ const CustomiseTextOptionsModalContainer = () => {
     <Modal
       __experimentalHideHeader
       onRequestClose={onClose}
-      className="filter-ai-customise-text-options-modal"
+      className="filter-ai-customise-text-options-modal filter-ai-modal-base"
       isDismissible={!isRegenerating}
       shouldCloseOnClickOutside={!isRegenerating}
       shouldCloseOnEsc={!isRegenerating}
     >
-      <div className="filter-ai-customise-text-options-modal-header">
+      <div className="filter-ai-modal-header">
         <div>
           <h2>{modalContent.title}</h2>
           <p>{modalContent.description}</p>
@@ -131,7 +131,7 @@ const CustomiseTextOptionsModalContainer = () => {
         </Button>
       </div>
 
-      <div className="filter-ai-customise-text-options-modal-content">
+      <div className="filter-ai-modal-content">
         <RadioControl
           selected={choice}
           onChange={setChoice}
@@ -143,11 +143,11 @@ const CustomiseTextOptionsModalContainer = () => {
           disabled={isRegenerating}
         />
 
-        <p className="filter-ai-customise-text-options-modal-warn">
+        <p className="filter-ai-modal-warn">
           {__('AI generated content may contain errors, please review before continuing.', 'filter-ai')}
         </p>
 
-        <div className="filter-ai-customise-text-options-modal-actions">
+        <div className="filter-ai-modal-actions">
           <Button
             variant="secondary"
             onClick={regenerate}
@@ -159,7 +159,7 @@ const CustomiseTextOptionsModalContainer = () => {
             {isRegenerating ? __('Generating...', 'filter-ai') : __('Regenerate Options', 'filter-ai')}
           </Button>
 
-          <div className="filter-ai-customise-text-options-modal-actions-group">
+          <div className="filter-ai-modal-actions-group">
             <Button variant="secondary" disabled={isRegenerating} onClick={onClose}>
               {__('Cancel', 'filter-ai')}
             </Button>

@@ -76,12 +76,12 @@ const SeoTiltleOptionsModalContainer = () => {
     <Modal
       __experimentalHideHeader
       onRequestClose={onClose}
-      className="filter-ai-seo-title-options-modal"
+      className="filter-ai-seo-title-options-modal filter-ai-modal-base"
       isDismissible={!isRegenerating}
       shouldCloseOnClickOutside={!isRegenerating}
       shouldCloseOnEsc={!isRegenerating}
     >
-      <div className="filter-ai-seo-title-options-modal-header">
+      <div className="filter-ai-modal-header">
         <div>
           <h2>{__('Select your Generated SEO Title', 'filter-ai')}</h2>
           <p>{__('Choose the perfect title to boost your search rankings', 'filter-ai')}</p>
@@ -90,7 +90,7 @@ const SeoTiltleOptionsModalContainer = () => {
           <CloseIcon />
         </Button>
       </div>
-      <div className="filter-ai-seo-title-options-modal-content">
+      <div className="filter-ai-modal-content">
         <RadioControl
           selected={choice}
           onChange={setChoice}
@@ -98,10 +98,10 @@ const SeoTiltleOptionsModalContainer = () => {
           options={options.map((option) => ({ label: option, value: option }))}
           disabled={isRegenerating}
         />
-        <p className="filter-ai-seo-title-options-modal-warn">
+        <p className="filter-ai-modal-warn">
           {__('AI generated titles may contain incorrect content, please double before continuing.', 'filter-ai')}
         </p>
-        <div className="filter-ai-seo-title-options-modal-actions">
+        <div className="filter-ai-modal-actions">
           <Button
             variant="secondary"
             onClick={regenerate}
@@ -111,7 +111,7 @@ const SeoTiltleOptionsModalContainer = () => {
           >
             {isRegenerating ? __('Generating...', 'filter-ai') : __('Regenerate Titles', 'filter-ai')}
           </Button>
-          <div className="filter-ai-seo-title-options-modal-actions-group">
+          <div className="filter-ai-modal-actions-group">
             <Button variant="secondary" disabled={isRegenerating} onClick={onClose}>
               {__('Cancel', 'filter-ai')}
             </Button>
