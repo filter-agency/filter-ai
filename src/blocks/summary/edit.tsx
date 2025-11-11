@@ -142,7 +142,7 @@ const SummaryEdit = ({ attributes, setAttributes, clientId }: Props) => {
         <div className="inner">
           <InnerBlocks
             allowedBlocks={['core/heading', 'core/paragraph', 'core/list']}
-            template={[['core/heading', { content: "TL;DR (Too Long; Didn't Read)" }]]}
+            template={[['core/heading', { content: "TL;DR (Too Long; Didn't Read)", textAlign: 'center' }]]}
           />
         </div>
       </div>
