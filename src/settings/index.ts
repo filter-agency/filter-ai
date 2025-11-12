@@ -1,4 +1,4 @@
-import './settings';
+import './page';
 import './batchGeneration';
 
 export * from './useSettings';

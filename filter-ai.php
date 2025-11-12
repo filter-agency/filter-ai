@@ -1,8 +1,9 @@
 <?php
 /**
  * Plugin Name: Filter AI
+ * Plugin URI: https://filteraiplugin.com
  * Description: Meet your digital sidekick: Filter AI, a plugin that tackles your to-do list faster than you can say 'procrastination'!
- * Version: 1.3.1
+ * Version: 1.4.0
  * Author: Filter
  * Author URI: https://filter.agency
  * Requires at least: 6.3
@@ -19,7 +20,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 define( 'FILTER_AI_PATH', plugin_dir_path( __FILE__ ) );
 
-require_once plugin_dir_path( __FILE__ ) . 'packages/action-scheduler/action-scheduler.php';
+if ( ! class_exists( 'ActionScheduler' ) ) {
+	require_once plugin_dir_path( __FILE__ ) . 'packages/action-scheduler/action-scheduler.php';
+}
 
 require_once plugin_dir_path( __FILE__ ) . 'includes/settings.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/batch.php';
@@ -27,7 +30,6 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/batchImageAltText.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/batchSEOTitle.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/batchSEOMetaDescription.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/dynamicReplaceAltText.php';
-require_once plugin_dir_path( __FILE__ ) . 'includes/updater.php';
 
 /**
  *  Add settings link to the plugin action links
@@ -145,7 +147,7 @@ function filter_ai_enqueue_assets() {
 	}
 
 	$asset_metadata = require plugin_dir_path( __FILE__ ) . 'build/index.asset.php';
-	array_push( $asset_metadata['dependencies'], 'ais-ai', 'underscore', 'wp-block-editor', 'wp-core-data', 'wp-i18n' );
+	array_push( $asset_metadata['dependencies'], 'ais-ai', 'ais-settings', 'ais-components', 'underscore', 'wp-block-editor', 'wp-core-data', 'wp-i18n' );
 
 	wp_enqueue_script(
 		'filter-ai-script',
@@ -155,13 +157,10 @@ function filter_ai_enqueue_assets() {
 		[ 'strategy' => 'defer' ]
 	);
 
-	wp_enqueue_style( 'wp-components' );
-	wp_enqueue_style( 'wp-preferences' );
-
 	wp_enqueue_style(
 		'filter-ai-styles',
 		plugin_dir_url( __FILE__ ) . 'build/index.css',
-		array(),
+		array( 'ais-components', 'wp-components', 'wp-preferences' ),
 		$asset_metadata['version'],
 	);
 
@@ -180,8 +179,9 @@ function filter_ai_enqueue_assets() {
 		'filter-ai-script',
 		'window.filter_ai_dependencies = ' . wp_json_encode(
 			array(
-				'wc'        => is_plugin_active( 'woocommerce/woocommerce.php' ),
-				'yoast_seo' => is_plugin_active( 'wordpress-seo/wp-seo.php' ) || is_plugin_active( 'wordpress-seo-premium/wp-seo-premium.php' ),
+				'wc'           => is_plugin_active( 'woocommerce/woocommerce.php' ),
+				'yoast_seo'    => is_plugin_active( 'wordpress-seo/wp-seo.php' ) || is_plugin_active( 'wordpress-seo-premium/wp-seo-premium.php' ),
+				'block_editor' => method_exists( get_current_screen(), 'is_block_editor' ) && get_current_screen()->is_block_editor(),
 			)
 		) . ';',
 		'before'
@@ -204,3 +204,56 @@ add_filter(
 		return 60;
 	}
 );
+
+/**
+ * Add block category
+ *
+ * @param array[] $block_categories Array of categories for block types.
+ *
+ * @return array[] Returns an array containing array of categories for block types including our custom ones.
+ */
+function register_custom_block_category( $block_categories ) {
+	return array_merge(
+		$block_categories,
+		[
+			[
+				'slug'  => 'filter-ai',
+				'title' => esc_html__( 'Filter AI', 'filter-ai' ),
+			],
+		]
+	);
+}
+
+add_filter( 'block_categories_all', 'register_custom_block_category', 10, 1 );
+
+/**
+ * Registers the FAQs block using the metadata loaded from the `block.json` file.
+ * Behind the scenes, it registers also all assets so they can be enqueued
+ * through the block editor in the corresponding context.
+ *
+ * @see https://developer.wordpress.org/reference/functions/register_block_type/
+ */
+function filter_ai_faqs_block_init() {
+	register_block_type_from_metadata( __DIR__ . '/build/blocks/faq-item' );
+	register_block_type_from_metadata( __DIR__ . '/build/blocks/faqs' );
+}
+
+add_action( 'init', 'filter_ai_faqs_block_init' );
+
+/**
+ * Ignore vendor packages and external library directories when running the plugin check plugin.
+ *
+ * @param array[] $dirs_to_ignore An array of directories to ignore.
+ *
+ * @return array[] Returns an array of directories to ignore.
+ */
+function filter_ai_wp_plugin_check_ignore_directories( $dirs_to_ignore ) {
+	return array_merge(
+		$dirs_to_ignore,
+		array(
+			'packages',
+		)
+	);
+}
+
+add_filter( 'wp_plugin_check_ignore_directories', 'filter_ai_wp_plugin_check_ignore_directories', 10, 2 );

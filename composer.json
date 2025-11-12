@@ -19,10 +19,14 @@
   },
   "scripts": {
     "check-cs": [
-      "@php ./vendor/bin/phpcs --ignore=*/packages/*,*/vendor/*"
+      "@php ./vendor/bin/phpcs"
     ],
     "fix-cs": [
-      "@php ./vendor/bin/phpcbf --ignore=*/packages/*,*/vendor/*"
+      "@php ./vendor/bin/phpcbf"
+    ],
+    "post-install-cmd": [
+      "npm install",
+      "npm run build"
     ]
   },
   "extra": {

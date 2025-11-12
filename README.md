@@ -13,31 +13,47 @@ You can either clone this repository into the plugin directory `wp-content/plugi
 
 ### Install dependencies
 
-`composer install`
+```
+composer install
+```
 
-`npm install`
+`npm install` and `npm run build` are run afterwards automatically.
+
+### Husky
 
 Run the following once to enable [Husky](https://typicode.github.io/husky/) locally:
 
-`npm run prepare`
+```
+npm run prepare
+```
 
 ### Run locally
 
 Serve the plugin so any changes are automatically built:
 
-`npm run start`
+```
+npm run start
+```
 
 ### Build
 
-Type check, build the plugin and create a ZIP file:
+Type check, and build the plugin:
 
-`npm run build`
+```
+npm run build
+```
 
-The ZIP file can now be used to install Filter AI within WordPress.
+### ZIP
+
+To package the plugin so it can be installed within WordPress:
+
+```
+npm run plugin-zip
+```
 
 ## Usage
 
-Filter AI requires the plugin [AI Services](https://wordpress.org/plugins/ai-services/) which should be automatically installed if not already present. Once the AI Services plugin has been installed within WordPress use it to configure an API key for at least one AI service within _Settings > AI Services_.
+Filter AI requires the plugin [AI Services](https://wordpress.org/plugins/ai-services/) which should be automatically installed if not already present.
 
 Once Filter AI is active you should see a menu item in the admin menu which gives you access to the settings and batch capabilities.
 

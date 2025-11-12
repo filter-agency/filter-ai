@@ -14,7 +14,7 @@ const formatTags = (rawTags: string) => {
   return _.compact(rawTags.split(/\n|\d+\.\s+/)).map((tag) => capitalize(tag));
 };
 
-export const getTagsFromContent = async (content: string, oldTags = [], customPrompt?: string) => {
+export const getTagsFromContent = async (content: string, oldTags = [], customPrompt?: string, service?: string) => {
   if (!content) {
     throw new Error(__('Please add some content first.', 'filter-ai'));
   }
@@ -39,6 +39,7 @@ export const getTagsFromContent = async (content: string, oldTags = [], customPr
   const response = await generateText({
     feature: 'filter-ai-post-tags',
     prompt: `${settings?.common_prompt_prefix || ''} ${promptDifference} ${prompt} ${content}`,
+    service,
   });
 
   const tags = formatTags(response);

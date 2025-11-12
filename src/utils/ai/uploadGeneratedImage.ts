@@ -1,5 +1,6 @@
 import { uploadMedia } from '@wordpress/media-utils';
 import { __, sprintf } from '@wordpress/i18n';
+import { waitForAIPlugin } from '../useAIPlugin';
 
 let refreshTimeout: NodeJS.Timeout | null = null;
 
@@ -11,7 +12,7 @@ export const refreshMediaLibrary = () => {
   refreshTimeout = setTimeout(() => {
     const mediaFrame = window?.wp?.media?.frame;
 
-    if (mediaFrame) {
+    if (mediaFrame && mediaFrame.content?.get()) {
       const library = mediaFrame.content.get().collection;
       if (library) {
         library.props.set('ignore', Date.now());
@@ -23,7 +24,14 @@ export const refreshMediaLibrary = () => {
 
 export const uploadGeneratedImageToMediaLibrary = async (dataUrl: string, filename: string, promptText?: string) => {
   return new Promise(async (resolve, reject) => {
-    const { helpers } = window.aiServices.ai;
+    const aiPlugin = await waitForAIPlugin();
+
+    if (!aiPlugin) {
+      reject(__('Error loading AI plugin', 'filter-ai'));
+      return;
+    }
+
+    const { helpers } = aiPlugin.ai;
 
     const blob = await helpers.base64DataUrlToBlob(dataUrl);
 

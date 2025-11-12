@@ -2,10 +2,13 @@ import { Notice } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
+import { useAIPlugin } from '@/utils';
 
 export default function AIServiceNotice() {
+  const aiPlugin = useAIPlugin();
+
   // @ts-expect-error Type 'never' has no call signatures.
-  const AIService = useSelect((select) => select(window.aiServices.ai.store)?.getAvailableService(), []);
+  const AIService = useSelect((select) => select(aiPlugin?.ai?.store)?.getAvailableService(), [aiPlugin]);
 
   if (AIService === null) {
     return (
@@ -13,10 +16,10 @@ export default function AIServiceNotice() {
         {createInterpolateElement(
           sprintf(
             __(`No AI service is configured. Please add an API key in the %s plugin settings.`, 'filter-ai'),
-            `<a>AI Services</a>`
+            `<a>Filter AI</a>`
           ),
           {
-            a: <a href="/wp-admin/options-general.php?page=ais_services" />,
+            a: <a href="/wp-admin/admin.php?page=filter_ai#api_keys" />,
           }
         )}
       </Notice>

@@ -1,98 +1,112 @@
 === Filter AI === 
-Contributors: filterdigital, paulfhalfpenny, ianharrisfilter, davecpage
-Tags: ai, content generation, artificial intelligence, openai, anthropic
+Contributors: filterdigital, paulhalfpenny, robertmeacher, guyhillary, davecpage, ianharrisfilter
+Tags: ai, seo, content, alt-text, image-generation
 Requires at least: 6.3 
 Tested up to: 6.8
-Stable tag: 1.3.1
+Stable tag: 1.4.0
 Requires PHP: 7.4 
-License: GPLv3
+License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Powerful AI content creation tools integrated directly into your WordPress editor for effortless content generation.
+AI tools inside WordPress — generate meta, ALT text, product descriptions, images and rewrite content from the editor.
 
 == Description ==
+Filter AI brings AI-powered content tools directly into the WordPress admin so you can scale content production, improve SEO, and maintain a consistent brand voice without leaving your site.
 
-**Filter AI** brings the power of leading AI platforms directly into your WordPress content workflow. Built on the foundation of Felix Arntz's excellent AI Services plugin, Filter AI makes it simple for content teams to harness AI for everyday content tasks.
+Key capabilities include:
 
-This free plugin integrates seamlessly with WordPress to help content admins:
+* Brand voice and stop words
+  Configure a brand voice and global stop words so every AI result follows your style and avoids unwanted terms.
 
-* Generate compelling ALT text for images
-* Create engaging titles and headings
-* Write introductions and conclusions
-* Create WooCommerce Product Descriptions
-* Rewrite and improve existing content
-* Summarise long-form content
-* Get content ideas and inspiration
+* Post and page titles
+  Generate SEO-friendly, click-focused titles based on the content’s core value proposition.
 
-You bring your own API key from any AI platform supported by AI Services (such as OpenAI, Anthropic, or Gemini), giving you complete control over your AI usage and spending.
+* ALT text generation
+  Automatically create descriptive ALT text on image upload and bulk-generate ALT text for existing media to improve accessibility and SEO.
 
-### Key Features:
+* Yoast SEO metadata
+  Generate meta titles and descriptions (single or batch), respecting character constraints and best-practice recommendations for SEO plugins such as Yoast.
 
-* **Full Block Editor Integration** - Access AI tools right where you need them in the WordPress block editor
-* **Customisable Prompts** - Tailor AI prompts to match your brand voice and content guidelines
-* **Multiple AI Services** - Works with OpenAI, Anthropic, Gemini, and other providers supported by AI Services
-* **Budget Control** - Bring your own API key and manage spending limits
-* **Time-Saving Tools** - Automate routine content tasks while maintaining creative control
-* **Easy to Use** - Intuitive interface designed for content creators, not developers
+* WooCommerce product descriptions
+  Produce product descriptions that highlight benefits, address customer needs and include natural SEO keywords.
 
-From writing titles to rewriting paragraphs, Filter AI takes care of the busy work – so you can focus on the big ideas.
+* Image generation
+  Create images from prompts, save to the Media Library with metadata, and use them instantly in posts and products.
+
+* Content rewriting and tone adjustment
+  Expand, condense, summarise or rewrite content and change tone while preserving context and meaning.
+
+* Excerpts and tag suggestions
+  Auto-generate concise excerpts and suggest relevant tags to improve discoverability and site structure.
+
+* Choice of AI provider and BYO API key
+  Bring your own API key and choose from supported providers; switch providers without disrupting workflows.
+
+* Batch processing and workflow controls
+  Apply actions across many posts, pages or media items to save time and ensure consistent output.
+
+Filter AI is designed to integrate with the WordPress editor and common workflows. You remain in control of every output with editable suggestions, prompt templates and global defaults.
 
 == Installation ==
-1. Upload the `filter-ai` folder to the `/wp-content/plugins/` directory
-2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Go to Settings > Filter AI to configure your API key
-4. Start using AI content tools in the block editor
-
-### Required Dependencies:
-
-* [AI Services](https://wordpress.org/plugins/ai-services/) plugin - Will be automatically installed if not present
+1. Upload the `filter-ai` folder to the `/wp-content/plugins/` directory, or install via the WordPress plugin installer.
+2. Activate the plugin through the 'Plugins' menu in WordPress.
+3. Navigate to **Settings → Filter AI** and add your AI provider API key(s).
+4. Configure brand voice, stop words, prompt templates and defaults.
+5. Use the new Filter AI controls on posts, pages, products and media to generate and apply content.
 
 == Frequently Asked Questions ==
+= Do I need an account with Filter AI? =
+No. Filter AI acts as a connector — you provide and manage your own AI provider API key(s).
 
-= Do I need to provide my own API key? =
+= Which AI providers are supported? =
+Filter AI supports major providers — OpenAI, Anthropic, Gemini, xAI, Perplexity and Mistral — and can be extended to others.
 
-Yes, Filter AI requires an API key from one of the supported AI services (OpenAI, Anthropic, or Gemini). This approach gives you complete control over your AI usage and spending. You can obtain an API key by signing up at the respective service's website.
+= Will it overwrite existing content? =
+No. Generated text is provided as editable suggestions; you must confirm or save changes.
 
-= Is the plugin free to use? =
+= Can I bulk-generate content? =
+Yes. Batch processing is available for meta data, ALT text and other supported operations.
 
-Yes, the Filter AI plugin is completely free to use. You only pay for the AI service API usage according to the provider's pricing model.
-
-= Can I customise the AI prompts? =
-
-Absolutely! Filter AI allows you to customise the AI prompts for each generation tool. This means you can tailor the AI outputs to match your brand voice, content guidelines, or specific requirements.
-
-= Which AI services are supported? =
-
-Filter AI works with any AI service supported by the AI Services plugin, including OpenAI (GPT models), Anthropic (Claude models), and Google's Gemini. As AI Services adds support for more providers, Filter AI will support them too.
-
-= How do I control costs when using AI services? =
-
-Since you bring your own API key, you can set spending limits directly with your AI service provider. Additionally, Filter AI is designed to use tokens efficiently, and you can adjust the length and complexity of content generated to manage costs.
-
-= Is Filter AI compatible with my theme or other plugins? =
-
-Filter AI is designed to work with the WordPress block editor (Gutenberg) and should be compatible with most modern WordPress themes and plugins. If you encounter any compatibility issues, please let us know in the support forum.
-
-= Where can I get support? =
-
-If you need help with Filter AI, you can visit our support forum or [contact us directly](https://filter.agency/contact/).
+= Is the plugin accessible-friendly? =
+Yes. The ALT text generation feature is designed to improve accessibility by producing descriptive ALT attributes for images.
 
 == Screenshots ==
 
-1. Filter AI integration in the block editor
-2. Settings page with AI service configuration
-3. Generating ALT text for images
-4. Creating content with customised prompts
-5. Rewriting existing content with AI assistance
+1. Filter AI settings: brand voice, API keys and prompt templates.
+2. Post editor: generate meta title and description.
+3. Media library: generate ALT text for images (single and bulk).
+4. WooCommerce product page: generate product description.
+5. Image generator UI with prompt and generated options.
+
+== Upgrade Notice ==
+
+= 1.4.0 =
+This update includes a new generate FAQs block and new options to select an AI service per feature along with various improvements and bug fixes.
 
 == Changelog ==
+
+= 1.4.0 =
+
+**Enhancements:**
+
+* New generate FAQs block
+* New options to select AI service per feature
+* Improvements to the generate image user journey
+* Manage API keys directly within Filter AI settings
+* Update to the plugin branding
+
+**Bug fixes:**
+
+* Fix `Function _load_textdomain_just_in_time was called incorrectly`
+* Improve support with the classic editor
+* Improve messaging on the batch generation pages
+* Improve developer setup process
 
 = 1.3.1 =
 
 **Bug fixes:**
 
 * Improve messaging across the settings and generation pages
-
 
 = 1.3.0 =
 
@@ -102,13 +116,11 @@ If you need help with Filter AI, you can visit our support forum or [contact us 
 * Dynamically replace missing alt text
 * Automatic plugin updates
 
-
 = 1.2.2 =
 
 **Bug fixes:**
 
 * Standardise location of composer/package files for WooCommerce Action Scheduler
-
 
 = 1.2.1 =
 
@@ -116,7 +128,6 @@ If you need help with Filter AI, you can visit our support forum or [contact us 
 
 * Update Github actions to automatically trigger on releases
 * Update composer setup to support releasing onto Packagist.org
-
 
 = 1.2.0 =
 
@@ -133,7 +144,6 @@ If you need help with Filter AI, you can visit our support forum or [contact us 
 * Update settings page features to respond to status of required plugins
 * Code stability improvements
 
-
 = 1.1.0 =
 
 **Enhancements:**
@@ -148,14 +158,9 @@ If you need help with Filter AI, you can visit our support forum or [contact us 
 
 * Correct link to edit an image that doesn't have its alt text updated during batching
 
-
 = 1.0.0 =
 
 * Initial public release of Filter AI
-
-== Upgrade Notice ==
-
-= 1.0.0 = First public release of Filter AI - install now to enhance your WordPress content creation workflow with AI tools.
 
 == About Filter ==
 

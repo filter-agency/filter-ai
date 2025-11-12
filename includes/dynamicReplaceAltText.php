@@ -3,6 +3,11 @@
  * Functionality to dynamically replace missing alt text
  */
 
+// Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 // require settings
 require_once __DIR__ . '/settings.php';
 

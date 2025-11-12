@@ -1,4 +1,4 @@
-import { createReduxStore, dispatch, register, useSelect } from '@wordpress/data';
+import { createReduxStore, dispatch, register, useSelect, resolveSelect } from '@wordpress/data';
 
 const storeName = 'filter-ai/seo-title-options-modal-store';
 
@@ -37,7 +37,9 @@ const store = createReduxStore(storeName, {
   },
 });
 
-register(store);
+if (!resolveSelect(store)) {
+  register(store);
+}
 
 export const useSeoTitleOptionsModal = (dependencies = []) =>
   useSelect((select) => select(store).getOptionsModal(), dependencies);

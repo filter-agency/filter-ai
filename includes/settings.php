@@ -3,6 +3,11 @@
  * Settings functions
  */
 
+// Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Get default settings
  *
@@ -10,61 +15,84 @@
  */
 function filter_ai_get_default_settings() {
 	return array(
-		'common_prompt_prefix'               => esc_html__( 'The response should only contain the answer and in plain text, so no <br> tags for line breaks.', 'filter-ai' ),
-		'common_prompt_different'            => esc_html__( 'Making sure it is different to the current text:', 'filter-ai' ),
+		'common_prompt_prefix'                      => esc_html__( 'The response should only contain the answer and in plain text, so no <br> tags for line breaks.', 'filter-ai' ),
 
-		'brand_voice_enabled'                => false,
-		'brand_voice_prompt'                 => '',
+		'common_prompt_different'                   => esc_html__( 'Making sure it is different to the current text:', 'filter-ai' ),
 
-		'stop_words_enabled'                 => false,
-		'stop_words_prompt'                  => '',
-		'stop_words_pre_prompt'              => esc_html__( 'Please avoid using the following words in any generated response:', 'filter-ai' ),
+		'brand_voice_enabled'                       => false,
+		'brand_voice_prompt'                        => '',
 
-		'image_alt_text_enabled'             => true,
-		'image_alt_text_prompt'              => esc_html__( 'Please generate a short description no more than 50 words for the following image that can be used as its alternative text. The description should be clear, succinct, and provide a sense of what the image portrays, ensuring that it is accessible to individuals using screen readers.', 'filter-ai' ),
+		'stop_words_enabled'                        => false,
+		'stop_words_prompt'                         => '',
 
-		'auto_alt_text_enabled'              => true,
-		'dynamic_add_alt_text_enabled'       => true,
+		'stop_words_pre_prompt'                     => esc_html__( 'Please avoid using the following words in any generated response:', 'filter-ai' ),
 
-		'generate_image_pre_prompt'          => esc_html__( 'Please generate an image that is optimised for web use and is based on the following prompt:', 'filter-ai' ),
-		'generate_image_enabled'             => true,
+		'image_alt_text_enabled'                    => true,
+		'image_alt_text_prompt'                     => esc_html__( 'Please generate a short description no more than 50 words for the following image that can be used as its alternative text. The description should be clear, succinct, and provide a sense of what the image portrays, ensuring that it is accessible to individuals using screen readers.', 'filter-ai' ),
+		'image_alt_text_prompt_service'             => '',
 
-		'post_title_enabled'                 => true,
-		'post_title_prompt'                  => esc_html__( 'Please generate an SEO-friendly title for this page that is between 40 and 60 characters based on the following content:', 'filter-ai' ),
+		'auto_alt_text_enabled'                     => true,
+		'dynamic_add_alt_text_enabled'              => true,
 
-		'post_excerpt_enabled'               => true,
-		'post_excerpt_prompt'                => esc_html__( 'Please generate a summary of no more than 50 words for the following content:', 'filter-ai' ),
+		'generate_image_pre_prompt'                 => esc_html__( 'Please generate an image that is optimised for web use and is based on the following prompt:', 'filter-ai' ),
+		'generate_image_prompt_service'             => '',
 
-		'post_tags_enabled'                  => true,
-		'post_tags_prompt'                   => esc_html__( 'Please generate a list of {{number}} words that describe specific details for the following content:', 'filter-ai' ),
+		'generate_image_enabled'                    => true,
 
-		'customise_text_rewrite_enabled'     => true,
-		'customise_text_rewrite_prompt'      => esc_html__( 'Please rewrite the following {{type}} into a new version that is a similar length that maintains the core ideas but presents them in a fresh and compelling way:', 'filter-ai' ),
+		'post_title_enabled'                        => true,
+		'post_title_prompt'                         => esc_html__( 'Please generate an SEO-friendly title for this page that is between 40 and 60 characters based on the following content:', 'filter-ai' ),
+		'post_title_prompt_service'                 => '',
 
-		'customise_text_expand_enabled'      => true,
-		'customise_text_expand_prompt'       => esc_html__( 'Please expand upon the following {{type}} into a longer version:', 'filter-ai' ),
+		'post_excerpt_enabled'                      => true,
+		'post_excerpt_prompt'                       => esc_html__( 'Please generate a summary of no more than 50 words for the following content:', 'filter-ai' ),
+		'post_excerpt_prompt_service'               => '',
 
-		'customise_text_condense_enabled'    => true,
-		'customise_text_condense_prompt'     => esc_html__( 'Please reduce the following {{type}} into a shorter version:', 'filter-ai' ),
+		'post_tags_enabled'                         => true,
+		'post_tags_prompt'                          => esc_html__( 'Please generate a list of {{number}} words that describe specific details for the following content:', 'filter-ai' ),
+		'post_tags_prompt_service'                  => '',
 
-		'customise_text_summarise_enabled'   => true,
-		'customise_text_summarise_prompt'    => esc_html__( 'Please generate a summary of no more than 50 words for the following {{type}}:', 'filter-ai' ),
+		'customise_text_rewrite_enabled'            => true,
+		'customise_text_rewrite_prompt'             => esc_html__( 'Please rewrite the following {{type}} into a new version that is a similar length that maintains the core ideas but presents them in a fresh and compelling way:', 'filter-ai' ),
+		'customise_text_rewrite_prompt_service'     => '',
 
-		'customise_text_change_tone_enabled' => true,
-		'customise_text_change_tone_prompt'  => esc_html__( 'Please rewrite the following {{type}} changing its tone to make it sound more {{tone}} while keeping it a similar length:', 'filter-ai' ),
+		'customise_text_expand_enabled'             => true,
+		'customise_text_expand_prompt'              => esc_html__( 'Please expand upon the following {{type}} into a longer version:', 'filter-ai' ),
+		'customise_text_expand_prompt_service'      => '',
 
-		'wc_product_description_enabled'     => true,
-		'wc_product_description_prompt'      => esc_html__( 'Please generate a description based on the following product information:', 'filter-ai' ),
+		'customise_text_condense_enabled'           => true,
+		'customise_text_condense_prompt'            => esc_html__( 'Please reduce the following {{type}} into a shorter version:', 'filter-ai' ),
+		'customise_text_condense_prompt_service'    => '',
 
-		'wc_product_excerpt_enabled'         => true,
-		'wc_product_excerpt_prompt'          => esc_html__( 'Please generate a summary of no more than 50 words based on the following product information:', 'filter-ai' ),
+		'customise_text_summarise_enabled'          => true,
+		'customise_text_summarise_prompt'           => esc_html__( 'Please generate a summary of no more than 50 words for the following {{type}}:', 'filter-ai' ),
+		'customise_text_summarise_prompt_service'   => '',
 
-		'yoast_seo_title_enabled'            => true,
-		'yoast_seo_title_prompt'             => esc_html__( 'Please generate an SEO-friendly title for this page that is between 40 and 60 characters based on the following content:', 'filter-ai' ),
-		'yoast_seo_title_pre_prompt'         => esc_html__( 'Please provide 5 options separated by 2 pipes "||", do not return anything other than your answer.', 'filter-ai' ),
+		'customise_text_change_tone_enabled'        => true,
+		'customise_text_change_tone_prompt'         => esc_html__( 'Please rewrite the following {{type}} changing its tone to make it sound more {{tone}} while keeping it a similar length:', 'filter-ai' ),
+		'customise_text_change_tone_prompt_service' => '',
 
-		'yoast_seo_meta_description_enabled' => true,
-		'yoast_seo_meta_description_prompt'  => esc_html__( 'Please generate an SEO-friendly description for this page that is between 120 and 150 characters based on the following content:', 'filter-ai' ),
+		'generate_faq_section_enabled'              => true,
+		'generate_faq_section_pre_prompt'           => esc_html__( 'For the following prompt please respond with the following JSON string format: `[{"question":"...","answer":"..."}]`', 'filter-ai' ),
+		'generate_faq_section_prompt'               => esc_html__( 'Please can you come up with up to {{number}} FAQs, each consisting of a question and a brief answer, based on the following content:', 'filter-ai' ),
+		'generate_faq_section_prompt_service'       => '',
+
+		'wc_product_description_enabled'            => true,
+		'wc_product_description_prompt'             => esc_html__( 'Please generate a description based on the following product information:', 'filter-ai' ),
+		'wc_product_description_prompt_service'     => '',
+
+		'wc_product_excerpt_enabled'                => true,
+		'wc_product_excerpt_prompt'                 => esc_html__( 'Please generate a summary of no more than 50 words based on the following product information:', 'filter-ai' ),
+		'wc_product_excerpt_prompt_service'         => '',
+
+		'yoast_seo_title_enabled'                   => true,
+		'yoast_seo_title_prompt'                    => esc_html__( 'Please generate an SEO-friendly title for this page that is between 40 and 60 characters based on the following content:', 'filter-ai' ),
+		'yoast_seo_title_prompt_service'            => '',
+
+		'yoast_seo_title_pre_prompt'                => esc_html__( 'Please provide 5 options separated by 2 pipes "||", do not return anything other than your answer.', 'filter-ai' ),
+
+		'yoast_seo_meta_description_enabled'        => true,
+		'yoast_seo_meta_description_prompt'         => esc_html__( 'Please generate an SEO-friendly description for this page that is between 120 and 150 characters based on the following content:', 'filter-ai' ),
+		'yoast_seo_meta_description_prompt_service' => '',
 	);
 }
 
@@ -96,6 +124,32 @@ function filter_ai_get_option_schema_properties() {
 }
 
 /**
+ * Sanitize settings
+ *
+ * @param mixed{} $settings The settings to be sanitized
+ *
+ * @return mixed{} Sanitized settings
+ */
+function filter_ai_sanitize_settings( $settings ) {
+	$properties = filter_ai_get_option_schema_properties();
+	$sanitized  = array();
+
+	foreach ( $settings as $key => $value ) {
+		$type = $properties[ $key ]['type'] ?? 'text';
+
+		switch ( $type ) {
+			case 'boolean':
+				$sanitized[ $key ] = rest_sanitize_boolean( $value );
+				break;
+			default:
+				$sanitized[ $key ] = sanitize_text_field( $value );
+		}
+	}
+
+	return $sanitized;
+}
+
+/**
  *  Register settings
  */
 function filter_ai_settings_init() {
@@ -106,14 +160,17 @@ function filter_ai_settings_init() {
 		'options',
 		'filter_ai_settings',
 		array(
-			'type'         => 'object',
-			'show_in_rest' => array(
+			'type'              => 'object',
+			'show_in_rest'      => array(
 				'schema' => array(
 					'type'       => 'object',
 					'properties' => $properties,
 				),
 			),
-			'default'      => $default_settings,
+			'default'           => $default_settings,
+			'sanitize_callback' => function ( $opt ) use ( $properties ) {
+				return filter_ai_sanitize_settings( $opt );
+			},
 		)
 	);
 }

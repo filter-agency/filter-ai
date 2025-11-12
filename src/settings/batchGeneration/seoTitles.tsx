@@ -2,16 +2,19 @@ import { Button, Spinner, Panel, PanelBody, ProgressBar, Notice } from '@wordpre
 import { RawHTML, useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useSettings } from '../useSettings';
+import { useServices } from '@/utils/ai/services/useServices';
 
 const defaultCount = {
   posts: 0,
   postsWithout: 0,
+  postsWith: 0,
   actions: 0,
   completeActions: 0,
   pendingActions: 0,
   runningActions: 0,
   failedActions: 0,
   postTypes: [],
+  lastRunService: 'N/A',
 };
 
 type FailedAction = {
@@ -20,9 +23,39 @@ type FailedAction = {
 };
 
 type PostType = {
+  key: string;
   label: string;
   total: number;
-  missing: number;
+  default: number;
+  custom: number;
+};
+
+type Template = {
+  key: string;
+  label: string;
+  template: string[];
+};
+
+const getDefaultTemplate = (template?: string) => {
+  if (!template) {
+    return [];
+  }
+
+  const items = template.split(' ');
+
+  return items.map((item) => {
+    switch (item) {
+      case '%%sep%%':
+        return 'Separator';
+      case '%%sitename%%':
+        return 'Site title';
+      default:
+        return item
+          .toLowerCase()
+          .replace(/%/g, '')
+          .replace(/\b\w/g, (c) => c.toUpperCase());
+    }
+  });
 };
 
 const SEOTitles = () => {
@@ -32,8 +65,11 @@ const SEOTitles = () => {
   const [isGenerateButtonDisabled, setIsGenerateButtonDisabled] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [postTypes, setPostTypes] = useState<PostType[]>([]);
+  const [defaultTemplates, setDefaultTemplates] = useState<Template[]>([]);
 
   const { settings } = useSettings();
+
+  const services = useServices();
 
   const inProgress = useMemo(() => {
     return !!count.pendingActions || !!count.runningActions;
@@ -48,31 +84,52 @@ const SEOTitles = () => {
         .catch(() => ({}));
 
       if (!data) {
-        throw new Error('no data');
+        throw new Error(__('no data', 'filter-ai'));
       }
 
       setCount((prevCount) => {
         return {
           ...prevCount,
           posts: data.total_count,
-          postsWithout: data.total_missing_count,
+          postsWithout: data.total_default_count,
+          postsWith: data.total_custom_count,
           actions: data.actions_count,
           completeActions: data.complete_actions_count,
           pendingActions: data.pending_actions_count,
           runningActions: data.running_actions_count,
           failedActions: data.failed_actions_count,
+          lastRunService: data.last_run_service,
         };
       });
 
       setFailedActions(Object.values(data.failed_actions || {}));
 
-      setPostTypes(
+      const post_types =
         data.post_types?.sort((a: PostType, b: PostType) => {
           if (a.label < b.label) return -1;
           if (a.label > b.label) return 1;
           return 0;
-        }) || []
-      );
+        }) || [];
+
+      setPostTypes(post_types);
+
+      const templates = post_types
+        .map((postType: PostType) => {
+          const template = data.yoast_seo_titles?.[`title-${postType.key}`] || '';
+
+          if (!template) {
+            return null;
+          }
+
+          return {
+            key: postType.key,
+            label: postType.label,
+            template: getDefaultTemplate(template),
+          };
+        })
+        .filter((item: Template) => item.key);
+
+      setDefaultTemplates(templates);
 
       if (!!data.pending_actions_count || !!data.running_actions_count) {
         setTimeout(getCount, 1000);
@@ -103,7 +160,7 @@ const SEOTitles = () => {
     } finally {
       getCount();
     }
-  }, []);
+  }, [settings?.yoast_seo_title_prompt_service, getCount]);
 
   const cancel = useCallback(async () => {
     setIsCancelling(true);
@@ -151,7 +208,7 @@ const SEOTitles = () => {
           <PanelBody>
             <p>
               {sprintf(
-                __('Generate missing SEO titles for the following post types: %s.', 'filter-ai'),
+                __('Generate SEO titles for the following post types: %s.', 'filter-ai'),
                 postTypes
                   ?.slice(0, -1)
                   .map((type) => type.label)
@@ -161,13 +218,15 @@ const SEOTitles = () => {
               )}
             </p>
             <p>{sprintf(__('Total posts: %s', 'filter-ai'), count.posts)}</p>
-            <p>{sprintf(__('Posts missing SEO titles: %s', 'filter-ai'), count.postsWithout)}</p>
+            <p>{sprintf(__('Posts with default SEO title: %s', 'filter-ai'), count.postsWithout)}</p>
+            <p>{sprintf(__('Posts with custom SEO title: %s', 'filter-ai'), count.postsWith)}</p>
             <table>
               <thead>
                 <tr>
                   <th></th>
                   <th>{__('Total', 'filter-ai')}</th>
-                  <th>{__('Missing', 'filter-ai')}</th>
+                  <th>{__('Default', 'filter-ai')}</th>
+                  <th>{__('Custom', 'filter-ai')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -175,14 +234,41 @@ const SEOTitles = () => {
                   <tr key={index}>
                     <td>{type.label}</td>
                     <td>{type.total}</td>
-                    <td>{type.missing}</td>
+                    <td>{type.default}</td>
+                    <td>{type.custom}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </PanelBody>
+
+          {!!defaultTemplates?.length && (
+            <PanelBody title={__('Default Yoast SEO title template', 'filter-ai')} initialOpen={false}>
+              <div className="filter-ai-settings-seo-title-templates">
+                {defaultTemplates.map((defaultTemplate) => (
+                  <div key={defaultTemplate.key}>
+                    <fieldset className="filter-ai-settings-seo-title-template">
+                      <legend>{defaultTemplate.label}</legend>
+                      {defaultTemplate?.template.map((item, index) => (
+                        <span className="filter-ai-settings-seo-title-template-item" key={index}>
+                          {item}
+                        </span>
+                      ))}
+                    </fieldset>
+                  </div>
+                ))}
+              </div>
+            </PanelBody>
+          )}
+
           {!inProgress && count.actions > 0 && (
             <PanelBody title={__('Previous run stats', 'filter-ai')}>
+              <p>
+                {sprintf(
+                  __('AI Service: %s', 'filter-ai'),
+                  services?.[count.lastRunService]?.metadata.name ?? 'unknown'
+                )}
+              </p>
               <p>{sprintf(__('SEO titles processed: %s', 'filter-ai'), count.actions)}</p>
               <p>{sprintf(__('Completed SEO titles: %s', 'filter-ai'), count.completeActions)}</p>
               <p>{sprintf(__('Failed SEO titles %s', 'filter-ai'), count.failedActions)}</p>

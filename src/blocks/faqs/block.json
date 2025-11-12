@@ -1,0 +1,35 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "title": "Filter AI FAQs",
+  "description": "A block to generate FAQs",
+  "keywords": ["FAQ", "FAQs", "Frequently Asked Questions", "Filter AI"],
+  "version": "1.0.0",
+  "textdomain": "filter-ai",
+  "name": "filter-ai/faqs",
+  "icon": "editor-ul",
+  "category": "filter-ai",
+  "attributes": {
+    "title": {
+      "type": "string",
+      "default": "Frequently Asked Questions"
+    },
+    "titleAlign": {
+      "type": "string",
+      "default": "center"
+    }
+  },
+  "editorScript": "file:./index.js",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "supports": {
+    "html": false,
+    "anchor": true,
+    "alignWide": true,
+    "color": {
+      "background": true,
+      "text": true,
+      "heading": true
+    }
+  }
+}

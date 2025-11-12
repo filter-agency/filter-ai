@@ -15,12 +15,20 @@
   gap: 24px;
 }
 
+.filter-ai-settings .components-button.is-secondary.has-icon > svg {
+  margin-left: -2px;
+  margin-right: -10px;
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+}
+
 .filter-ai-settings-header {
-  background-color: #012f5f;
-  background-image: url('../assets/fade-bg.png');
+  background-color: #003f79;
+  background-image: url('../assets/blue-bg.png');
   background-repeat: no-repeat;
-  background-size: cover;
-  background-position: bottom center;
+  background-size: 100% auto;
+  background-position: center right;
   border-bottom: 1px solid #e0e0e0;
   padding: 24px 16px 24px 18px;
   margin: -10px -20px 0 -22px;
@@ -38,9 +46,9 @@
   }
 
   & h1 {
-    margin-bottom: 8px;
     font-size: 20px;
-    line-height: 24px;
+    line-height: 40px;
+    font-weight: 500;
   }
 
   & p {
@@ -49,8 +57,8 @@
   }
 
   & img {
-    width: 18px;
-    margin-top: -3px;
+    width: 40px;
+    height: 40px;
   }
 
   & .filter-ai-settings-header-content {
@@ -84,18 +92,22 @@
   }
 
   & .nav-tab {
-    margin: 0 0 -1px;
-    background: #fff;
-    color: #012f5f;
+    margin: 0;
+    background: transparent;
+    color: #fff;
+    border: 0;
+    font-size: 15px;
+    line-height: 20px;
+    font-weight: 500;
+    padding: 12px 16px;
   }
 
   & .nav-tab:not(.nav-tab-active) {
-    border-bottom: 1px solid #f0f0f1;
+    opacity: 0.75;
   }
 
   & .nav-tab-active {
-    background: #f0f0f1;
-    border-bottom: 1px solid #f0f0f1;
+    border-bottom: 2px solid #e1236c;
   }
 }
 
@@ -203,6 +215,26 @@
   }
 }
 
+.filter-ai-label-title {
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-transform: uppercase;
+  display: block;
+  padding: 0px;
+}
+
+.filter-ai-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.components-menu-item__button.components-button .components-menu-items__item-icon.has-icon-right {
+  margin-left: 0px;
+}
+
 .filter-wrap {
   margin: 10px 20px 0 2px;
 }
@@ -217,4 +249,39 @@
 
 .notice.update-nag.inline ~ .filter-wrap {
   margin-top: 35px;
+}
+
+.filter-ai-selector-button,
+.filter-ai-selector-button.components-button.has-icon.has-text {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 6px 4px 6px 10px;
+}
+
+.filter-ai-selector-menu .components-popover__content {
+  border-radius: 8px;
+}
+
+.filter-ai-settings-seo-title-templates {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.filter-ai-settings-seo-title-template {
+  display: inline-flex;
+  flex-direction: row;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+
+  & .filter-ai-settings-seo-title-template-item {
+    color: #0f172a;
+    background-color: #e2e8f0;
+    border-radius: 17px;
+    font-size: 12px;
+    line-height: 1.25;
+    font-weight: 500;
+    padding: 2px 8px;
+  }
 }

@@ -1,0 +1,2 @@
+import './generateSEOTitle';
+import './generateSEOMetaDescription';

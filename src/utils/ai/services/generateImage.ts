@@ -1,14 +1,13 @@
-import { getService } from './getService';
-
-const { enums } = window.aiServices.ai;
-
-export const aiCapability = enums.AiCapability;
+import { waitForAIPlugin } from '@/utils/useAIPlugin';
+import { select } from '@wordpress/data';
+import { __, sprintf } from '@wordpress/i18n';
 
 type GenerateImageProps = {
   prompt: string;
   feature: string;
   candidateCount?: number;
   aspectRatio?: string;
+  service?: string;
 };
 
 export const generateImage = async ({
@@ -16,16 +15,35 @@ export const generateImage = async ({
   feature,
   candidateCount,
   aspectRatio,
+  service,
 }: GenerateImageProps): Promise<string[]> => {
-  const capabilities = [aiCapability.IMAGE_GENERATION];
-  const service = await getService(capabilities);
+  const aiPlugin = await waitForAIPlugin();
 
-  if (!service || !prompt || !feature) {
+  if (!aiPlugin) {
+    throw new Error(__('Error loading AI plugin', 'filter-ai'));
+  }
+
+  const capabilities = [aiPlugin.ai.enums.AiCapability.IMAGE_GENERATION];
+
+  // @ts-expect-error
+  const { isServiceAvailable, getAvailableService } = select(aiPlugin.ai.store);
+
+  let resolvedService;
+
+  if (service && isServiceAvailable(service)) {
+    resolvedService = getAvailableService({ slugs: [service], capabilities });
+  } else {
+    resolvedService = getAvailableService({ capabilities });
+  }
+
+  if (!resolvedService || !prompt || !feature) {
     return [];
   }
 
   try {
-    const model = service.getModel({
+    const metadata = resolvedService.getServiceMetadata();
+
+    const resolvedModel = resolvedService.getModel({
       feature,
       capabilities,
       generationConfig: {
@@ -34,7 +52,11 @@ export const generateImage = async ({
       },
     });
 
-    const candidates = await model.generateImage(prompt);
+    if (!resolvedModel || typeof resolvedModel.generateImage !== 'function') {
+      throw new Error(sprintf(__('No valid model found for service %s', 'filter-ai'), metadata.name));
+    }
+
+    const candidates = await resolvedModel.generateImage(prompt);
 
     const imageUrls: string[] = [];
 

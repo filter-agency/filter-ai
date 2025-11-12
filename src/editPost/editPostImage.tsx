@@ -3,14 +3,16 @@ import { useSettings } from '@/settings';
 import { ai, hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createRoot, useCallback, useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import {usePrompts} from "@/utils/ai/prompts/usePrompts";
+import { __, sprintf } from '@wordpress/i18n';
+import { usePrompts } from '@/utils/ai/prompts/usePrompts';
+import { useService } from '@/utils/ai/services/useService';
 
 const Toolbar = () => {
   const { settings } = useSettings();
   const { saveEntityRecord } = useDispatch('core');
 
   const prompt = usePrompts('image_alt_text_prompt');
+  const service = useService('image_alt_text_prompt_service');
 
   const postId = useMemo(() => {
     const params = new URLSearchParams(location.search);
@@ -34,8 +36,7 @@ const Toolbar = () => {
     showLoadingMessage(__('Alt Text', 'filter-ai'));
 
     try {
-
-      const newAltText = await ai.getAltTextFromUrl(imageUrl, altText, prompt);
+      const newAltText = await ai.getAltTextFromUrl(imageUrl, altText, prompt, service?.slug);
 
       if (!newAltText) {
         throw new Error(__('Sorry, there has been an issue while generating your alt text.', 'filter-ai'));
@@ -47,7 +48,13 @@ const Toolbar = () => {
         document.getElementById('attachment_alt').value = newAltText;
       }
 
-      showNotice({ message: __('Alt text has been updated.', 'filter-ai') });
+      let message = __('Alt text has been updated', 'filter-ai');
+
+      if (service?.metadata.name) {
+        message = sprintf(__('Alt text has been updated using %s', 'filter-ai'), service.metadata.name);
+      }
+
+      showNotice({ message });
     } catch (error) {
       console.error(error);
 

@@ -14,5 +14,7 @@ declare global {
     filter_ai_default_settings: any;
     tinymce: any;
     YoastSEO: any;
+    tagBox: any;
+    jQuery: any;
   }
 }

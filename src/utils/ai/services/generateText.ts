@@ -1,36 +1,52 @@
-import { getService } from './getService';
+import { waitForAIPlugin } from '@/utils/useAIPlugin';
+import { select } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 
-const { enums, helpers } = window.aiServices.ai;
+const getTextFromContents = async (contents: any) => {
+  const aiPlugin = await waitForAIPlugin();
 
-export const aiCapability = enums.AiCapability;
-
-const getTextFromContents = (contents: any) => {
-  return helpers.getTextFromContents(contents).replaceAll('\n\n\n\n', '\n\n');
+  return aiPlugin?.ai.helpers.getTextFromContents(contents).replaceAll('\n\n\n\n', '\n\n');
 };
 
 type Props = {
   prompt: string;
   feature: string;
-  capabilities?: Array<typeof aiCapability>;
+  capabilities?: Array<string>;
   parts?: any;
+  service?: string;
+  model?: string;
 };
 
-export const generateText = async ({
-  prompt,
-  feature,
-  capabilities = [aiCapability.TEXT_GENERATION],
-  parts = [],
-}: Props) => {
-  const service = await getService(capabilities);
+export const generateText = async ({ prompt, feature, capabilities = [], parts = [], service }: Props) => {
+  const aiPlugin = await waitForAIPlugin();
 
-  if (!service || !prompt || !feature) {
+  if (!aiPlugin) {
+    throw new Error(__('Error loading AI plugin', 'filter-ai'));
+  }
+
+  if (!capabilities.length) {
+    capabilities = [aiPlugin.ai.enums.AiCapability.TEXT_GENERATION];
+  }
+
+  // @ts-expect-error
+  const { isServiceAvailable, getAvailableService } = select(aiPlugin.ai.store);
+
+  let resolvedService;
+
+  if (service && isServiceAvailable(service)) {
+    resolvedService = getAvailableService(service);
+  } else {
+    resolvedService = getAvailableService({ capabilities });
+  }
+
+  if (!resolvedService || !prompt || !feature) {
     return null;
   }
 
   try {
-    const candidates = await service.generateText(
+    const candidates = await resolvedService.generateText(
       {
-        role: enums.ContentRole.USER,
+        role: aiPlugin.ai.enums.ContentRole.USER,
         parts: [
           {
             text: prompt,
@@ -44,7 +60,9 @@ export const generateText = async ({
       }
     );
 
-    return getTextFromContents(helpers.getCandidateContents(candidates));
+    const text = await getTextFromContents(aiPlugin.ai.helpers.getCandidateContents(candidates));
+
+    return text;
   } finally {
     // empty finally as the catch is handled by parent
   }
