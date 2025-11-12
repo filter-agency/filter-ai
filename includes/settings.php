@@ -63,7 +63,7 @@ function filter_ai_get_default_settings() {
 		'customise_text_summarise_prompt_service'   => '',
 
 		'customise_text_check_grammar_enabled'      => true,
-		'customise_text_check_grammar_prompt'       => esc_html__( 'Please correct the grammar or spelling, without altering the content of the following {{type}}:', 'filter-ai' ),
+		'customise_text_check_grammar_prompt'       => esc_html__( 'Please correct only grammar and spelling in the following {{type}}, but do not remove, change, or add any HTML tags or formatting:', 'filter-ai' ),
 		'customise_text_check_grammar_service'      => '',
 
 		'customise_text_change_tone_enabled'        => true,
