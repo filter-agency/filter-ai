@@ -162,6 +162,8 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
 
     if (promptKey === 'customise_text_summarise_prompt') {
       showLoadingMessage(label, 'summarising');
+    } else if (promptKey === 'customise_text_check_grammar_prompt') {
+      showLoadingMessage(label, 'checking grammar');
     } else {
       showLoadingMessage(label, 'customising');
     }
