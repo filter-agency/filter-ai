@@ -1,59 +1,24 @@
 import { Button, Modal } from '@wordpress/components';
-import { useGrammarCheckModal, hideGrammarCheckModal } from './store';
-import { createRoot, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { useGrammarCheckModal, hideGrammarCheckModal, setGrammarCheckModal } from './store';
+import { createRoot } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import CloseIcon from '@/assets/close';
-import { showNotice } from '@/utils';
-import { insert, toHTMLString } from '@wordpress/rich-text';
-import { dispatch } from '@wordpress/data';
 
 const GrammarCheckModalContainer = () => {
-  const { originalText, correctedText, isVisible, context } = useGrammarCheckModal();
+  const { originalText, correctedText } = useGrammarCheckModal();
 
   const onClose = () => {
     hideGrammarCheckModal();
   };
 
   const onApply = () => {
-    if (!context || !correctedText) return;
+    if (!correctedText) return;
 
-    try {
-      const { content, hasSelection, selectionStart, selectionEnd } = context;
-
-      if (hasSelection) {
-        const newValue = insert(content, correctedText, selectionStart.offset, selectionEnd.offset);
-
-        const blockDispatcher = dispatch('core/block-editor') as {
-          updateBlockAttributes: (clientId: string, attributes: Record<string, any>) => void;
-        };
-
-        const targetBlockId = selectionEnd?.clientId;
-        if (targetBlockId) {
-          blockDispatcher.updateBlockAttributes(targetBlockId, {
-            content: toHTMLString({ value: newValue }),
-          });
-        }
-
-        setTimeout(() => document.getSelection()?.empty(), 0);
-      }
-
-      let message = __('Grammar has been corrected', 'filter-ai');
-      if (context.serviceName) {
-        message = sprintf(__('Grammar has been corrected using %s', 'filter-ai'), context.serviceName);
-      }
-
-      showNotice({ message });
-      onClose();
-    } catch (error) {
-      console.error('Error applying grammar correction:', error);
-      showNotice({
-        message: __('There was an issue applying the grammar correction.', 'filter-ai'),
-        type: 'error',
-      });
-    }
+    setGrammarCheckModal({ choice: correctedText });
+    hideGrammarCheckModal();
   };
 
-  if (!isVisible) {
+  if (!originalText || !correctedText) {
     return null;
   }
 

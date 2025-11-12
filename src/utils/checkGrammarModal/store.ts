@@ -5,7 +5,7 @@ const storeName = 'filter-ai/grammar-check-modal-store';
 type State = {
   originalText: string;
   correctedText: string;
-  isVisible: boolean;
+  choice: string;
   context?: {
     content: any;
     hasSelection: boolean;
@@ -20,8 +20,15 @@ type Action = {
   payload: Partial<State>;
 };
 
+const defaultState: State = {
+  originalText: '',
+  correctedText: '',
+  choice: '',
+  context: undefined,
+};
+
 const store = createReduxStore(storeName, {
-  reducer: (state: State, action: Action) => {
+  reducer: (state: State = defaultState, action: Action) => {
     switch (action.type) {
       case 'setGrammarCheckModal':
         return {
@@ -41,7 +48,7 @@ const store = createReduxStore(storeName, {
     },
   },
   selectors: {
-    getGrammarCheckModal: (state: State) => state || {},
+    getGrammarCheckModal: (state: State) => state || defaultState,
   },
 });
 
@@ -52,18 +59,21 @@ if (!resolveSelect(store)) {
 export const useGrammarCheckModal = (dependencies = []) =>
   useSelect((select) => select(store).getGrammarCheckModal(), dependencies);
 
-export const showGrammarCheckModal = (newState: Partial<State>) => {
-  console.log('showGrammarCheckModal executed');
+export const setGrammarCheckModal = (newState: Partial<State>) => {
+  dispatch(store).setGrammarCheckModal(newState);
+};
 
-  dispatch(store).setGrammarCheckModal({ ...newState, isVisible: true });
+export const showGrammarCheckModal = (newState: Partial<State>) => {
+  dispatch(store).setGrammarCheckModal({
+    ...newState,
+    choice: '',
+  });
 };
 
 export const hideGrammarCheckModal = () => {
   dispatch(store).setGrammarCheckModal({
-    isVisible: false,
     originalText: '',
     correctedText: '',
-    context: undefined,
   });
 };
 
@@ -71,7 +81,7 @@ export const resetGrammarCheckModal = () => {
   dispatch(store).setGrammarCheckModal({
     originalText: '',
     correctedText: '',
-    isVisible: false,
+    choice: '',
     context: undefined,
   });
 };

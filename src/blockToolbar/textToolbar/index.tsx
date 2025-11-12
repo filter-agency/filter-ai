@@ -1,5 +1,5 @@
 import { MenuItem, Popover, NavigableMenu } from '@wordpress/components';
-import { useMemo, useState } from '@wordpress/element';
+import { useMemo, useState, useEffect } from '@wordpress/element';
 import {
   hideLoadingMessage,
   showLoadingMessage,
@@ -7,11 +7,13 @@ import {
   ai,
   removeWrappingQuotes,
   showGrammarCheckModal,
+  useGrammarCheckModal,
+  resetGrammarCheckModal,
 } from '@/utils';
 import { BlockEditProps } from '@/types';
 import { useSettings } from '@/settings';
 import { insert, toHTMLString, slice, create } from '@wordpress/rich-text';
-import { useSelect } from '@wordpress/data';
+import { useSelect, select, dispatch } from '@wordpress/data';
 import { ToolbarButton } from '@/components/toolbarButton';
 import { __, sprintf } from '@wordpress/i18n';
 import { usePrompts } from '@/utils/ai/prompts/usePrompts';
@@ -144,6 +146,8 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
     }
   }, [name]);
 
+  const grammarModal = useGrammarCheckModal();
+
   const onClick: OnClick = async (promptKey, params) => {
     const isValidPromptKey = (key: string): key is PromptKey => {
       return key in promptConfigs;
@@ -263,6 +267,69 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
       hideLoadingMessage();
     }
   };
+
+  useEffect(() => {
+    const { choice, context } = grammarModal;
+
+    if (choice && context) {
+      const { content, hasSelection, selectionStart, selectionEnd, serviceName } = context;
+
+      try {
+        const blockEditor = select('core/block-editor');
+        const blockDispatcher = dispatch('core/block-editor') as {
+          updateBlockAttributes: (clientId: string, attributes: Record<string, any>) => void;
+        };
+
+        const startId = selectionStart?.clientId;
+        const endId = selectionEnd?.clientId;
+        const sameBlock = startId && endId && startId === endId;
+        const targetBlockId = sameBlock ? startId : endId;
+        const targetBlock = blockEditor.getBlock(targetBlockId);
+
+        if (targetBlock) {
+          if (Object.prototype.hasOwnProperty.call(targetBlock.attributes, 'content')) {
+            if (hasSelection) {
+              const richContent = typeof content === 'string' ? create({ text: content }) : content;
+              const newValue = insert(richContent, choice, selectionStart.offset, selectionEnd.offset);
+
+              blockDispatcher.updateBlockAttributes(targetBlockId, {
+                content: toHTMLString({ value: newValue }),
+              });
+            } else {
+              blockDispatcher.updateBlockAttributes(targetBlockId, {
+                content: choice,
+              });
+            }
+          } else {
+            setAttributes({ content: choice });
+          }
+        } else if (hasSelection) {
+          const richContent = typeof content === 'string' ? create({ text: content }) : content;
+          const newValue = insert(richContent, choice, selectionStart.offset, selectionEnd.offset);
+          setAttributes({ content: toHTMLString({ value: newValue }) });
+        } else {
+          setAttributes({ content: choice });
+        }
+
+        setTimeout(() => document.getSelection()?.empty(), 0);
+
+        let message = __('Grammar has been corrected', 'filter-ai');
+        if (serviceName) {
+          message = sprintf(__('Grammar has been corrected using %s', 'filter-ai'), serviceName);
+        }
+
+        showNotice({ message });
+      } catch (error) {
+        console.error('Error applying grammar correction:', error);
+        showNotice({
+          message: __('There was an issue applying the grammar correction.', 'filter-ai'),
+          type: 'error',
+        });
+      } finally {
+        resetGrammarCheckModal();
+      }
+    }
+  }, [grammarModal.choice, grammarModal.context]);
 
   if (
     hasMultiSelection ||
