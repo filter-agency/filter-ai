@@ -1,6 +1,7 @@
 <?php
 /**
  * Plugin Name: Filter AI
+ * Plugin URI: https://filteraiplugin.com
  * Description: Meet your digital sidekick: Filter AI, a plugin that tackles your to-do list faster than you can say 'procrastination'!
  * Version: 1.4.0
  * Author: Filter
@@ -19,7 +20,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 define( 'FILTER_AI_PATH', plugin_dir_path( __FILE__ ) );
 
-require_once plugin_dir_path( __FILE__ ) . 'packages/action-scheduler/action-scheduler.php';
+if ( ! class_exists( 'ActionScheduler' ) ) {
+	require_once plugin_dir_path( __FILE__ ) . 'packages/action-scheduler/action-scheduler.php';
+}
 
 require_once plugin_dir_path( __FILE__ ) . 'includes/settings.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/batch.php';
@@ -27,7 +30,6 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/batchImageAltText.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/batchSEOTitle.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/batchSEOMetaDescription.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/dynamicReplaceAltText.php';
-require_once plugin_dir_path( __FILE__ ) . 'includes/updater.php';
 
 /**
  *  Add settings link to the plugin action links
@@ -237,3 +239,21 @@ function filter_ai_faqs_block_init() {
 }
 
 add_action( 'init', 'filter_ai_faqs_block_init' );
+
+/**
+ * Ignore vendor packages and external library directories when running the plugin check plugin.
+ *
+ * @param array[] $dirs_to_ignore An array of directories to ignore.
+ *
+ * @return array[] Returns an array of directories to ignore.
+ */
+function filter_ai_wp_plugin_check_ignore_directories( $dirs_to_ignore ) {
+	return array_merge(
+		$dirs_to_ignore,
+		array(
+			'packages',
+		)
+	);
+}
+
+add_filter( 'wp_plugin_check_ignore_directories', 'filter_ai_wp_plugin_check_ignore_directories', 10, 2 );

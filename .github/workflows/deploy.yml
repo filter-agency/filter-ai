@@ -1,0 +1,35 @@
+name: Plugin deploy
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to run deploy with'
+        required: true
+jobs:
+  asset_deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: mbstring,xml,zip
+    - name: Mark repository safe for git
+      run: |
+        git config --global --add safe.directory /app || true
+        git config --global --add safe.directory "${{ github.workspace }}" || true
+    - name: Install Composer dependencies
+      run: composer install --no-interaction --prefer-dist --no-progress
+    - name: WordPress.org plugin deploy
+      uses: 10up/action-wordpress-plugin-deploy@stable
+      env:
+        SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+        SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+        VERSION: ${{ github.event.inputs.version }}

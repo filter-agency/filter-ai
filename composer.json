@@ -1,4 +1,5 @@
 {
+  "version": "1.4.0",
   "name": "filter-agency/filter-ai",
   "description": "Powerful AI content creation tools integrated directly into the WordPress editor for effortless content generation.",
   "type": "wordpress-plugin",
@@ -23,10 +24,14 @@
   },
   "scripts": {
     "check-cs": [
-      "@php ./vendor/bin/phpcs --ignore=*/packages/*,*/vendor/*"
+      "@php ./vendor/bin/phpcs"
     ],
     "fix-cs": [
-      "@php ./vendor/bin/phpcbf --ignore=*/packages/*,*/vendor/*"
+      "@php ./vendor/bin/phpcbf"
+    ],
+    "post-install-cmd": [
+      "npm install",
+      "npm run build"
     ]
   },
   "extra": {

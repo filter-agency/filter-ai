@@ -5,7 +5,8 @@
   "license": "GPL-3.0",
   "main": "build/scripts.js",
   "scripts": {
-    "build": "wp-scripts build && wp-scripts plugin-zip",
+    "build": "wp-scripts build",
+    "plugin-zip": "wp-scripts build && wp-scripts plugin-zip",
     "start": "wp-scripts start",
     "prepare": "husky",
     "typecheck": "tsc"
@@ -20,6 +21,7 @@
     "eslint": "^9.23.0",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.2.5",
+    "file-loader": "^6.2.0",
     "globals": "^16.0.0",
     "husky": "^9.1.7",
     "lint-staged": "^15.5.2",
@@ -33,7 +35,8 @@
     "build",
     "includes",
     "composer.json",
-    "packages"
+    "packages",
+    "src"
   ],
   "dependencies": {
     "@lottiefiles/dotlottie-react": "^0.14.1",

@@ -1,0 +1,16 @@
+/.wordpress-org
+/.git
+/.github
+/node_modules
+
+.distignore
+.gitignore
+.editorconfig
+.gitattributes
+.phpcs.xml.dist
+
+composer.json
+composer.lock
+package-lock.json
+
+vendor/*

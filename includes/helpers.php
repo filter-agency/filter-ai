@@ -3,6 +3,11 @@
  * Helper functions for batch jobs
  */
 
+// Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Reset group_id for scheduled actions to help us track the current actions
  *
@@ -38,6 +43,8 @@ function filter_ai_reset_batch( $hook ) {
 	if ( ! empty( $actions ) && empty( $in_progress_actions ) ) {
 		global $wpdb;
 
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery -- Reason: Action Scheduler don't offer another way to do this group_id swapping
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: we just need to do the UPDATE and don't need the result
 		$wpdb->query(
 			$wpdb->prepare(
 				"UPDATE {$wpdb->prefix}actionscheduler_actions
@@ -51,6 +58,7 @@ function filter_ai_reset_batch( $hook ) {
 				'filter-ai-current'
 			)
 		);
+		// phpcs:enable
 	}
 }
 
@@ -165,6 +173,7 @@ function filter_ai_get_posts_count( $post_type = 'any' ) {
  * @return WP_Query Return WP_Query
  */
 function filter_ai_get_posts_missing_meta_query( $query_key, $paged = 1, $posts_per_page = 500, $post_type = 'any' ) {
+	// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Reason: filtering by specific meta key
 	$query = new WP_Query(
 		array(
 			'post_type'              => $post_type,
@@ -188,6 +197,7 @@ function filter_ai_get_posts_missing_meta_query( $query_key, $paged = 1, $posts_
 			'fields'                 => 'ids',
 		)
 	);
+	// phpcs:enable
 
 	return $query;
 }
@@ -203,6 +213,7 @@ function filter_ai_get_posts_missing_meta_query( $query_key, $paged = 1, $posts_
  * @return WP_Query Return WP_Query
  */
 function filter_ai_get_posts_has_meta_query( $query_key, $paged = 1, $posts_per_page = 500, $post_type = 'any' ) {
+	// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Reason: filtering by meta key
 	$query = new WP_Query(
 		array(
 			'post_type'              => $post_type,
@@ -219,6 +230,7 @@ function filter_ai_get_posts_has_meta_query( $query_key, $paged = 1, $posts_per_
 			'fields'                 => 'ids',
 		)
 	);
+	// phpcs:enable
 
 	return $query;
 }

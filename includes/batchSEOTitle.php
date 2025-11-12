@@ -3,6 +3,11 @@
  * Batch SEO title functions
  */
 
+// Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 use Felix_Arntz\AI_Services\Services\API\Enums\AI_Capability;
 use Felix_Arntz\AI_Services\Services\API\Enums\Content_Role;
 use Felix_Arntz\AI_Services\Services\API\Types\Content;
@@ -249,9 +254,7 @@ function filter_ai_api_get_seo_title_count() {
 
 	if ( ! empty( $failed_actions_raw ) ) {
 		foreach ( $failed_actions_raw as $action_id => $action ) {
-			$logger = ActionScheduler::logger();
-			$logs   = $logger->get_logs( $action_id );
-
+			$logs    = filter_ai_get_action_logs( $action_id );
 			$message = null;
 
 			if ( ! empty( $logs ) ) {
