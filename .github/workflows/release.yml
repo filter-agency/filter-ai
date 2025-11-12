@@ -13,9 +13,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring,xml,zip
+      - name: Mark repository safe for git
+        run: |
+          git config --global --add safe.directory /app || true
+          git config --global --add safe.directory "${{ github.workspace }}" || true
       - name: Install Composer dependencies
-        uses: php-actions/composer@v6
+        run: composer install --no-interaction --prefer-dist --no-progress
       - name: WordPress Plugin Deploy
         id: deploy
         uses: 10up/action-wordpress-plugin-deploy@stable
