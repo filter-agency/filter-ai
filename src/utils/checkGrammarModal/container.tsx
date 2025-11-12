@@ -3,6 +3,7 @@ import { useGrammarCheckModal, hideGrammarCheckModal, setGrammarCheckModal } fro
 import { createRoot } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import CloseIcon from '@/assets/close';
+import { diffWords } from 'diff';
 
 const GrammarCheckModalContainer = () => {
   const { originalText, correctedText } = useGrammarCheckModal();
@@ -13,7 +14,6 @@ const GrammarCheckModalContainer = () => {
 
   const onApply = () => {
     if (!correctedText) return;
-
     setGrammarCheckModal({ choice: correctedText });
     hideGrammarCheckModal();
   };
@@ -21,6 +21,34 @@ const GrammarCheckModalContainer = () => {
   if (!originalText || !correctedText) {
     return null;
   }
+
+  const renderDiff = () => {
+    const diff = diffWords(originalText.trim(), correctedText.trim());
+
+    return diff.map((part: { added?: boolean; removed?: boolean; value: string }, index: number) => {
+      const style = part.added
+        ? { backgroundColor: '#d4edda', borderRadius: '2px', padding: '0 1px' }
+        : part.removed
+          ? { backgroundColor: '#f8d7da', textDecoration: 'line-through', borderRadius: '2px', padding: '0 1px' }
+          : {};
+
+      let value = part.value;
+
+      if (part.added || part.removed) {
+        value = value.replace(/^\s+|\s+$/g, '');
+      }
+
+      const nextPart = diff[index + 1];
+      const needsSpace = nextPart && !/^[\s.,!?;:'’”)]/.test(nextPart.value) && !/[“‘(]$/.test(value);
+
+      return (
+        <span key={index} style={style}>
+          {value}
+          {needsSpace ? ' ' : ''}
+        </span>
+      );
+    });
+  };
 
   return (
     <Modal
@@ -50,7 +78,7 @@ const GrammarCheckModalContainer = () => {
 
           <div className="filter-ai-grammar-check-section">
             <h3>{__('Corrected Text', 'filter-ai')}</h3>
-            <div className="filter-ai-grammar-check-text filter-ai-grammar-check-text-corrected">{correctedText}</div>
+            <div className="filter-ai-grammar-check-text filter-ai-grammar-check-text-corrected">{renderDiff()}</div>
           </div>
         </div>
 
