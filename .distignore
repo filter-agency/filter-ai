@@ -13,4 +13,4 @@ composer.json
 composer.lock
 package-lock.json
 
-vendor/bin
+vendor/*
