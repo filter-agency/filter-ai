@@ -1,8 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { useLoadingMessage } from './store';
 import { createRoot, useMemo } from '@wordpress/element';
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
-import loadingJSON from '@/assets/loading.json';
 
 const LoadingMessage = () => {
   const { type = 'generating', label } = useLoadingMessage();
@@ -52,7 +50,7 @@ const LoadingMessage = () => {
         </p>
         <p>{__('This can take a few moments.', 'filter-ai')}</p>
         <div className="filter-ai-loading-message-animation">
-          <DotLottieReact loop autoplay data={loadingJSON} />
+          <img src={require('@/assets/loading.gif')} style={{ width: '100%', height: '100%' }} />
         </div>
       </div>
     </>
