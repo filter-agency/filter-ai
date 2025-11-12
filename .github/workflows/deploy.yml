@@ -1,6 +1,10 @@
 name: Plugin deploy
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to run deploy with'
+        required: true
 jobs:
   asset_deploy:
     name: Deploy
@@ -28,4 +32,4 @@ jobs:
       env:
         SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
         SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
-        VERSION: '1.4.0'
+        VERSION: ${{ github.event.inputs.version }}
