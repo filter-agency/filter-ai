@@ -27,31 +27,40 @@ const sanitizeHTML = (dirty: string): string => {
 const GrammarCheckModalContainer = () => {
   const { originalText, correctedText } = useGrammarCheckModal();
 
-  const onClose = () => hideGrammarCheckModal();
-
-  const onApply = () => {
-    if (!correctedText) return;
-    setGrammarCheckModal({ choice: correctedText });
-    hideGrammarCheckModal();
-  };
-
   if (!originalText || !correctedText) return null;
 
   const safeOriginal = sanitizeHTML(originalText);
   const safeCorrected = sanitizeHTML(correctedText);
 
+  const diff = diffWords(safeOriginal.trim(), safeCorrected.trim());
+  const hasChanges = diff.some((part) => part.added || part.removed);
+
+  const onClose = () => hideGrammarCheckModal();
+
+  const onApply = () => {
+    if (!correctedText) return;
+
+    if (hasChanges) {
+      setGrammarCheckModal({ choice: correctedText });
+    }
+
+    hideGrammarCheckModal();
+  };
+
   const renderDiff = () => {
-    const diff = diffWords(safeOriginal.trim(), safeCorrected.trim());
+    if (!hasChanges) {
+      return <span dangerouslySetInnerHTML={{ __html: safeCorrected }} />;
+    }
 
     return diff.map((part, index) => {
       const style = part.added
-        ? { backgroundColor: '#d4edda', borderRadius: '2px', padding: '0 1px' }
+        ? { backgroundColor: '#d4edda', borderRadius: '2px', padding: '0 1px' } // green
         : part.removed
-          ? { backgroundColor: '#f8d7da', textDecoration: 'line-through', borderRadius: '2px', padding: '0 1px' }
+          ? { backgroundColor: '#f8d7da', textDecoration: 'line-through', borderRadius: '2px', padding: '0 1px' } // red
           : {};
 
       let value = part.value;
-      if (part.added || part.removed) value = value.replace(/^\s+|\s+$/g, '');
+      if (part.added || part.removed) value = value.trim();
 
       const nextPart = diff[index + 1];
       const needsSpace = nextPart && !/^[\s.,!?;:'")]/.test(nextPart.value) && !/["'(]$/.test(value);
@@ -72,7 +81,11 @@ const GrammarCheckModalContainer = () => {
       <div className="filter-ai-modal-header">
         <div>
           <h2>{__('Review Grammar Correction', 'filter-ai')}</h2>
-          <p>{__('Review the corrected text before applying it to your content', 'filter-ai')}</p>
+          {hasChanges ? (
+            <p>{__('Review the corrected text before applying it to your content', 'filter-ai')}</p>
+          ) : (
+            <p>{__('Your text looks good — no corrections were necessary.', 'filter-ai')}</p>
+          )}
         </div>
         <Button onClick={onClose} aria-label={__('close', 'filter-ai')}>
           <CloseIcon />
@@ -87,21 +100,23 @@ const GrammarCheckModalContainer = () => {
           </div>
 
           <div className="filter-ai-grammar-check-section">
-            <h3>{__('Corrected Text', 'filter-ai')}</h3>
+            <h3>{hasChanges ? __('Corrected Text', 'filter-ai') : __('No changes needed', 'filter-ai')}</h3>
             <div className="filter-ai-grammar-check-text filter-ai-grammar-check-text-corrected">{renderDiff()}</div>
           </div>
         </div>
 
-        <p className="filter-ai-modal-warn">
-          {__('AI generated corrections may contain errors, please review before applying.', 'filter-ai')}
-        </p>
+        {hasChanges && (
+          <p className="filter-ai-modal-warn">
+            {__('AI generated corrections may contain errors, please review before applying.', 'filter-ai')}
+          </p>
+        )}
 
         <div className="filter-ai-grammar-check-modal-actions">
           <Button variant="secondary" onClick={onClose}>
             {__('Cancel', 'filter-ai')}
           </Button>
           <Button variant="primary" onClick={onApply}>
-            {__('Apply Correction', 'filter-ai')}
+            {hasChanges ? __('Apply Correction', 'filter-ai') : __('Accept', 'filter-ai')}
           </Button>
         </div>
       </div>
