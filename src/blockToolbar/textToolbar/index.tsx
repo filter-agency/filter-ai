@@ -202,8 +202,6 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
       if (promptKey === 'customise_text_check_grammar_prompt') {
         const correctedText = await ai.customiseText(feature, text, finalPrompt, service?.slug);
 
-        console.log('showGrammarCheckModal');
-
         if (!correctedText) {
           throw new Error(sprintf(__('Sorry, there has been an issue while checking grammar', 'filter-ai')));
         }
