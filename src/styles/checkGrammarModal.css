@@ -1,0 +1,56 @@
+@import './sharedModal.css';
+
+.filter-ai-grammar-check-modal {
+  & .filter-ai-grammar-check-comparison {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    @media (min-width: 768px) {
+      flex-direction: row;
+      gap: 24px;
+    }
+  }
+
+  & .filter-ai-grammar-check-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    & h3 {
+      font-size: 13px;
+      line-height: 1.5;
+      color: #1e1e1e;
+      font-weight: 600;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  & .filter-ai-grammar-check-text {
+    background: #fff;
+    border: 1px solid #dddddd;
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #1e1e1e;
+    min-height: 150px;
+    max-height: 300px;
+    overflow-y: auto;
+
+    &.filter-ai-grammar-check-text-corrected {
+      border-color: #3858e9;
+      background: #3858e90d;
+    }
+  }
+
+  & .filter-ai-grammar-check-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    margin-top: auto;
+  }
+}

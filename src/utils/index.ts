@@ -5,4 +5,5 @@ export * from './loadingMessage';
 export * from './removeWrappingQuotes';
 export * from './capitalize';
 export * from './seoTitleOptionsModal';
+export * from './checkGrammarModal';
 export * from './useAIPlugin';
