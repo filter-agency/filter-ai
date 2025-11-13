@@ -1,160 +1,56 @@
+@import './sharedModal.css';
+
 .filter-ai-grammar-check-modal {
-  max-width: 800px;
-  border-top-right-radius: 8px;
-  border-top-left-radius: 8px;
-
-  @media (min-width: 600px) {
-    width: calc(100% - 32px);
-    max-height: calc(100% - 32px);
-    border-radius: 8px;
-  }
-
-  & .components-modal__content {
-    padding: 0;
+  & .filter-ai-grammar-check-comparison {
     display: flex;
+    flex-direction: column;
+    gap: 20px;
 
-    & > div {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
+    @media (min-width: 768px) {
+      flex-direction: row;
+      gap: 24px;
     }
   }
 
-  & .filter-ai-grammar-check-modal-header {
-    background: #fff;
-    padding: 16px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 8px;
-
-    @media (min-width: 600px) {
-      padding: 24px 48px 16px;
-    }
-
-    & h2 {
-      font-size: 20px;
-      line-height: 1.5;
-      margin: 0;
-      color: #1e1e1e;
-      font-weight: 500;
-    }
-
-    & p {
-      font-size: 13px;
-      line-height: 1.5;
-      margin: 0;
-      color: #757575;
-    }
-
-    & .components-button {
-      padding: 0;
-      margin-right: -10px;
-      height: 24px;
-    }
-  }
-
-  & .filter-ai-grammar-check-modal-content {
-    background: #f5f5f5;
-    padding: 20px;
+  & .filter-ai-grammar-check-section {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 12px;
 
-    @media (min-width: 600px) {
-      padding: 24px 48px;
-    }
-
-    & .filter-ai-grammar-check-comparison {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-
-      @media (min-width: 768px) {
-        flex-direction: row;
-        gap: 24px;
-      }
-    }
-
-    & .filter-ai-grammar-check-section {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-
-      & h3 {
-        font-size: 13px;
-        line-height: 1.5;
-        color: #1e1e1e;
-        font-weight: 600;
-        margin: 0;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-    }
-
-    & .filter-ai-grammar-check-text {
-      background: #fff;
-      border: 1px solid #dddddd;
-      border-radius: 8px;
-      padding: 16px;
-      font-size: 14px;
-      line-height: 1.6;
-      color: #1e1e1e;
-      min-height: 150px;
-      max-height: 300px;
-      overflow-y: auto;
-
-      &.filter-ai-grammar-check-text-corrected {
-        border-color: #3858e9;
-        background: #3858e90d;
-      }
-    }
-
-    & .filter-ai-grammar-check-modal-warn {
+    & h3 {
       font-size: 13px;
       line-height: 1.5;
-      color: #6f6f6f;
+      color: #1e1e1e;
+      font-weight: 600;
       margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
+  }
 
-    & .filter-ai-grammar-check-modal-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 16px;
-      margin-top: auto;
+  & .filter-ai-grammar-check-text {
+    background: #fff;
+    border: 1px solid #dddddd;
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #1e1e1e;
+    min-height: 150px;
+    max-height: 300px;
+    overflow-y: auto;
+
+    &.filter-ai-grammar-check-text-corrected {
+      border-color: #3858e9;
+      background: #3858e90d;
     }
+  }
 
-    & .components-button.is-primary,
-    & .components-button.is-secondary {
-      border-radius: 8px;
-      font-size: 13px;
-      line-height: 1.5;
-      box-shadow: none;
-      padding: 8px 16px;
-
-      &:disabled {
-        opacity: 0.5;
-      }
-
-      &:focus-visible {
-        box-shadow:
-          0 0 0 var(--wp-admin-border-width-focus) #fff,
-          0 0 0 calc(var(--wp-admin-border-width-focus) * 2) var(--wp-admin-theme-color);
-        outline: 2px solid #0000;
-        outline-offset: 2px;
-      }
-    }
-
-    & .components-button.is-secondary {
-      background: #fff;
-      border: 1px solid #dddddd;
-      color: #1e1e1e;
-
-      &:hover:not(:disabled) {
-        background: hsl(0deg 0% 98%);
-      }
-    }
+  & .filter-ai-grammar-check-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    margin-top: auto;
   }
 }

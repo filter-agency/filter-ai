@@ -64,12 +64,12 @@ const GrammarCheckModalContainer = () => {
     <Modal
       __experimentalHideHeader
       onRequestClose={onClose}
-      className="filter-ai-grammar-check-modal"
+      className="filter-ai-grammar-check-modal filter-ai-modal-base"
       isDismissible
       shouldCloseOnClickOutside
       shouldCloseOnEsc
     >
-      <div className="filter-ai-grammar-check-modal-header">
+      <div className="filter-ai-modal-header">
         <div>
           <h2>{__('Review Grammar Correction', 'filter-ai')}</h2>
           <p>{__('Review the corrected text before applying it to your content', 'filter-ai')}</p>
@@ -79,7 +79,7 @@ const GrammarCheckModalContainer = () => {
         </Button>
       </div>
 
-      <div className="filter-ai-grammar-check-modal-content">
+      <div className="filter-ai-modal-content">
         <div className="filter-ai-grammar-check-comparison">
           <div className="filter-ai-grammar-check-section">
             <h3>{__('Original Text', 'filter-ai')}</h3>
@@ -92,7 +92,7 @@ const GrammarCheckModalContainer = () => {
           </div>
         </div>
 
-        <p className="filter-ai-grammar-check-modal-warn">
+        <p className="filter-ai-modal-warn">
           {__('AI generated corrections may contain errors, please review before applying.', 'filter-ai')}
         </p>
 
