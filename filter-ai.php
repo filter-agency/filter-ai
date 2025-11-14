@@ -227,18 +227,19 @@ function register_custom_block_category( $block_categories ) {
 add_filter( 'block_categories_all', 'register_custom_block_category', 10, 1 );
 
 /**
- * Registers the FAQs block using the metadata loaded from the `block.json` file.
+ * Registers the blocks using the metadata loaded from the `block.json` file.
  * Behind the scenes, it registers also all assets so they can be enqueued
  * through the block editor in the corresponding context.
  *
  * @see https://developer.wordpress.org/reference/functions/register_block_type/
  */
-function filter_ai_faqs_block_init() {
+function filter_ai_block_init() {
 	register_block_type_from_metadata( __DIR__ . '/build/blocks/faq-item' );
 	register_block_type_from_metadata( __DIR__ . '/build/blocks/faqs' );
+	register_block_type_from_metadata( __DIR__ . '/build/blocks/summary' );
 }
 
-add_action( 'init', 'filter_ai_faqs_block_init' );
+add_action( 'init', 'filter_ai_block_init' );
 
 /**
  * Ignore vendor packages and external library directories when running the plugin check plugin.
