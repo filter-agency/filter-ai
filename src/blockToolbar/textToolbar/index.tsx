@@ -1,14 +1,25 @@
 import { MenuItem, Popover, NavigableMenu } from '@wordpress/components';
 import { useMemo, useState } from '@wordpress/element';
-import { hideLoadingMessage, showLoadingMessage, showNotice, ai, removeWrappingQuotes } from '@/utils';
+import {
+  hideLoadingMessage,
+  showLoadingMessage,
+  showNotice,
+  ai,
+  removeWrappingQuotes,
+  setCustomiseTextOptionsModal,
+  useCustomiseTextOptionsModal,
+  resetCustomiseTextOptionsModal,
+} from '@/utils';
 import { BlockEditProps } from '@/types';
 import { useSettings } from '@/settings';
-import { insert, toHTMLString, slice, create } from '@wordpress/rich-text';
+import { insert, replace, toHTMLString, slice, create } from '@wordpress/rich-text';
+import { select, dispatch } from '@wordpress/data';
 import { useSelect } from '@wordpress/data';
 import { ToolbarButton } from '@/components/toolbarButton';
 import { __, sprintf } from '@wordpress/i18n';
 import { usePrompts } from '@/utils/ai/prompts/usePrompts';
 import { useService } from '@/utils/ai/services/useService';
+import { useEffect } from '@wordpress/element';
 
 const tones = [
   {
@@ -128,6 +139,15 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
     }
   }, [name]);
 
+  const { choice, options, context, type } = useCustomiseTextOptionsModal();
+
+  const MULTI_OPTION_CONFIG = {
+    count: 3,
+    delimiter: '###OPTION###',
+    instruction: (count: number) =>
+      `Generate exactly ${count} distinct variations. Do not number each variation. Separate each variation with the delimiter: ###OPTION###`,
+  };
+
   const onClick: OnClick = async (promptKey, params) => {
     const isValidPromptKey = (key: string): key is PromptKey => {
       return key in promptConfigs;
@@ -177,43 +197,63 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
         }
       }
 
-      let newText = await ai.customiseText(feature, text, finalPrompt, service?.slug);
+      if (promptKey === 'customise_text_summarise_prompt') {
+        let newText = await ai.customiseText(feature, text, finalPrompt, service?.slug);
 
-      if (!newText) {
+        if (!newText) {
+          throw new Error(
+            sprintf(__('Sorry, there has been an issue while generating your %s', 'filter-ai'), label.toLowerCase())
+          );
+        }
+
+        newText = removeWrappingQuotes(newText);
+        await navigator.clipboard.writeText(newText);
+        showNotice({ message: __('Summary has been copied to your clipboard', 'filter-ai') });
+
+        return;
+      }
+
+      const multiOptionPrompt = `${finalPrompt} ${MULTI_OPTION_CONFIG.instruction(MULTI_OPTION_CONFIG.count)}`;
+
+      const response = await ai.customiseText(feature, text, multiOptionPrompt, service?.slug);
+
+      if (!response) {
         throw new Error(
           sprintf(__('Sorry, there has been an issue while generating your %s', 'filter-ai'), label.toLowerCase())
         );
       }
 
-      newText = removeWrappingQuotes(newText);
+      const parsedOptions =
+        typeof response === 'string'
+          ? response
+              .split(MULTI_OPTION_CONFIG.delimiter)
+              .map((opt) => opt.trim())
+              .filter((opt) => opt.length > 0)
+          : [String(response)];
 
-      if (promptKey === 'customise_text_summarise_prompt') {
-        await navigator.clipboard.writeText(newText);
-
-        showNotice({ message: __('Summary has been copied to your clipboard', 'filter-ai') });
-      } else {
-        if (hasSelection) {
-          const newValue = insert(content, newText, selectionStart.offset, selectionEnd.offset);
-
-          setAttributes({ content: toHTMLString({ value: newValue }) });
-
-          setTimeout(() => document.getSelection()?.empty(), 0);
-        } else {
-          setAttributes({ content: newText });
-        }
-
-        let message = sprintf(__('Your %s has been updated', 'filter-ai'), label.toLowerCase());
-
-        if (service?.metadata.name) {
-          message = sprintf(
-            __('Your %s has been updated using %s', 'filter-ai'),
-            label.toLowerCase(),
-            service.metadata.name
-          );
-        }
-
-        showNotice({ message });
+      if (!parsedOptions || parsedOptions.length < MULTI_OPTION_CONFIG.count) {
+        throw new Error(__('Sorry, AI did not generate 3 options. Please try again.', 'filter-ai'));
       }
+
+      const generatedOptions = parsedOptions.slice(0, MULTI_OPTION_CONFIG.count).map(removeWrappingQuotes);
+
+      setCustomiseTextOptionsModal({
+        type: 'text',
+        options: generatedOptions,
+        choice: '',
+        context: {
+          content: attributes.content,
+          hasSelection,
+          selectionStart,
+          selectionEnd,
+          label,
+          serviceName: service?.metadata.name,
+          feature,
+          text,
+          prompt: finalPrompt,
+          service: service?.slug,
+        },
+      });
     } catch (error) {
       console.error(error);
 
@@ -223,6 +263,58 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
       hideLoadingMessage();
     }
   };
+
+  useEffect(() => {
+    if (choice && !options.length && context && type === 'text') {
+      const { content, hasSelection, selectionStart, selectionEnd, label, serviceName } = context;
+
+      try {
+        const blockEditor = select('core/block-editor');
+        const blockDispatcher = dispatch('core/block-editor') as {
+          updateBlockAttributes: (clientId: string, attributes: Record<string, any>) => void;
+        };
+
+        const startId = selectionStart?.clientId;
+        const endId = selectionEnd?.clientId;
+        const sameBlock = startId && endId && startId === endId;
+        const targetBlockId = sameBlock ? startId : endId;
+
+        const targetBlock = blockEditor.getBlock(targetBlockId);
+
+        if (targetBlock) {
+          if (Object.prototype.hasOwnProperty.call(targetBlock.attributes, 'content')) {
+            blockDispatcher.updateBlockAttributes(targetBlockId, {
+              content: choice,
+            });
+          } else {
+            setAttributes({ content: choice });
+          }
+        } else if (hasSelection) {
+          const richContent = typeof content === 'string' ? create({ text: content }) : content;
+          const newValue = insert(richContent, choice, selectionStart.offset, selectionEnd.offset);
+          setAttributes({ content: toHTMLString({ value: newValue }) });
+        } else {
+          setAttributes({ content: choice });
+        }
+
+        setTimeout(() => document.getSelection()?.empty(), 0);
+
+        let message = sprintf(__('Your %s has been updated', 'filter-ai'), label.toLowerCase());
+        if (serviceName) {
+          message = sprintf(__('Your %s has been updated using %s', 'filter-ai'), label.toLowerCase(), serviceName);
+        }
+        showNotice({ message });
+      } catch (error) {
+        console.error('Error updating block content:', error);
+        showNotice({
+          message: __('There was an issue replacing the text content.', 'filter-ai'),
+          type: 'error',
+        });
+      } finally {
+        resetCustomiseTextOptionsModal();
+      }
+    }
+  }, [choice, options, context, type, setAttributes]);
 
   if (
     hasMultiSelection ||

@@ -1,9 +1,23 @@
 import { useSettings } from '@/settings';
-import { ai, hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils';
+import {
+  ai,
+  hideLoadingMessage,
+  removeWrappingQuotes,
+  showLoadingMessage,
+  showNotice,
+  setCustomiseTextOptionsModal,
+} from '@/utils';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { usePrompts } from '@/utils/ai/prompts/usePrompts';
 import { useService } from '@/utils/ai/services/useService';
+
+const MULTI_OPTION_CONFIG = {
+  count: 3,
+  delimiter: '###OPTION###',
+  instruction: (count: number) =>
+    `Generate exactly ${count} distinct variations. Do not number each variation. Separate each variation with the delimiter: ###OPTION###`,
+};
 
 export const useGenerateExcerpt = () => {
   const { settings } = useSettings();
@@ -39,7 +53,7 @@ export const useGenerateExcerpt = () => {
   }, []);
 
   const onClick = async () => {
-    showLoadingMessage(__('Excerpt', 'filter-ai'));
+    showLoadingMessage(__('Generating Excerpts', 'filter-ai'));
 
     try {
       const _content = content || window.tinymce?.editors?.content?.getContent();
@@ -47,25 +61,45 @@ export const useGenerateExcerpt = () => {
       const excerptField = document.getElementById('excerpt') as HTMLTextAreaElement;
       const _oldExcerpt = oldExcerpt || excerptField?.value;
 
-      const excerpt = await ai.getExcerptFromContent(_content, _oldExcerpt, prompt, service?.slug);
+      const multiOptionPrompt = `${prompt} ${MULTI_OPTION_CONFIG.instruction(MULTI_OPTION_CONFIG.count)}`;
 
-      if (!excerpt) {
-        throw new Error(__('Sorry, there has been an issue while generating your excerpt.', 'filter-ai'));
+      const response = await ai.getExcerptFromContent(_content, _oldExcerpt, multiOptionPrompt, service?.slug);
+
+      if (!response) {
+        throw new Error(__('Sorry, there has been an issue while generating your excerpts.', 'filter-ai'));
       }
 
-      if (window.filter_ai_dependencies.block_editor && editPost) {
-        editPost({ excerpt });
-      } else if (excerptField) {
-        excerptField.value = excerpt;
+      const parsedOptions =
+        typeof response === 'string'
+          ? response
+              .split(MULTI_OPTION_CONFIG.delimiter)
+              .map((opt) => opt.trim())
+              .filter((opt) => opt.length > 0)
+          : [String(response)];
+
+      if (!parsedOptions || parsedOptions.length < MULTI_OPTION_CONFIG.count) {
+        throw new Error(__('Sorry, AI did not generate 3 options. Please try again.', 'filter-ai'));
       }
 
-      let message = __('Excerpt has been updated', 'filter-ai');
+      const generatedOptions = parsedOptions.slice(0, MULTI_OPTION_CONFIG.count).map(removeWrappingQuotes);
 
-      if (service?.metadata.name) {
-        message = sprintf(__('Excerpt has been updated using %s', 'filter-ai'), service.metadata.name);
-      }
-
-      showNotice({ message });
+      setCustomiseTextOptionsModal({
+        options: generatedOptions,
+        choice: '',
+        type: 'excerpt',
+        context: {
+          content: _content,
+          text: _oldExcerpt,
+          prompt,
+          service: service?.slug,
+          serviceName: service?.metadata.name,
+          hasSelection: false,
+          selectionStart: null,
+          selectionEnd: null,
+          label: __('Excerpt', 'filter-ai'),
+          feature: 'excerpt',
+        },
+      });
     } catch (error) {
       console.error(error);
 
