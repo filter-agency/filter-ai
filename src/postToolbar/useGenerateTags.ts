@@ -1,9 +1,23 @@
 import { useSettings } from '@/settings';
-import { ai, hideLoadingMessage, showLoadingMessage, showNotice, setCustomiseTextOptionsModal } from '@/utils';
+import {
+  ai,
+  hideLoadingMessage,
+  showLoadingMessage,
+  showNotice,
+  setCustomiseTextOptionsModal,
+  removeWrappingQuotes,
+} from '@/utils';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { usePrompts } from '@/utils/ai/prompts/usePrompts';
 import { useService } from '@/utils/ai/services/useService';
+
+const MULTI_OPTION_CONFIG = {
+  count: 3,
+  delimiter: '###OPTION###',
+  instruction: (count: number) =>
+    `Generate exactly ${count} distinct variations. Do not number each variation. Separate each variation with the delimiter: ###OPTION###`,
+};
 
 export const useGenerateTags = () => {
   const { settings } = useSettings();
@@ -57,18 +71,29 @@ export const useGenerateTags = () => {
               ?.value?.split(',')
               .map((i: string) => i.trim())) || [];
 
-      const [tags1, tags2, tags3] = await Promise.all([
-        ai.getTagsFromContent(_content, _postTags, prompt, service?.slug),
-        ai.getTagsFromContent(_content, _postTags, prompt, service?.slug),
-        ai.getTagsFromContent(_content, _postTags, prompt, service?.slug),
-      ]);
+      const multiOptionPrompt = `${prompt} ${MULTI_OPTION_CONFIG.instruction(MULTI_OPTION_CONFIG.count)}`;
 
-      if (!tags1 || !tags2 || !tags3) {
+      const response = await ai.getTagsFromContent(_content, _postTags, multiOptionPrompt, service?.slug);
+
+      if (!response) {
         throw new Error(errorMessage);
       }
 
+      const aiText = Array.isArray(response) ? response.join('\n') : response;
+
+      const parsedOptions = aiText
+        .split(MULTI_OPTION_CONFIG.delimiter)
+        .map((opt) => opt.trim())
+        .filter(Boolean);
+
+      if (!parsedOptions || parsedOptions.length < MULTI_OPTION_CONFIG.count) {
+        throw new Error(__('Sorry, AI did not generate 3 options. Please try again.', 'filter-ai'));
+      }
+
+      const generatedOptions = parsedOptions.slice(0, MULTI_OPTION_CONFIG.count).map(removeWrappingQuotes);
+
       setCustomiseTextOptionsModal({
-        options: [tags1.join(', '), tags2.join(', '), tags3.join(', ')],
+        options: generatedOptions,
         choice: '',
         type: 'tags',
         context: {
