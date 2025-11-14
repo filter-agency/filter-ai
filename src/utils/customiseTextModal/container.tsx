@@ -67,6 +67,13 @@ const CustomiseTextOptionsModalContainer = () => {
     }
   };
 
+  const MULTI_OPTION_CONFIG = {
+    count: 3,
+    delimiter: '###OPTION###',
+    instruction: (count: number) =>
+      `Generate exactly ${count} distinct variations. Do not number each variation. Separate each variation with the delimiter: ###OPTION###`,
+  };
+
   const regenerate = async () => {
     if (!context) return;
 
@@ -76,24 +83,61 @@ const CustomiseTextOptionsModalContainer = () => {
     try {
       const aiFunction = getAIFunction();
 
-      const generateOption = () => aiFunction(context?.prompt ?? '', context?.service ?? '');
+      const multiOptionPrompt = `${context?.prompt ?? ''} ${MULTI_OPTION_CONFIG.instruction(MULTI_OPTION_CONFIG.count)}`;
 
-      const [option1, option2, option3] = await Promise.all([generateOption(), generateOption(), generateOption()]);
+      let response;
 
-      if (!option1 || !option2 || !option3) {
-        throw new Error(__('Sorry, there has been an issue while regenerating.', 'filter-ai'));
+      switch (type) {
+        case 'title':
+        case 'excerpt':
+          response = await aiFunction(context?.text ?? '', multiOptionPrompt, context?.service ?? '');
+          break;
+
+        case 'tags':
+          response = await aiFunction(multiOptionPrompt, context?.service ?? '');
+          break;
+
+        case 'text':
+        default:
+          response = await aiFunction(context?.text ?? '', multiOptionPrompt, context?.service ?? '');
+          break;
+      }
+
+      let parsedOptions: string[];
+
+      if (type === 'tags') {
+        let aiText;
+
+        if (Array.isArray(response)) {
+          aiText = response.join('\n');
+        } else {
+          aiText = String(response);
+        }
+
+        parsedOptions = aiText
+          .split(MULTI_OPTION_CONFIG.delimiter)
+          .map((opt) => opt.trim())
+          .filter(Boolean);
+      } else {
+        parsedOptions =
+          typeof response === 'string'
+            ? response
+                .split(MULTI_OPTION_CONFIG.delimiter)
+                .map((opt) => opt.trim())
+                .filter((opt) => opt.length > 0)
+            : [String(response)];
+      }
+
+      if (!parsedOptions || parsedOptions.length < MULTI_OPTION_CONFIG.count) {
+        throw new Error(__('Sorry, AI did not generate 3 options. Please try again.', 'filter-ai'));
       }
 
       let newOptions: string[];
 
       if (type === 'tags') {
-        newOptions = [
-          Array.isArray(option1) ? option1.join(', ') : option1,
-          Array.isArray(option2) ? option2.join(', ') : option2,
-          Array.isArray(option3) ? option3.join(', ') : option3,
-        ];
+        newOptions = parsedOptions.slice(0, MULTI_OPTION_CONFIG.count);
       } else {
-        newOptions = [removeWrappingQuotes(option1), removeWrappingQuotes(option2), removeWrappingQuotes(option3)];
+        newOptions = parsedOptions.slice(0, MULTI_OPTION_CONFIG.count).map((opt) => removeWrappingQuotes(opt));
       }
 
       setCustomiseTextOptionsModal({ options: newOptions, choice: '' });

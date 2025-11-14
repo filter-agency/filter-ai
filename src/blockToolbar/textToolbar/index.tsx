@@ -152,6 +152,13 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
   const grammarModal = useGrammarCheckModal();
   const TextOptionsModal = useCustomiseTextOptionsModal();
 
+  const MULTI_OPTION_CONFIG = {
+    count: 3,
+    delimiter: '###OPTION###',
+    instruction: (count: number) =>
+      `Generate exactly ${count} distinct variations. Do not number each variation. Separate each variation with the delimiter: ###OPTION###`,
+  };
+
   const onClick: OnClick = async (promptKey, params) => {
     const isValidPromptKey = (key: string): key is PromptKey => {
       return key in promptConfigs;
@@ -242,17 +249,29 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
         return;
       }
 
-      const promises = Array.from({ length: 3 }, () => ai.customiseText(feature, text, finalPrompt, service?.slug));
+      const multiOptionPrompt = `${finalPrompt} ${MULTI_OPTION_CONFIG.instruction(MULTI_OPTION_CONFIG.count)}`;
 
-      const options = await Promise.all(promises);
+      const response = await ai.customiseText(feature, text, multiOptionPrompt, service?.slug);
 
-      if (options.some((opt) => !opt)) {
+      if (!response) {
         throw new Error(
           sprintf(__('Sorry, there has been an issue while generating your %s', 'filter-ai'), label.toLowerCase())
         );
       }
 
-      const generatedOptions = options.map(removeWrappingQuotes);
+      const parsedOptions =
+        typeof response === 'string'
+          ? response
+              .split(MULTI_OPTION_CONFIG.delimiter)
+              .map((opt) => opt.trim())
+              .filter((opt) => opt.length > 0)
+          : [String(response)];
+
+      if (!parsedOptions || parsedOptions.length < MULTI_OPTION_CONFIG.count) {
+        throw new Error(__('Sorry, AI did not generate 3 options. Please try again.', 'filter-ai'));
+      }
+
+      const generatedOptions = parsedOptions.slice(0, MULTI_OPTION_CONFIG.count).map(removeWrappingQuotes);
 
       setCustomiseTextOptionsModal({
         type: 'text',

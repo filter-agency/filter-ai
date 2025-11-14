@@ -12,6 +12,13 @@ import { __, sprintf } from '@wordpress/i18n';
 import { usePrompts } from '@/utils/ai/prompts/usePrompts';
 import { useService } from '@/utils/ai/services/useService';
 
+const MULTI_OPTION_CONFIG = {
+  count: 3,
+  delimiter: '###OPTION###',
+  instruction: (count: number) =>
+    `Generate exactly ${count} distinct variations. Do not number each variation. Separate each variation with the delimiter: ###OPTION###`,
+};
+
 export const useGenerateExcerpt = () => {
   const { settings } = useSettings();
   const { editPost } = useDispatch('core/editor') || {};
@@ -54,18 +61,30 @@ export const useGenerateExcerpt = () => {
       const excerptField = document.getElementById('excerpt') as HTMLTextAreaElement;
       const _oldExcerpt = oldExcerpt || excerptField?.value;
 
-      const [excerpt1, excerpt2, excerpt3] = await Promise.all([
-        ai.getExcerptFromContent(_content, _oldExcerpt, prompt, service?.slug),
-        ai.getExcerptFromContent(_content, _oldExcerpt, prompt, service?.slug),
-        ai.getExcerptFromContent(_content, _oldExcerpt, prompt, service?.slug),
-      ]);
+      const multiOptionPrompt = `${prompt} ${MULTI_OPTION_CONFIG.instruction(MULTI_OPTION_CONFIG.count)}`;
 
-      if (!excerpt1 || !excerpt2 || !excerpt3) {
+      const response = await ai.getExcerptFromContent(_content, _oldExcerpt, multiOptionPrompt, service?.slug);
+
+      if (!response) {
         throw new Error(__('Sorry, there has been an issue while generating your excerpts.', 'filter-ai'));
       }
 
+      const parsedOptions =
+        typeof response === 'string'
+          ? response
+              .split(MULTI_OPTION_CONFIG.delimiter)
+              .map((opt) => opt.trim())
+              .filter((opt) => opt.length > 0)
+          : [String(response)];
+
+      if (!parsedOptions || parsedOptions.length < MULTI_OPTION_CONFIG.count) {
+        throw new Error(__('Sorry, AI did not generate 3 options. Please try again.', 'filter-ai'));
+      }
+
+      const generatedOptions = parsedOptions.slice(0, MULTI_OPTION_CONFIG.count).map(removeWrappingQuotes);
+
       setCustomiseTextOptionsModal({
-        options: [removeWrappingQuotes(excerpt1), removeWrappingQuotes(excerpt2), removeWrappingQuotes(excerpt3)],
+        options: generatedOptions,
         choice: '',
         type: 'excerpt',
         context: {
