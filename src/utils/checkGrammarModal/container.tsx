@@ -3,7 +3,7 @@ import { useGrammarCheckModal, hideGrammarCheckModal, setGrammarCheckModal } fro
 import { createRoot } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import CloseIcon from '@/assets/close';
-import { diffWords } from 'diff';
+import { diffWords, Change } from 'diff';
 
 const sanitizeHTML = (dirty: string): string => {
   const parser = new DOMParser();
@@ -24,6 +24,16 @@ const sanitizeHTML = (dirty: string): string => {
   return doc.body.innerHTML || '';
 };
 
+const unwrapIfFullyWrapped = (html: string): { tag: string | null; attrs: string; inner: string } => {
+  const match = html.match(/^<(\w+)([^>]*)>([\s\S]*)<\/\1>$/);
+  if (!match) {
+    return { tag: null, attrs: '', inner: html };
+  }
+
+  const [, tag, attrs = '', inner] = match;
+  return { tag, attrs, inner };
+};
+
 const GrammarCheckModalContainer = () => {
   const { originalText, correctedText } = useGrammarCheckModal();
 
@@ -32,8 +42,16 @@ const GrammarCheckModalContainer = () => {
   const safeOriginal = sanitizeHTML(originalText);
   const safeCorrected = sanitizeHTML(correctedText);
 
-  const diff = diffWords(safeOriginal.trim(), safeCorrected.trim());
-  const hasChanges = diff.some((part) => part.added || part.removed);
+  const originalWrap = unwrapIfFullyWrapped(safeOriginal);
+  const correctedWrap = unwrapIfFullyWrapped(safeCorrected);
+
+  const originalForDiff =
+    originalWrap.tag && originalWrap.tag === correctedWrap.tag ? originalWrap.inner.trim() : safeOriginal.trim();
+  const correctedForDiff =
+    originalWrap.tag && originalWrap.tag === correctedWrap.tag ? correctedWrap.inner.trim() : safeCorrected.trim();
+
+  const diff = diffWords(originalForDiff, correctedForDiff);
+  const hasChanges = diff.some((part: Change) => part.added || part.removed);
 
   const onClose = () => hideGrammarCheckModal();
 
@@ -52,21 +70,38 @@ const GrammarCheckModalContainer = () => {
       return <span dangerouslySetInnerHTML={{ __html: safeCorrected }} />;
     }
 
-    return diff.map((part, index) => {
-      const style = part.added
-        ? { backgroundColor: '#d4edda', borderRadius: '2px', padding: '0 1px' } // green
-        : part.removed
-          ? { backgroundColor: '#f8d7da', textDecoration: 'line-through', borderRadius: '2px', padding: '0 1px' } // red
-          : {};
+    const diffHtml = diff
+      .map((part: Change, index: number) => {
+        const style = part.added
+          ? { backgroundColor: '#d4edda', borderRadius: '2px', padding: '0 1px' }
+          : part.removed
+            ? { backgroundColor: '#f8d7da', textDecoration: 'line-through', borderRadius: '2px', padding: '0 1px' }
+            : {};
 
-      let value = part.value;
-      if (part.added || part.removed) value = value.trim();
+        let value = part.value;
+        if (part.added || part.removed) value = value.trim();
 
-      const nextPart = diff[index + 1];
-      const needsSpace = nextPart && !/^[\s.,!?;:'")]/.test(nextPart.value) && !/["'(]$/.test(value);
+        const nextPart = diff[index + 1];
+        const needsSpace = nextPart && !/^[\s.,!?;:'")]/.test(nextPart.value) && !/["'(]$/.test(value);
 
-      return <span key={index} style={style} dangerouslySetInnerHTML={{ __html: value + (needsSpace ? ' ' : '') }} />;
-    });
+        const wrapperStart = part.added
+          ? '<span style="background-color:#d4edda;border-radius:2px;padding:0 1px;">'
+          : part.removed
+            ? '<span style="background-color:#f8d7da;text-decoration:line-through;border-radius:2px;padding:0 1px;">'
+            : '';
+
+        const wrapperEnd = part.added || part.removed ? '</span>' : '';
+
+        return `${wrapperStart}${value}${needsSpace ? ' ' : ''}${wrapperEnd}`;
+      })
+      .join('');
+
+    const finalHtml =
+      originalWrap.tag && originalWrap.tag === correctedWrap.tag
+        ? `<${originalWrap.tag}${originalWrap.attrs}>${diffHtml}</${originalWrap.tag}>`
+        : diffHtml;
+
+    return <span dangerouslySetInnerHTML={{ __html: finalHtml }} />;
   };
 
   return (
@@ -96,6 +131,7 @@ const GrammarCheckModalContainer = () => {
         <div className="filter-ai-grammar-check-comparison">
           <div className="filter-ai-grammar-check-section">
             <h3>{__('Original Text', 'filter-ai')}</h3>
+            {/* Original stays exactly as entered, including full <strong>/<em> wrapping */}
             <div className="filter-ai-grammar-check-text" dangerouslySetInnerHTML={{ __html: safeOriginal }} />
           </div>
 
