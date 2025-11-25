@@ -15,34 +15,34 @@ Filter AI brings AI-powered content tools directly into the WordPress admin so y
 
 Key capabilities include:
 
-* Brand voice and stop words
+* **Brand voice and stop words**
   Configure a brand voice and global stop words so every AI result follows your style and avoids unwanted terms.
 
-* Post and page titles
+* **Post and page titles**
   Generate SEO-friendly, click-focused titles based on the content’s core value proposition.
 
-* ALT text generation
+* **ALT text generation**
   Automatically create descriptive ALT text on image upload and bulk-generate ALT text for existing media to improve accessibility and SEO.
 
-* Yoast SEO metadata
+* **Yoast SEO metadata**
   Generate meta titles and descriptions (single or batch), respecting character constraints and best-practice recommendations for SEO plugins such as Yoast.
 
-* WooCommerce product descriptions
+* **WooCommerce product descriptions**
   Produce product descriptions that highlight benefits, address customer needs and include natural SEO keywords.
 
-* Image generation
+* **Image generation**
   Create images from prompts, save to the Media Library with metadata, and use them instantly in posts and products.
 
-* Content rewriting and tone adjustment
+* **Content rewriting and tone adjustment**
   Expand, condense, summarise or rewrite content and change tone while preserving context and meaning.
 
-* Excerpts and tag suggestions
+* **Excerpts and tag suggestions**
   Auto-generate concise excerpts and suggest relevant tags to improve discoverability and site structure.
 
-* Choice of AI provider and BYO API key
+* **Choice of AI provider and BYO API key**
   Bring your own API key and choose from supported providers; switch providers without disrupting workflows.
 
-* Batch processing and workflow controls
+* **Batch processing and workflow controls**
   Apply actions across many posts, pages or media items to save time and ensure consistent output.
 
 Filter AI is designed to integrate with the WordPress editor and common workflows. You remain in control of every output with editable suggestions, prompt templates and global defaults.
