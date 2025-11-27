@@ -72,9 +72,14 @@ function filter_ai_get_default_settings() {
 		'customise_text_change_tone_prompt_service' => '',
 
 		'generate_faq_section_enabled'              => true,
-		'generate_faq_section_pre_prompt'           => esc_html__( 'For the following prompt please respond with the following JSON string format: `[{"question":"...","answer":"..."}]`', 'filter-ai' ),
+		'generate_faq_section_pre_prompt'           => esc_html__( 'For the following prompt please respond with the following JSON string format: `[{"question":"...","answer":"..."}].`', 'filter-ai' ),
 		'generate_faq_section_prompt'               => esc_html__( 'Please can you come up with up to {{number}} FAQs, each consisting of a question and a brief answer, based on the following content:', 'filter-ai' ),
 		'generate_faq_section_prompt_service'       => '',
+
+		'generate_summary_section_enabled'          => true,
+		'generate_summary_section_pre_prompt'       => esc_html__( 'For the following prompt please respond with the following JSON string format: `["summary item 1", "summary item 2"]`.', 'filter-ai' ),
+		'generate_summary_section_prompt'           => esc_html__( 'Please can you provide me with 3–5 bullet points summarising the key takeaways for the following content:', 'filter-ai' ),
+		'generate_summary_section_prompt_service'   => '',
 
 		'wc_product_description_enabled'            => true,
 		'wc_product_description_prompt'             => esc_html__( 'Please generate a description based on the following product information:', 'filter-ai' ),
