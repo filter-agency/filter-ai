@@ -15,8 +15,8 @@ import {
 } from '@/utils';
 import { BlockEditProps } from '@/types';
 import { useSettings } from '@/settings';
-import { useSelect, select, dispatch } from '@wordpress/data';
 import { insert, toHTMLString, slice, create } from '@wordpress/rich-text';
+import { useSelect, select, dispatch } from '@wordpress/data';
 import { ToolbarButton } from '@/components/toolbarButton';
 import { __, sprintf } from '@wordpress/i18n';
 import { usePrompts } from '@/utils/ai/prompts/usePrompts';
@@ -232,7 +232,6 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
         return;
       }
 
-      let newText = await ai.customiseText(feature, text, finalPrompt, service?.slug);
       if (promptKey === 'customise_text_summarise_prompt') {
         let newText = await ai.customiseText(feature, text, finalPrompt, service?.slug);
 
