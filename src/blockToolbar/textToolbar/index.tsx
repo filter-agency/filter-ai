@@ -293,25 +293,17 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
               const newValue = insert(richContent, choice, selectionStart.offset, selectionEnd.offset);
 
               blockDispatcher.updateBlockAttributes(targetBlockId, {
-                content: toHTMLString({ value: newValue }),
+                content: newValue.text ? newValue.text : toHTMLString({ value: newValue }),
               });
+
+              setTimeout(() => document.getSelection()?.empty(), 0);
             } else {
               blockDispatcher.updateBlockAttributes(targetBlockId, {
                 content: choice,
               });
             }
-          } else {
-            setAttributes({ content: choice });
           }
-        } else if (hasSelection) {
-          const richContent = typeof content === 'string' ? create({ text: content }) : content;
-          const newValue = insert(richContent, choice, selectionStart.offset, selectionEnd.offset);
-          setAttributes({ content: toHTMLString({ value: newValue }) });
-        } else {
-          setAttributes({ content: choice });
         }
-
-        setTimeout(() => document.getSelection()?.empty(), 0);
 
         let message = __('Grammar has been corrected', 'filter-ai');
         if (serviceName) {
