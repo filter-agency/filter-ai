@@ -1,14 +1,35 @@
 import { MenuItem, Popover, NavigableMenu } from '@wordpress/components';
-import { useMemo, useState } from '@wordpress/element';
-import { hideLoadingMessage, showLoadingMessage, showNotice, ai, removeWrappingQuotes } from '@/utils';
+import { useMemo, useState, useEffect } from '@wordpress/element';
+import {
+  hideLoadingMessage,
+  showLoadingMessage,
+  showNotice,
+  ai,
+  removeWrappingQuotes,
+  showGrammarCheckModal,
+  useGrammarCheckModal,
+  resetGrammarCheckModal,
+  showChoiceModal,
+} from '@/utils';
 import { BlockEditProps } from '@/types';
 import { useSettings } from '@/settings';
 import { insert, toHTMLString, slice, create } from '@wordpress/rich-text';
-import { useSelect } from '@wordpress/data';
+import { useSelect, select, dispatch } from '@wordpress/data';
 import { ToolbarButton } from '@/components/toolbarButton';
 import { __, sprintf } from '@wordpress/i18n';
 import { usePrompts } from '@/utils/ai/prompts/usePrompts';
 import { useService } from '@/utils/ai/services/useService';
+
+type RegenerateExtraProps = {
+  text: string;
+  feature: string;
+  service?: {
+    slug: string;
+  };
+  prompt: string;
+};
+
+type Regenerate = (options: string[], extraProps: RegenerateExtraProps) => Promise<void>;
 
 const tones = [
   {
@@ -28,6 +49,7 @@ type PromptKey =
   | 'customise_text_expand_prompt'
   | 'customise_text_condense_prompt'
   | 'customise_text_summarise_prompt'
+  | 'customise_text_check_grammar_prompt'
   | 'customise_text_change_tone_prompt';
 
 type OnClick = (promptKey: string, params?: Record<string, string>) => Promise<void>;
@@ -37,6 +59,8 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
   const [showChangeToneOptions, setShowChangeToneOptions] = useState(false);
 
   const { settings } = useSettings();
+
+  const grammarModal = useGrammarCheckModal();
 
   const rewritePrompt = usePrompts('customise_text_rewrite_prompt');
   const rewritePromptService = useService('customise_text_rewrite_prompt_service');
@@ -49,6 +73,9 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
 
   const summarisePrompt = usePrompts('customise_text_summarise_prompt');
   const summarisePromptService = useService('customise_text_summarise_prompt_service');
+
+  const checkGrammarPrompt = usePrompts('customise_text_check_grammar_prompt');
+  const checkGrammarPromptService = useService('customise_text_check_grammar_service');
 
   const changeTonePrompt = usePrompts('customise_text_change_tone_prompt');
   const changeTonePromptService = useService('customise_text_change_tone_prompt_service');
@@ -71,6 +98,10 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
         prompt: summarisePrompt,
         service: summarisePromptService,
       },
+      customise_text_check_grammar_prompt: {
+        prompt: checkGrammarPrompt,
+        service: checkGrammarPromptService,
+      },
       customise_text_change_tone_prompt: {
         prompt: changeTonePrompt,
         service: changeTonePromptService,
@@ -86,6 +117,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
       expandPromptService,
       condensePromptService,
       summarisePromptService,
+      checkGrammarPromptService,
       changeTonePromptService,
       settings,
     ]
@@ -128,6 +160,74 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
     }
   }, [name]);
 
+  const update = async (newText: string, promptKey: string) => {
+    try {
+      if (promptKey === 'customise_text_summarise_prompt') {
+        await navigator.clipboard.writeText(newText);
+
+        showNotice({ message: __('Summary has been copied to your clipboard', 'filter-ai') });
+      } else {
+        if (hasSelection) {
+          const content =
+            typeof attributes.content === 'string' ? create({ text: attributes.content }) : attributes.content;
+
+          const newValue = insert(content, newText, selectionStart.offset, selectionEnd.offset);
+
+          setAttributes({ content: toHTMLString({ value: newValue }) });
+
+          setTimeout(() => document.getSelection()?.empty(), 0);
+        } else {
+          setAttributes({ content: newText });
+        }
+
+        let message = sprintf(__('Your %s has been updated', 'filter-ai'), label.toLowerCase());
+
+        const { service } = promptConfigs[promptKey as PromptKey] || {};
+
+        if (service?.metadata.name) {
+          message = sprintf(
+            __('Your %s has been updated using %s', 'filter-ai'),
+            label.toLowerCase(),
+            service.metadata.name
+          );
+        }
+
+        showNotice({ message });
+      }
+    } catch (error) {
+      console.error(error);
+
+      // @ts-expect-error Property 'message' does not exist on type '{}'
+      showNotice({ message: error?.message || error, type: 'error' });
+    }
+  };
+
+  const regenerate: Regenerate = async (options: string[], { text, feature, prompt, service }) => {
+    try {
+      const oldOptions = [text, ...options];
+
+      const response = await ai.customiseText(feature, text, oldOptions.join(', '), prompt, service?.slug);
+
+      if (!response) {
+        throw new Error(
+          sprintf(__('Sorry, there has been an issue while generating your %s', 'filter-ai'), label.toLowerCase())
+        );
+      }
+
+      const newOptions = JSON.parse(response);
+
+      showChoiceModal({
+        options: newOptions,
+        choice: '',
+      });
+    } catch (error) {
+      console.error(error);
+
+      // @ts-expect-error Property 'message' does not exist on type '{}'
+      showNotice({ message: error?.message || error, type: 'error' });
+    }
+  };
+
   const onClick: OnClick = async (promptKey, params) => {
     const isValidPromptKey = (key: string): key is PromptKey => {
       return key in promptConfigs;
@@ -142,12 +242,14 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
 
     if (promptKey === 'customise_text_summarise_prompt') {
       showLoadingMessage(label, 'summarising');
+    } else if (promptKey === 'customise_text_check_grammar_prompt') {
+      showLoadingMessage(label, 'checking grammar');
     } else {
       showLoadingMessage(label, 'customising');
     }
 
     try {
-      const feature = promptKey.replace(/_/g, '-');
+      const feature = `filter-ai-${promptKey.replace(/_/g, '-')}`;
 
       const content =
         typeof attributes.content === 'string' ? create({ text: attributes.content }) : attributes.content;
@@ -177,43 +279,52 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
         }
       }
 
-      let newText = await ai.customiseText(feature, text, finalPrompt, service?.slug);
+      if (promptKey === 'customise_text_check_grammar_prompt') {
+        const correctedText = await ai.fixTextGrammar(text, finalPrompt, service?.slug);
 
-      if (!newText) {
+        if (!correctedText) {
+          throw new Error(sprintf(__('Sorry, there has been an issue while checking grammar', 'filter-ai')));
+        }
+
+        showGrammarCheckModal({
+          originalText: text,
+          correctedText: removeWrappingQuotes(correctedText),
+          context: {
+            content: attributes.content,
+            hasSelection,
+            selectionStart,
+            selectionEnd,
+            serviceName: service?.metadata.name,
+          },
+        });
+
+        return;
+      }
+
+      const response = await ai.customiseText(feature, text, '', finalPrompt, service?.slug);
+
+      if (!response) {
         throw new Error(
           sprintf(__('Sorry, there has been an issue while generating your %s', 'filter-ai'), label.toLowerCase())
         );
       }
 
-      newText = removeWrappingQuotes(newText);
+      const options = JSON.parse(response);
 
-      if (promptKey === 'customise_text_summarise_prompt') {
-        await navigator.clipboard.writeText(newText);
-
-        showNotice({ message: __('Summary has been copied to your clipboard', 'filter-ai') });
-      } else {
-        if (hasSelection) {
-          const newValue = insert(content, newText, selectionStart.offset, selectionEnd.offset);
-
-          setAttributes({ content: toHTMLString({ value: newValue }) });
-
-          setTimeout(() => document.getSelection()?.empty(), 0);
-        } else {
-          setAttributes({ content: newText });
-        }
-
-        let message = sprintf(__('Your %s has been updated', 'filter-ai'), label.toLowerCase());
-
-        if (service?.metadata.name) {
-          message = sprintf(
-            __('Your %s has been updated using %s', 'filter-ai'),
-            label.toLowerCase(),
-            service.metadata.name
-          );
-        }
-
-        showNotice({ message });
-      }
+      showChoiceModal({
+        title: __('Select Your AI Generated Text', 'filter-ai'),
+        description: __('Choose the version that works best for your content', 'filter-ai'),
+        label: __('Choose from these AI generated options:', 'filter-ai'),
+        update: (newValue) => update(newValue, promptKey),
+        regenerate: (options) =>
+          regenerate(options, {
+            prompt: finalPrompt,
+            text,
+            service,
+            feature,
+          }),
+        options,
+      });
     } catch (error) {
       console.error(error);
 
@@ -224,6 +335,64 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
     }
   };
 
+  useEffect(() => {
+    const { choice, context } = grammarModal;
+
+    if (choice && context) {
+      const { content, hasSelection, selectionStart, selectionEnd, serviceName } = context;
+
+      try {
+        const blockEditor = select('core/block-editor');
+        const blockDispatcher = dispatch('core/block-editor') as {
+          updateBlockAttributes: (clientId: string, attributes: Record<string, any>) => void;
+        };
+
+        const startId = selectionStart?.clientId;
+        const endId = selectionEnd?.clientId;
+        const sameBlock = startId && endId && startId === endId;
+        const targetBlockId = sameBlock ? startId : endId;
+        const targetBlock = blockEditor.getBlock(targetBlockId);
+
+        if (targetBlock) {
+          if (Object.prototype.hasOwnProperty.call(targetBlock.attributes, 'content')) {
+            if (hasSelection) {
+              const richContent = typeof content === 'string' ? create({ text: content }) : content;
+              const newValue = insert(richContent, choice, selectionStart.offset, selectionEnd.offset);
+
+              blockDispatcher.updateBlockAttributes(targetBlockId, {
+                content: newValue.text ? newValue.text : toHTMLString({ value: newValue }),
+              });
+
+              setTimeout(() => document.getSelection()?.empty(), 0);
+            } else {
+              blockDispatcher.updateBlockAttributes(targetBlockId, {
+                content: choice,
+              });
+            }
+          }
+        }
+
+        let message;
+
+        if (serviceName) {
+          message = sprintf(__('Grammar has been corrected using %s', 'filter-ai'), serviceName);
+        } else {
+          message = __('Grammar has been corrected', 'filter-ai');
+        }
+
+        showNotice({ message });
+      } catch (error) {
+        console.error('Error applying grammar correction:', error);
+        showNotice({
+          message: __('There was an issue applying the grammar correction.', 'filter-ai'),
+          type: 'error',
+        });
+      } finally {
+        resetGrammarCheckModal();
+      }
+    }
+  }, [grammarModal.choice, grammarModal.context]);
+
   if (
     hasMultiSelection ||
     ![
@@ -231,6 +400,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
       settings?.customise_text_expand_enabled,
       settings?.customise_text_condense_enabled,
       settings?.customise_text_summarise_enabled,
+      settings?.customise_text_check_grammar_prompt,
       settings?.customise_text_change_tone_enabled,
     ].some((setting) => !!setting)
   ) {
@@ -279,6 +449,16 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
               }}
             >
               {__('Summarise', 'filter-ai')}
+            </MenuItem>
+          )}
+          {settings?.customise_text_check_grammar_enabled && (
+            <MenuItem
+              onClick={() => {
+                onClose();
+                onClick('customise_text_check_grammar_prompt', { type: label.toLowerCase() });
+              }}
+            >
+              {__('Check Grammar', 'filter-ai')}
             </MenuItem>
           )}
           {settings?.customise_text_change_tone_enabled && (

@@ -63,8 +63,9 @@ export const uploadGeneratedImageToMediaLibrary = async (dataUrl: string, filena
           resolve(attachment);
         }
       },
-      onError: (err) => {
-        reject(sprintf(__('Saving file failed with error: %s', 'filter-ai'), err?.message || err));
+      onError: (error) => {
+        // @ts-expect-error Property 'message' does not exist on type '{}'
+        reject(sprintf(__('Saving file failed with error: %s', 'filter-ai'), error?.message || error));
         return;
       },
     });

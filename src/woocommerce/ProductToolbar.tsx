@@ -35,7 +35,7 @@ const useControl = ({ id }: Props) => {
           successMessage: __('Product short description has been updated', 'filter-ai'),
           serviceSuccessMessage: sprintf(
             __('Product short description has been updated using %s', 'filter-ai'),
-            excerptPromptService?.metadata.name
+            excerptPromptService?.metadata.name || ''
           ),
           errorMessage: __(
             'Sorry, there has been an issue while generating your product short description.',
@@ -53,7 +53,7 @@ const useControl = ({ id }: Props) => {
           successMessage: __('Product description has been updated', 'filter-ai'),
           serviceSuccessMessage: sprintf(
             __('Product description has been updated using %s', 'filter-ai'),
-            descriptionPromptService?.metadata.name
+            descriptionPromptService?.metadata.name || ''
           ),
           errorMessage: __('Sorry, there has been an issue while generating your product description.', 'filter-ai'),
           generateLabel: __('Generate description', 'filter-ai'),
@@ -97,10 +97,12 @@ const useControl = ({ id }: Props) => {
 
       updateValue(content);
 
-      let message = data.successMessage;
+      let message;
 
       if (data.service?.metadata.name) {
         message = data.serviceSuccessMessage;
+      } else {
+        message = data.successMessage;
       }
 
       showNotice({ message });

@@ -1,0 +1,233 @@
+.filter-ai-modal-base {
+  max-width: 750px;
+  border-top-right-radius: 8px;
+  border-top-left-radius: 8px;
+
+  @media (min-width: 600px) {
+    width: calc(100% - 32px);
+    max-height: calc(100% - 32px);
+    border-radius: 8px;
+  }
+
+  & .components-modal__content {
+    padding: 0;
+    display: flex;
+
+    & > div {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+  }
+}
+
+.filter-ai-modal-header {
+  background: #fff;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+
+  @media (min-width: 600px) {
+    padding: 24px 48px 16px;
+  }
+
+  & h2 {
+    font-size: 20px;
+    line-height: 1.5;
+    margin: 0;
+    color: #1e1e1e;
+    font-weight: 500;
+  }
+
+  & p {
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 0;
+    color: #757575;
+  }
+
+  & .components-button {
+    padding: 0;
+    margin-right: -10px;
+    height: 24px;
+  }
+}
+
+.filter-ai-modal-content {
+  background: #f5f5f5;
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  @media (min-width: 600px) {
+    padding: 24px 48px;
+  }
+
+  & .components-button.is-primary,
+  & .components-button.is-secondary {
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.5;
+    box-shadow: none;
+    padding: 8px 16px;
+
+    &:disabled {
+      opacity: 0.5;
+    }
+
+    &:focus-visible {
+      box-shadow:
+        0 0 0 var(--wp-admin-border-width-focus) #fff,
+        0 0 0 calc(var(--wp-admin-border-width-focus) * 2) var(--wp-admin-theme-color);
+      outline: 2px solid #0000;
+      outline-offset: 2px;
+    }
+  }
+
+  & .components-button.is-secondary {
+    background: #fff;
+    border: 1px solid #dddddd;
+    color: #1e1e1e;
+
+    &:hover:not(:disabled) {
+      background: hsl(0deg 0% 98%);
+    }
+  }
+
+  & fieldset {
+    border: 0;
+    padding: 0;
+    margin: 0;
+
+    & legend {
+      font-size: 15px;
+      line-height: 1.5;
+      color: #1e1e1e;
+      font-weight: 500;
+      text-transform: none;
+      margin: 0;
+    }
+  }
+
+  & .components-radio-control__group-wrapper {
+    margin: 24px 0 0;
+  }
+
+  & .components-radio-control__option {
+    border: 1px solid #dddddd;
+    border-radius: 8px;
+    display: block;
+    position: relative;
+
+    & input {
+      position: absolute;
+      z-index: 1;
+      transform: translateY(-50%);
+      top: 50%;
+      right: 16px;
+      border: 2px solid #c1c1c1;
+      width: 20px;
+      height: 20px;
+      max-width: none;
+      max-height: none;
+      min-width: 0;
+      min-height: 0;
+      background: transparent;
+
+      &:checked {
+        border-color: var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
+
+        &:before {
+          border: 5px solid var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
+          background: var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
+        }
+      }
+
+      &:focus {
+        box-shadow: none;
+      }
+
+      &:focus-visible {
+        box-shadow:
+          0 0 0 var(--wp-admin-border-width-focus) #fff,
+          0 0 0 calc(var(--wp-admin-border-width-focus) * 2) var(--wp-admin-theme-color);
+        outline: 2px solid #0000;
+        outline-offset: 2px;
+      }
+    }
+
+    & label {
+      padding: 12px 52px 12px 16px;
+      min-height: 44px;
+      display: block;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #1e1e1e;
+      font-weight: 500;
+      transition: background 0.2s linear;
+    }
+
+    &:has(:checked) label {
+      background: #3858e90d;
+    }
+  }
+}
+
+/* Modal Warning Text */
+.filter-ai-modal-warn {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #6f6f6f;
+  margin: 0;
+}
+
+/* Modal Actions */
+.filter-ai-modal-actions {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex: 1;
+
+  @media (min-width: 600px) {
+    flex-direction: row;
+  }
+
+  & .is-generating {
+    & svg {
+      animation: animate-regenerate 1.5s infinite linear;
+      transform-origin: 46% 50%;
+    }
+  }
+}
+
+.filter-ai-modal-actions-group {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 24px;
+
+  @media (max-width: 599px) {
+    width: 100%;
+    margin-top: auto;
+  }
+
+  @media (min-width: 600px) {
+    justify-content: flex-end;
+  }
+}
+
+@keyframes animate-regenerate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

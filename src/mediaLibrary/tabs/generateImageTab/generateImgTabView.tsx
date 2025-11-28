@@ -42,18 +42,12 @@ const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
       const generateImages = await getGeneratedImages(prompt, service?.slug);
       setGeneratedImages(generateImages);
       setSelectedIndexes([]);
-    } catch (err) {
-      console.error('Failed to generate images:', err);
-      let message = __('Image generation failed.', 'filter-ai');
-      if (err instanceof Error) {
-        message = err.message;
-      } else if (typeof err === 'string') {
-        message = err;
-      } else if (err && typeof err === 'object' && 'message' in err && typeof (err as any).message === 'string') {
-        message = (err as any).message;
-      }
+    } catch (error) {
+      console.error('Failed to generate images:', error);
+
       showNotice({
-        message: sprintf(__('Error: %s', 'filter-ai'), message),
+        // @ts-expect-error Property 'message' does not exist on type '{}'
+        message: sprintf(__('Error: %s', 'filter-ai'), error?.message || error),
         type: 'error',
       });
     } finally {
@@ -107,9 +101,10 @@ const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
         ),
         type: 'notice',
       });
-    } catch (err) {
+    } catch (error) {
       showNotice({
-        message: sprintf(__('Import failed: %s', 'filter-ai'), err),
+        // @ts-expect-error Property 'message' does not exist on type '{}'
+        message: sprintf(__('Import failed: %s', 'filter-ai'), error?.message || error),
         type: 'error',
       });
     } finally {

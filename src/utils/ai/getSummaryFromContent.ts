@@ -1,10 +1,10 @@
+import { getSettings } from '@/settings';
 import { generateText } from './services';
 import { __ } from '@wordpress/i18n';
-import { getSettings } from '@/settings';
 
-export const getTitleFromContent = async (
+export const getSummaryFromContent = async (
   content: string,
-  oldTitle?: string,
+  oldSummary?: string,
   customPrompt?: string,
   service?: string
 ) => {
@@ -15,12 +15,12 @@ export const getTitleFromContent = async (
   const settings = await getSettings();
 
   const promptDifference =
-    oldTitle && settings?.common_prompt_different ? `${settings.common_prompt_different} "${oldTitle}".` : '';
+    oldSummary && settings?.common_prompt_different ? `${settings.common_prompt_different} "${oldSummary}".` : '';
 
-  const prePrompt = settings?.customise_text_pre_prompt || '';
+  const prePrompt = settings?.generate_summary_section_pre_prompt || '';
 
   return generateText({
-    feature: 'filter-ai-post-title',
+    feature: 'filter-ai-post-summary',
     prompt: `${settings?.common_prompt_prefix || ''} ${prePrompt} ${promptDifference} ${customPrompt} ${content}`,
     service,
   });

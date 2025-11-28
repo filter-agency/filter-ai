@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "title": "Filter AI Summary",
+  "description": "A block to generate a summary of the page content",
+  "keywords": ["Summary", "TL;DR", "Too Long; Didn't Read", "Filter AI"],
+  "version": "1.0.0",
+  "textdomain": "filter-ai",
+  "name": "filter-ai/summary",
+  "icon": "format-aside",
+  "category": "filter-ai",
+  "editorScript": "file:./index.js",
+  "style": "file:./style-index.css",
+  "supports": {
+    "html": false,
+    "anchor": true,
+    "alignWide": true,
+    "color": {
+      "background": true,
+      "text": true,
+      "heading": true
+    }
+  }
+}
