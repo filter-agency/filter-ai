@@ -99,10 +99,12 @@ const faqsEdit = ({ attributes, setAttributes, clientId }: Props) => {
 
       replaceInnerBlocks(clientId, [...existingInnerBlocks, ...newInnerBlocks]);
 
-      let message = __('FAQs have been added', 'filter-ai');
+      let message;
 
       if (service?.metadata.name) {
         message = sprintf(__('FAQs have been added using %s', 'filter-ai'), service.metadata.name);
+      } else {
+        message = __('FAQs have been added', 'filter-ai');
       }
 
       showNotice({ message });

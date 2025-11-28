@@ -77,10 +77,12 @@ export const useGenerateSEOTitle = () => {
       scrollToField();
     }
 
-    let message = __('SEO title has been updated', 'filter-ai');
+    let message;
 
     if (service?.metadata.name) {
       message = sprintf(__('SEO title has been updated using %s', 'filter-ai'), service.metadata.name);
+    } else {
+      message = __('SEO title has been updated', 'filter-ai');
     }
 
     showNotice({ message });
