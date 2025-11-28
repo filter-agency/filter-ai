@@ -37,10 +37,12 @@ export const useGenerateTitle = () => {
         titleField.value = title;
       }
 
-      let message = __('Title has been updated', 'filter-ai');
+      let message;
 
       if (service?.metadata.name) {
         message = sprintf(__('Title has been updated using %s', 'filter-ai'), service.metadata.name);
+      } else {
+        message = __('Title has been updated', 'filter-ai');
       }
 
       showNotice({ message });

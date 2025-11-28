@@ -59,10 +59,12 @@ export const useGenerateExcerpt = () => {
         excerptField.value = excerpt;
       }
 
-      let message = __('Excerpt has been updated', 'filter-ai');
+      let message;
 
       if (service?.metadata.name) {
         message = sprintf(__('Excerpt has been updated using %s', 'filter-ai'), service.metadata.name);
+      } else {
+        message = __('Excerpt has been updated', 'filter-ai');
       }
 
       showNotice({ message });

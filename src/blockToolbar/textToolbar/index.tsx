@@ -372,9 +372,12 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
           }
         }
 
-        let message = __('Grammar has been corrected', 'filter-ai');
+        let message;
+
         if (serviceName) {
           message = sprintf(__('Grammar has been corrected using %s', 'filter-ai'), serviceName);
+        } else {
+          message = __('Grammar has been corrected', 'filter-ai');
         }
 
         showNotice({ message });

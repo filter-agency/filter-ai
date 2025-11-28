@@ -101,10 +101,12 @@ export const useGenerateTags = () => {
         window.tagBox.flushTags(tagsdiv, tempElement);
       }
 
-      let message = __('Tags have been updated', 'filter-ai');
+      let message;
 
       if (service?.metadata.name) {
         message = sprintf(__('Tags have been updated using %s', 'filter-ai'), service.metadata.name);
+      } else {
+        message = __('Tags have been updated', 'filter-ai');
       }
 
       showNotice({ message });
