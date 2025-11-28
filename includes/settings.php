@@ -51,6 +51,8 @@ function filter_ai_get_default_settings() {
 		'post_tags_prompt'                          => esc_html__( 'Please generate a list of {{number}} words that describe specific details for the following content:', 'filter-ai' ),
 		'post_tags_prompt_service'                  => '',
 
+		'customise_text_pre_prompt'                 => esc_html__( 'For the following prompt please generate 3 options and respond in the following JSON string format: `["option 1", "option 2", "option 3"]`.', 'filter-ai' ),
+
 		'customise_text_rewrite_enabled'            => true,
 		'customise_text_rewrite_prompt'             => esc_html__( 'Please rewrite the following {{type}} into a new version that is a similar length that maintains the core ideas but presents them in a fresh and compelling way:', 'filter-ai' ),
 		'customise_text_rewrite_prompt_service'     => '',

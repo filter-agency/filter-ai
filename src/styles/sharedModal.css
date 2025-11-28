@@ -126,7 +126,8 @@
     & input {
       position: absolute;
       z-index: 1;
-      top: 12px;
+      transform: translateY(-50%);
+      top: 50%;
       right: 16px;
       border: 2px solid #c1c1c1;
       width: 20px;

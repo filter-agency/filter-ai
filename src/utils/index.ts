@@ -7,3 +7,4 @@ export * from './capitalize';
 export * from './seoTitleOptionsModal';
 export * from './checkGrammarModal';
 export * from './useAIPlugin';
+export * from './choiceModal';

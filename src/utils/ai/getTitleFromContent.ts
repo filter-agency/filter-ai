@@ -17,9 +17,11 @@ export const getTitleFromContent = async (
   const promptDifference =
     oldTitle && settings?.common_prompt_different ? `${settings.common_prompt_different} "${oldTitle}".` : '';
 
+  const prePrompt = settings?.customise_text_pre_prompt || '';
+
   return generateText({
     feature: 'filter-ai-post-title',
-    prompt: `${settings?.common_prompt_prefix || ''} ${promptDifference} ${customPrompt} ${content}`,
+    prompt: `${settings?.common_prompt_prefix || ''} ${prePrompt} ${promptDifference} ${customPrompt} ${content}`,
     service,
   });
 };

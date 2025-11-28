@@ -1,5 +1,5 @@
 import { useSettings } from '@/settings';
-import { ai, hideLoadingMessage, removeWrappingQuotes, showLoadingMessage, showNotice } from '@/utils';
+import { ai, hideLoadingMessage, removeWrappingQuotes, showLoadingMessage, showNotice, showChoiceModal } from '@/utils';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { usePrompts } from '@/utils/ai/prompts/usePrompts';
@@ -27,20 +27,9 @@ export const useGenerateTitle = () => {
     };
   }, []);
 
-  const onClick = async () => {
-    showLoadingMessage(__('Title', 'filter-ai'));
-
+  const update = async (title: string) => {
     try {
-      const _content = content || window.tinymce?.editors?.content?.getContent();
-
       const titleField = document.getElementById('title') as HTMLInputElement;
-      const _oldTitle = oldTitle || titleField?.value;
-
-      const title = await ai.getTitleFromContent(_content, _oldTitle, prompt, service?.slug);
-
-      if (!title) {
-        throw new Error(__('Sorry, there has been an issue while generating your title.', 'filter-ai'));
-      }
 
       if (window.filter_ai_dependencies.block_editor && editPost) {
         editPost({ title: removeWrappingQuotes(title) });
@@ -55,6 +44,64 @@ export const useGenerateTitle = () => {
       }
 
       showNotice({ message });
+    } catch (error) {
+      console.error(error);
+
+      // @ts-expect-error Property 'message' does not exist on type '{}'
+      showNotice({ message: error?.message || error, type: 'error' });
+    }
+  };
+
+  const regenerate = async (options: string[]) => {
+    try {
+      const _content = content || window.tinymce?.editors?.content?.getContent();
+      const titleField = document.getElementById('title') as HTMLInputElement;
+      const _oldTitle = oldTitle || titleField?.value;
+
+      const oldOptions = [_oldTitle, ...options];
+
+      const response = await ai.getTitleFromContent(_content, oldOptions.join(', '), prompt, service?.slug);
+
+      if (!response) {
+        throw new Error(__('Sorry, there has been an issue while generating your titles.', 'filter-ai'));
+      }
+
+      const newOptions = JSON.parse(response);
+
+      showChoiceModal({ options: newOptions, choice: '' });
+    } catch (error) {
+      console.error(error);
+
+      // @ts-expect-error Property 'message' does not exist on type '{}'
+      showNotice({ message: error?.message || error, type: 'error' });
+    }
+  };
+
+  const onClick = async () => {
+    showLoadingMessage(__('Titles', 'filter-ai'));
+
+    try {
+      const _content = content || window.tinymce?.editors?.content?.getContent();
+
+      const titleField = document.getElementById('title') as HTMLInputElement;
+      const _oldTitle = oldTitle || titleField?.value;
+
+      const response = await ai.getTitleFromContent(_content, _oldTitle, prompt, service?.slug);
+
+      if (!response) {
+        throw new Error(__('Sorry, there has been an issue while generating your titles.', 'filter-ai'));
+      }
+
+      const options = JSON.parse(response);
+
+      showChoiceModal({
+        title: __('Select Your AI Generated Title', 'filter-ai'),
+        description: __('Choose the title that works best for your content', 'filter-ai'),
+        label: __('Choose from these AI generated titles:', 'filter-ai'),
+        update,
+        regenerate,
+        options,
+      });
     } catch (error) {
       console.error(error);
 
