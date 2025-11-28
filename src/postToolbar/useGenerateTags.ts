@@ -1,23 +1,10 @@
 import { useSettings } from '@/settings';
-import {
-  ai,
-  hideLoadingMessage,
-  showLoadingMessage,
-  showNotice,
-  setCustomiseTextOptionsModal,
-  removeWrappingQuotes,
-} from '@/utils';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { ai, hideLoadingMessage, showLoadingMessage, showNotice } from '@/utils';
+import { useDispatch, useSelect, resolveSelect, dispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
+import { cleanForSlug } from '@wordpress/url';
 import { usePrompts } from '@/utils/ai/prompts/usePrompts';
 import { useService } from '@/utils/ai/services/useService';
-
-const MULTI_OPTION_CONFIG = {
-  count: 3,
-  delimiter: '###OPTION###',
-  instruction: (count: number) =>
-    `Generate exactly ${count} distinct variations. Do not number each variation. Separate each variation with the delimiter: ###OPTION###`,
-};
 
 export const useGenerateTags = () => {
   const { settings } = useSettings();
@@ -38,6 +25,7 @@ export const useGenerateTags = () => {
     // @ts-expect-error Type 'never' has no call signatures.
     const taxonomy = getTaxonomy('post_tag');
 
+    // based on logic within https://github.com/WordPress/gutenberg/blob/trunk/packages/editor/src/components/post-taxonomies/index.js
     const _tagsEnabled = taxonomy?.types.includes(postType) && taxonomy?.visibility?.show_ui;
 
     // @ts-expect-error Type 'never' has no call signatures.
@@ -58,12 +46,12 @@ export const useGenerateTags = () => {
   }, []);
 
   const onClick = async () => {
-    showLoadingMessage(__('Generating Tags', 'filter-ai'));
+    showLoadingMessage(__('Tags', 'filter-ai'));
 
     try {
       const _content = content || window.tinymce?.editors?.content?.getContent();
       const _postTags =
-        (postTags?.length
+        (postTags.length
           ? postTags
           : document
               .getElementById('tax-input-post_tag')
@@ -71,44 +59,55 @@ export const useGenerateTags = () => {
               ?.value?.split(',')
               .map((i: string) => i.trim())) || [];
 
-      const multiOptionPrompt = `${prompt} ${MULTI_OPTION_CONFIG.instruction(MULTI_OPTION_CONFIG.count)}`;
+      const tags = await ai.getTagsFromContent(_content, _postTags, prompt, service?.slug);
 
-      const response = await ai.getTagsFromContent(_content, _postTags, multiOptionPrompt, service?.slug);
-
-      if (!response) {
+      if (!tags) {
         throw new Error(errorMessage);
       }
 
-      const aiText = Array.isArray(response) ? response.join('\n') : response;
+      if (window.filter_ai_dependencies.block_editor && editPost) {
+        const newTagIds = [];
 
-      const parsedOptions = aiText
-        .split(MULTI_OPTION_CONFIG.delimiter)
-        .map((opt) => opt.trim())
-        .filter(Boolean);
+        for (let i = 0; i < tags.length; i++) {
+          // check if tag already exists
+          const existingTag = await resolveSelect('core').getEntityRecords('taxonomy', 'post_tag', {
+            slug: cleanForSlug(tags[i]),
+          });
 
-      if (!parsedOptions || parsedOptions.length < MULTI_OPTION_CONFIG.count) {
-        throw new Error(__('Sorry, AI did not generate 3 options. Please try again.', 'filter-ai'));
+          if (existingTag?.[0]?.id) {
+            newTagIds.push(existingTag[0].id);
+            continue;
+          }
+
+          // add tag if they don't exist
+          // @ts-expect-error Property 'saveEntityRecord' does not exist on type '{}'.
+          const newTag = await dispatch('core')?.saveEntityRecord('taxonomy', 'post_tag', { name: tags[i] });
+
+          if (newTag?.id) {
+            newTagIds.push(newTag.id);
+          }
+        }
+
+        if (newTagIds.length === 0) {
+          throw new Error(errorMessage);
+        }
+
+        editPost({ tags: [...new Set([...postTagIds, ...newTagIds])] });
+      } else if (window.tagBox) {
+        const tagsdiv = document.getElementById('post_tag');
+        const tempElement = document.createElement('div');
+        tempElement.textContent = tags.join(',');
+
+        window.tagBox.flushTags(tagsdiv, tempElement);
       }
 
-      const generatedOptions = parsedOptions.slice(0, MULTI_OPTION_CONFIG.count).map(removeWrappingQuotes);
+      let message = __('Tags have been updated', 'filter-ai');
 
-      setCustomiseTextOptionsModal({
-        options: generatedOptions,
-        choice: '',
-        type: 'tags',
-        context: {
-          content: _content,
-          text: _postTags?.join(', ') || '',
-          prompt,
-          service: service?.slug,
-          serviceName: service?.metadata.name,
-          hasSelection: false,
-          selectionStart: null,
-          selectionEnd: null,
-          label: __('Tags', 'filter-ai'),
-          feature: 'tags',
-        },
-      });
+      if (service?.metadata.name) {
+        message = sprintf(__('Tags have been updated using %s', 'filter-ai'), service.metadata.name);
+      }
+
+      showNotice({ message });
     } catch (error) {
       console.error(error);
 

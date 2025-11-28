@@ -1,23 +1,9 @@
 import { useSettings } from '@/settings';
-import {
-  ai,
-  hideLoadingMessage,
-  removeWrappingQuotes,
-  showLoadingMessage,
-  showNotice,
-  setCustomiseTextOptionsModal,
-} from '@/utils';
+import { ai, hideLoadingMessage, removeWrappingQuotes, showLoadingMessage, showNotice, showChoiceModal } from '@/utils';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { usePrompts } from '@/utils/ai/prompts/usePrompts';
 import { useService } from '@/utils/ai/services/useService';
-
-const MULTI_OPTION_CONFIG = {
-  count: 3,
-  delimiter: '###OPTION###',
-  instruction: (count: number) =>
-    `Generate exactly ${count} distinct variations. Do not number each variation. Separate each variation with the delimiter: ###OPTION###`,
-};
 
 export const useGenerateTitle = () => {
   const { settings } = useSettings();
@@ -41,8 +27,58 @@ export const useGenerateTitle = () => {
     };
   }, []);
 
+  const update = async (title: string) => {
+    try {
+      const titleField = document.getElementById('title') as HTMLInputElement;
+
+      if (window.filter_ai_dependencies.block_editor && editPost) {
+        editPost({ title: removeWrappingQuotes(title) });
+      } else if (titleField) {
+        titleField.value = title;
+      }
+
+      let message = __('Title has been updated', 'filter-ai');
+
+      if (service?.metadata.name) {
+        message = sprintf(__('Title has been updated using %s', 'filter-ai'), service.metadata.name);
+      }
+
+      showNotice({ message });
+    } catch (error) {
+      console.error(error);
+
+      // @ts-expect-error Property 'message' does not exist on type '{}'
+      showNotice({ message: error?.message || error, type: 'error' });
+    }
+  };
+
+  const regenerate = async (options: string[]) => {
+    try {
+      const _content = content || window.tinymce?.editors?.content?.getContent();
+      const titleField = document.getElementById('title') as HTMLInputElement;
+      const _oldTitle = oldTitle || titleField?.value;
+
+      const oldOptions = [_oldTitle, ...options];
+
+      const response = await ai.getTitleFromContent(_content, oldOptions.join(', '), prompt, service?.slug);
+
+      if (!response) {
+        throw new Error(__('Sorry, there has been an issue while generating your titles.', 'filter-ai'));
+      }
+
+      const newOptions = JSON.parse(response);
+
+      showChoiceModal({ options: newOptions, choice: '' });
+    } catch (error) {
+      console.error(error);
+
+      // @ts-expect-error Property 'message' does not exist on type '{}'
+      showNotice({ message: error?.message || error, type: 'error' });
+    }
+  };
+
   const onClick = async () => {
-    showLoadingMessage(__('Generating Titles', 'filter-ai'));
+    showLoadingMessage(__('Titles', 'filter-ai'));
 
     try {
       const _content = content || window.tinymce?.editors?.content?.getContent();
@@ -50,47 +86,21 @@ export const useGenerateTitle = () => {
       const titleField = document.getElementById('title') as HTMLInputElement;
       const _oldTitle = oldTitle || titleField?.value;
 
-      const multiOptionPrompt = `${prompt} ${MULTI_OPTION_CONFIG.instruction(MULTI_OPTION_CONFIG.count)}`;
-
-      const response = await ai.getTitleFromContent(_content, _oldTitle, multiOptionPrompt, service?.slug);
+      const response = await ai.getTitleFromContent(_content, _oldTitle, prompt, service?.slug);
 
       if (!response) {
         throw new Error(__('Sorry, there has been an issue while generating your titles.', 'filter-ai'));
       }
 
-      console.log('TAGS RESPONSE:', response);
-      console.log('TYPE:', typeof response);
+      const options = JSON.parse(response);
 
-      const parsedOptions =
-        typeof response === 'string'
-          ? response
-              .split(MULTI_OPTION_CONFIG.delimiter)
-              .map((opt) => opt.trim())
-              .filter((opt) => opt.length > 0)
-          : [String(response)];
-
-      if (!parsedOptions || parsedOptions.length < MULTI_OPTION_CONFIG.count) {
-        throw new Error(__('Sorry, AI did not generate 3 options. Please try again.', 'filter-ai'));
-      }
-
-      const generatedOptions = parsedOptions.slice(0, MULTI_OPTION_CONFIG.count).map(removeWrappingQuotes);
-
-      setCustomiseTextOptionsModal({
-        options: generatedOptions,
-        choice: '',
-        type: 'title',
-        context: {
-          content: _content,
-          text: _oldTitle,
-          prompt,
-          service: service?.slug,
-          serviceName: service?.metadata.name,
-          hasSelection: false,
-          selectionStart: null,
-          selectionEnd: null,
-          label: __('Title', 'filter-ai'),
-          feature: 'title',
-        },
+      showChoiceModal({
+        title: __('Select Your AI Generated Title', 'filter-ai'),
+        description: __('Choose the title that works best for your content', 'filter-ai'),
+        label: __('Choose from these AI generated titles:', 'filter-ai'),
+        update,
+        regenerate,
+        options,
       });
     } catch (error) {
       console.error(error);

@@ -9,9 +9,7 @@ import {
   showGrammarCheckModal,
   useGrammarCheckModal,
   resetGrammarCheckModal,
-  setCustomiseTextOptionsModal,
-  useCustomiseTextOptionsModal,
-  resetCustomiseTextOptionsModal,
+  showChoiceModal,
 } from '@/utils';
 import { BlockEditProps } from '@/types';
 import { useSettings } from '@/settings';
@@ -21,6 +19,17 @@ import { ToolbarButton } from '@/components/toolbarButton';
 import { __, sprintf } from '@wordpress/i18n';
 import { usePrompts } from '@/utils/ai/prompts/usePrompts';
 import { useService } from '@/utils/ai/services/useService';
+
+type RegenerateExtraProps = {
+  text: string;
+  feature: string;
+  service?: {
+    slug: string;
+  };
+  prompt: string;
+};
+
+type Regenerate = (options: string[], extraProps: RegenerateExtraProps) => Promise<void>;
 
 const tones = [
   {
@@ -50,6 +59,8 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
   const [showChangeToneOptions, setShowChangeToneOptions] = useState(false);
 
   const { settings } = useSettings();
+
+  const grammarModal = useGrammarCheckModal();
 
   const rewritePrompt = usePrompts('customise_text_rewrite_prompt');
   const rewritePromptService = useService('customise_text_rewrite_prompt_service');
@@ -149,14 +160,72 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
     }
   }, [name]);
 
-  const grammarModal = useGrammarCheckModal();
-  const TextOptionsModal = useCustomiseTextOptionsModal();
+  const update = async (newText: string, promptKey: string) => {
+    try {
+      if (promptKey === 'customise_text_summarise_prompt') {
+        await navigator.clipboard.writeText(newText);
 
-  const MULTI_OPTION_CONFIG = {
-    count: 3,
-    delimiter: '###OPTION###',
-    instruction: (count: number) =>
-      `Generate exactly ${count} distinct variations. Do not number each variation. Separate each variation with the delimiter: ###OPTION###`,
+        showNotice({ message: __('Summary has been copied to your clipboard', 'filter-ai') });
+      } else {
+        if (hasSelection) {
+          const content =
+            typeof attributes.content === 'string' ? create({ text: attributes.content }) : attributes.content;
+
+          const newValue = insert(content, newText, selectionStart.offset, selectionEnd.offset);
+
+          setAttributes({ content: toHTMLString({ value: newValue }) });
+
+          setTimeout(() => document.getSelection()?.empty(), 0);
+        } else {
+          setAttributes({ content: newText });
+        }
+
+        let message = sprintf(__('Your %s has been updated', 'filter-ai'), label.toLowerCase());
+
+        const { service } = promptConfigs[promptKey as PromptKey] || {};
+
+        if (service?.metadata.name) {
+          message = sprintf(
+            __('Your %s has been updated using %s', 'filter-ai'),
+            label.toLowerCase(),
+            service.metadata.name
+          );
+        }
+
+        showNotice({ message });
+      }
+    } catch (error) {
+      console.error(error);
+
+      // @ts-expect-error Property 'message' does not exist on type '{}'
+      showNotice({ message: error?.message || error, type: 'error' });
+    }
+  };
+
+  const regenerate: Regenerate = async (options: string[], { text, feature, prompt, service }) => {
+    try {
+      const oldOptions = [text, ...options];
+
+      const response = await ai.customiseText(feature, text, oldOptions.join(', '), prompt, service?.slug);
+
+      if (!response) {
+        throw new Error(
+          sprintf(__('Sorry, there has been an issue while generating your %s', 'filter-ai'), label.toLowerCase())
+        );
+      }
+
+      const newOptions = JSON.parse(response);
+
+      showChoiceModal({
+        options: newOptions,
+        choice: '',
+      });
+    } catch (error) {
+      console.error(error);
+
+      // @ts-expect-error Property 'message' does not exist on type '{}'
+      showNotice({ message: error?.message || error, type: 'error' });
+    }
   };
 
   const onClick: OnClick = async (promptKey, params) => {
@@ -180,7 +249,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
     }
 
     try {
-      const feature = promptKey.replace(/_/g, '-');
+      const feature = `filter-ai-${promptKey.replace(/_/g, '-')}`;
 
       const content =
         typeof attributes.content === 'string' ? create({ text: attributes.content }) : attributes.content;
@@ -211,7 +280,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
       }
 
       if (promptKey === 'customise_text_check_grammar_prompt') {
-        const correctedText = await ai.customiseText(feature, text, finalPrompt, service?.slug);
+        const correctedText = await ai.fixTextGrammar(text, finalPrompt, service?.slug);
 
         if (!correctedText) {
           throw new Error(sprintf(__('Sorry, there has been an issue while checking grammar', 'filter-ai')));
@@ -232,25 +301,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
         return;
       }
 
-      if (promptKey === 'customise_text_summarise_prompt') {
-        let newText = await ai.customiseText(feature, text, finalPrompt, service?.slug);
-
-        if (!newText) {
-          throw new Error(
-            sprintf(__('Sorry, there has been an issue while generating your %s', 'filter-ai'), label.toLowerCase())
-          );
-        }
-
-        newText = removeWrappingQuotes(newText);
-        await navigator.clipboard.writeText(newText);
-        showNotice({ message: __('Summary has been copied to your clipboard', 'filter-ai') });
-
-        return;
-      }
-
-      const multiOptionPrompt = `${finalPrompt} ${MULTI_OPTION_CONFIG.instruction(MULTI_OPTION_CONFIG.count)}`;
-
-      const response = await ai.customiseText(feature, text, multiOptionPrompt, service?.slug);
+      const response = await ai.customiseText(feature, text, '', finalPrompt, service?.slug);
 
       if (!response) {
         throw new Error(
@@ -258,36 +309,21 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
         );
       }
 
-      const parsedOptions =
-        typeof response === 'string'
-          ? response
-              .split(MULTI_OPTION_CONFIG.delimiter)
-              .map((opt) => opt.trim())
-              .filter((opt) => opt.length > 0)
-          : [String(response)];
+      const options = JSON.parse(response);
 
-      if (!parsedOptions || parsedOptions.length < MULTI_OPTION_CONFIG.count) {
-        throw new Error(__('Sorry, AI did not generate 3 options. Please try again.', 'filter-ai'));
-      }
-
-      const generatedOptions = parsedOptions.slice(0, MULTI_OPTION_CONFIG.count).map(removeWrappingQuotes);
-
-      setCustomiseTextOptionsModal({
-        type: 'text',
-        options: generatedOptions,
-        choice: '',
-        context: {
-          content: attributes.content,
-          hasSelection,
-          selectionStart,
-          selectionEnd,
-          label,
-          serviceName: service?.metadata.name,
-          feature,
-          text,
-          prompt: finalPrompt,
-          service: service?.slug,
-        },
+      showChoiceModal({
+        title: __('Select Your AI Generated Text', 'filter-ai'),
+        description: __('Choose the version that works best for your content', 'filter-ai'),
+        label: __('Choose from these AI generated options:', 'filter-ai'),
+        update: (newValue) => update(newValue, promptKey),
+        regenerate: (options) =>
+          regenerate(options, {
+            prompt: finalPrompt,
+            text,
+            service,
+            feature,
+          }),
+        options,
       });
     } catch (error) {
       console.error(error);
@@ -353,60 +389,6 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
       }
     }
   }, [grammarModal.choice, grammarModal.context]);
-
-  useEffect(() => {
-    const { choice, options, context } = TextOptionsModal;
-
-    if (choice && !options.length && context) {
-      const { content, hasSelection, selectionStart, selectionEnd, label, serviceName } = context;
-
-      try {
-        const blockEditor = select('core/block-editor');
-        const blockDispatcher = dispatch('core/block-editor') as {
-          updateBlockAttributes: (clientId: string, attributes: Record<string, any>) => void;
-        };
-
-        const startId = selectionStart?.clientId;
-        const endId = selectionEnd?.clientId;
-        const sameBlock = startId && endId && startId === endId;
-        const targetBlockId = sameBlock ? startId : endId;
-
-        const targetBlock = blockEditor.getBlock(targetBlockId);
-
-        if (targetBlock) {
-          if (Object.prototype.hasOwnProperty.call(targetBlock.attributes, 'content')) {
-            blockDispatcher.updateBlockAttributes(targetBlockId, {
-              content: choice,
-            });
-          } else {
-            setAttributes({ content: choice });
-          }
-        } else if (hasSelection) {
-          const richContent = typeof content === 'string' ? create({ text: content }) : content;
-          const newValue = insert(richContent, choice, selectionStart.offset, selectionEnd.offset);
-          setAttributes({ content: toHTMLString({ value: newValue }) });
-        } else {
-          setAttributes({ content: choice });
-        }
-
-        setTimeout(() => document.getSelection()?.empty(), 0);
-
-        let message = sprintf(__('Your %s has been updated', 'filter-ai'), label.toLowerCase());
-        if (serviceName) {
-          message = sprintf(__('Your %s has been updated using %s', 'filter-ai'), label.toLowerCase(), serviceName);
-        }
-        showNotice({ message });
-      } catch (error) {
-        console.error('Error updating block content:', error);
-        showNotice({
-          message: __('There was an issue replacing the text content.', 'filter-ai'),
-          type: 'error',
-        });
-      } finally {
-        resetCustomiseTextOptionsModal();
-      }
-    }
-  }, [TextOptionsModal, setAttributes]);
 
   if (
     hasMultiSelection ||

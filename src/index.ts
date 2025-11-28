@@ -13,4 +13,4 @@ import './utils/notice/container';
 import './utils/loadingMessage/container';
 import './utils/seoTitleOptionsModal/container';
 import './utils/checkGrammarModal/container';
-import './utils/customiseTextModal/container';
+import './utils/choiceModal/container';

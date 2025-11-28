@@ -89,8 +89,6 @@ export const useGenerateSEOTitle = () => {
   const onClick = async () => {
     showLoadingMessage(__('SEO Title', 'filter-ai'));
 
-    let options = [];
-
     try {
       const _content = content || window.tinymce?.editors?.content?.getContent();
 
@@ -100,9 +98,9 @@ export const useGenerateSEOTitle = () => {
         throw new Error(__('Sorry, there has been an issue while generating your SEO title.', 'filter-ai'));
       }
 
-      options = titles.split('||').map((option: string) => option.trim());
+      const newOptions = titles.split('||').map((option: string) => option.trim());
 
-      setSeoTitleOptionsModal({ options, choice: '' });
+      setSeoTitleOptionsModal({ options: newOptions, choice: '' });
     } catch (error) {
       console.error(error);
 

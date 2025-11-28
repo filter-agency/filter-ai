@@ -8,14 +8,17 @@ import ReloadIcon from '@/assets/reload';
 import { ai } from '../ai';
 import { useSettings } from '@/settings';
 import { useSelect } from '@wordpress/data';
+import { usePrompts } from '../ai/prompts/usePrompts';
+import { useService } from '../ai/services/useService';
 
 const SeoTiltleOptionsModalContainer = () => {
   const disableRegenerate = useRef(false);
   const [choice, setChoice] = useState('');
   const [isRegenerating, setIsRegenerating] = useState(false);
 
+  const prompt = usePrompts('yoast_seo_title_prompt');
+  const service = useService('yoast_seo_title_prompt_service');
   const { options } = useSeoTitleOptionsModal();
-  const { settings } = useSettings();
 
   const { content, oldSeoTitle } = useSelect((select) => {
     const { getEditedPostAttribute } = select('core/editor') || {};
@@ -44,17 +47,17 @@ const SeoTiltleOptionsModalContainer = () => {
     setIsRegenerating(true);
     setChoice('');
 
-    let newOptions = [];
     const oldOptions = [oldSeoTitle, ...options];
 
     try {
-      const titles = await ai.getSeoTitleFromContent(content, oldOptions.join(', '), settings?.yoast_seo_title_prompt);
+      const _content = content || window.tinymce?.editors?.content?.getContent();
+      const titles = await ai.getSeoTitleFromContent(_content, oldOptions.join(', '), prompt, service?.slug);
 
       if (!titles) {
         throw new Error(__('Sorry, there has been an issue while generating your SEO title.', 'filter-ai'));
       }
 
-      newOptions = titles.split('||').map((option: string) => option.trim());
+      const newOptions = titles.split('||').map((option: string) => option.trim());
 
       setSeoTitleOptionsModal({ options: newOptions, choice: '' });
     } catch (error) {
