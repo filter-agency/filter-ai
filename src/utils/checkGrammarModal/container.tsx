@@ -14,8 +14,13 @@ const sanitizeHTML = (dirty: string): string => {
   doc.querySelectorAll('*').forEach((el) => {
     [...el.attributes].forEach((attr) => {
       const name = attr.name.toLowerCase();
-      const value = attr.value.toLowerCase();
-      if (name.startsWith('on') || value.startsWith('javascript:')) {
+      const value = attr.value.trim().toLowerCase();
+      if (
+        name.startsWith('on') ||
+        value.startsWith('javascript:') ||
+        value.startsWith('data:') ||
+        value.startsWith('vbscript:')
+      ) {
         el.removeAttribute(name);
       }
     });
