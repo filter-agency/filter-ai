@@ -198,6 +198,12 @@ function filter_ai_enqueue_assets() {
 		) . ';',
 		'before'
 	);
+
+	wp_add_inline_script(
+		'filter-ai-script',
+		'window.filter_ai_initial_settings = ' . wp_json_encode( filter_ai_get_settings() ) . ';',
+		'before'
+	);
 }
 
 add_action( 'admin_enqueue_scripts', 'filter_ai_enqueue_assets', -1 );
