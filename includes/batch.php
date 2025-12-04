@@ -29,7 +29,7 @@ add_action( 'wp_ajax_filter_ai_api_batch_queue_run', 'filter_ai_api_batch_queue_
  * @param string $action_id action id
  */
 function filter_ai_get_action_logs( $action_id ) {
-	if ( ! class_exits( 'ActionScheduler' ) || ! method_exists( ActionScheduler::logger(), 'get_logs' ) ) {
+	if ( ! class_exists( 'ActionScheduler' ) || ! method_exists( ActionScheduler::logger(), 'get_logs' ) ) {
 		return array();
 	}
 

@@ -154,15 +154,18 @@ const ImageAltText = () => {
                   .join(', ')
               )}
             </p>
-            <p>{sprintf(__('Total images: %s', 'filter-ai'), count.images)}</p>
+            <p>{sprintf(__('Total images: %s', 'filter-ai'), count.images?.toString())}</p>
             <p>
               {sprintf(
                 __('Unsupported images missing alt text: %s', 'filter-ai'),
-                count.unsupportedImagesWithoutAltText
+                count.unsupportedImagesWithoutAltText?.toString()
               )}
             </p>
             <p>
-              {sprintf(__('Supported images missing alt text: %s', 'filter-ai'), count.supportedImagesWithoutAltText)}
+              {sprintf(
+                __('Supported images missing alt text: %s', 'filter-ai'),
+                count.supportedImagesWithoutAltText?.toString()
+              )}
             </p>
           </PanelBody>
           {!inProgress && count.actions > 0 && (
@@ -173,14 +176,17 @@ const ImageAltText = () => {
                   services?.[count.lastRunService]?.metadata.name ?? 'unknown'
                 )}
               </p>
-              <p>{sprintf(__('Images processed: %s', 'filter-ai'), count.actions)}</p>
-              <p>{sprintf(__('Completed images: %s', 'filter-ai'), count.completeActions)}</p>
-              <p>{sprintf(__('Failed images %s', 'filter-ai'), count.failedActions)}</p>
+              <p>{sprintf(__('Images processed: %s', 'filter-ai'), count.actions?.toString())}</p>
+              <p>{sprintf(__('Completed images: %s', 'filter-ai'), count.completeActions?.toString())}</p>
+              <p>{sprintf(__('Failed images %s', 'filter-ai'), count.failedActions?.toString())}</p>
             </PanelBody>
           )}
 
           {!!count.failedActions && (
-            <PanelBody title={sprintf(__('Failed images: %s', 'filter-ai'), count.failedActions)} initialOpen={false}>
+            <PanelBody
+              title={sprintf(__('Failed images: %s', 'filter-ai'), count.failedActions?.toString())}
+              initialOpen={false}
+            >
               {failedActions?.map((action) => {
                 return (
                   <p>

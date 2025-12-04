@@ -7,6 +7,8 @@ import { generateText } from './services';
 import { getSeoTitleFromContent } from './getSeoTitleFromContent';
 import { getSeoMetaDescriptionFromContent } from './getSeoMetaDescriptionFromContent';
 import { getFAQsFromContent } from './getFAQsFromContent';
+import { getSummaryFromContent } from './getSummaryFromContent';
+import { fixTextGrammar } from './fixTextGrammar';
 
 export const ai = {
   getAltTextFromUrl,
@@ -18,4 +20,6 @@ export const ai = {
   getSeoTitleFromContent,
   getSeoMetaDescriptionFromContent,
   getFAQsFromContent,
+  getSummaryFromContent,
+  fixTextGrammar,
 };

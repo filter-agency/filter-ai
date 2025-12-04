@@ -13,7 +13,7 @@ export const useSettings = () => {
     const record = getEntityRecord('root', 'site') || {};
 
     return {
-      settings: record?.[settingsKey],
+      settings: record?.[settingsKey] || window.filter_ai_initial_settings,
     };
   }, []);
 

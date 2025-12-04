@@ -12,6 +12,7 @@ declare global {
     filter_ai_api: any;
     filter_ai_dependencies: any;
     filter_ai_default_settings: any;
+    filter_ai_initial_settings: any;
     tinymce: any;
     YoastSEO: any;
     tagBox: any;

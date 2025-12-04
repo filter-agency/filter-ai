@@ -8,14 +8,17 @@ import ReloadIcon from '@/assets/reload';
 import { ai } from '../ai';
 import { useSettings } from '@/settings';
 import { useSelect } from '@wordpress/data';
+import { usePrompts } from '../ai/prompts/usePrompts';
+import { useService } from '../ai/services/useService';
 
 const SeoTiltleOptionsModalContainer = () => {
   const disableRegenerate = useRef(false);
   const [choice, setChoice] = useState('');
   const [isRegenerating, setIsRegenerating] = useState(false);
 
+  const prompt = usePrompts('yoast_seo_title_prompt');
+  const service = useService('yoast_seo_title_prompt_service');
   const { options } = useSeoTitleOptionsModal();
-  const { settings } = useSettings();
 
   const { content, oldSeoTitle } = useSelect((select) => {
     const { getEditedPostAttribute } = select('core/editor') || {};
@@ -44,17 +47,17 @@ const SeoTiltleOptionsModalContainer = () => {
     setIsRegenerating(true);
     setChoice('');
 
-    let newOptions = [];
     const oldOptions = [oldSeoTitle, ...options];
 
     try {
-      const titles = await ai.getSeoTitleFromContent(content, oldOptions.join(', '), settings?.yoast_seo_title_prompt);
+      const _content = content || window.tinymce?.editors?.content?.getContent();
+      const titles = await ai.getSeoTitleFromContent(_content, oldOptions.join(', '), prompt, service?.slug);
 
       if (!titles) {
         throw new Error(__('Sorry, there has been an issue while generating your SEO title.', 'filter-ai'));
       }
 
-      newOptions = titles.split('||').map((option: string) => option.trim());
+      const newOptions = titles.split('||').map((option: string) => option.trim());
 
       setSeoTitleOptionsModal({ options: newOptions, choice: '' });
     } catch (error) {
@@ -76,12 +79,12 @@ const SeoTiltleOptionsModalContainer = () => {
     <Modal
       __experimentalHideHeader
       onRequestClose={onClose}
-      className="filter-ai-seo-title-options-modal"
+      className="filter-ai-seo-title-options-modal filter-ai-modal-base"
       isDismissible={!isRegenerating}
       shouldCloseOnClickOutside={!isRegenerating}
       shouldCloseOnEsc={!isRegenerating}
     >
-      <div className="filter-ai-seo-title-options-modal-header">
+      <div className="filter-ai-modal-header">
         <div>
           <h2>{__('Select your Generated SEO Title', 'filter-ai')}</h2>
           <p>{__('Choose the perfect title to boost your search rankings', 'filter-ai')}</p>
@@ -90,7 +93,7 @@ const SeoTiltleOptionsModalContainer = () => {
           <CloseIcon />
         </Button>
       </div>
-      <div className="filter-ai-seo-title-options-modal-content">
+      <div className="filter-ai-modal-content">
         <RadioControl
           selected={choice}
           onChange={setChoice}
@@ -98,10 +101,10 @@ const SeoTiltleOptionsModalContainer = () => {
           options={options.map((option) => ({ label: option, value: option }))}
           disabled={isRegenerating}
         />
-        <p className="filter-ai-seo-title-options-modal-warn">
+        <p className="filter-ai-modal-warn">
           {__('AI generated titles may contain incorrect content, please double before continuing.', 'filter-ai')}
         </p>
-        <div className="filter-ai-seo-title-options-modal-actions">
+        <div className="filter-ai-modal-actions">
           <Button
             variant="secondary"
             onClick={regenerate}
@@ -111,7 +114,7 @@ const SeoTiltleOptionsModalContainer = () => {
           >
             {isRegenerating ? __('Generating...', 'filter-ai') : __('Regenerate Titles', 'filter-ai')}
           </Button>
-          <div className="filter-ai-seo-title-options-modal-actions-group">
+          <div className="filter-ai-modal-actions-group">
             <Button variant="secondary" disabled={isRegenerating} onClick={onClose}>
               {__('Cancel', 'filter-ai')}
             </Button>
