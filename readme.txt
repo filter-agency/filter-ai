@@ -2,7 +2,7 @@
 Contributors: filterdigital, paulhalfpenny, robertmeacher, guyhillary, davecpage, ianharrisfilter
 Tags: ai, seo, content, alt-text, image-generation
 Requires at least: 6.3 
-Tested up to: 6.8
+Tested up to: 6.9
 Stable tag: 1.5.0
 Requires PHP: 7.4 
 License: GPLv3 or later
