@@ -15,8 +15,7 @@
       "default": "Frequently Asked Questions"
     },
     "titleAlign": {
-      "type": "string",
-      "default": "center"
+      "type": "string"
     }
   },
   "editorScript": "file:./index.js",
