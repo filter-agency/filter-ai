@@ -12,6 +12,9 @@
   "attributes": {
     "question": {
       "type": "string"
+    },
+    "questionAlign": {
+      "type": "string"
     }
   },
   "editorScript": "file:./index.js",
