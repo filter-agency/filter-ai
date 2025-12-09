@@ -1,0 +1,19 @@
+.wp-block-filter-ai-summary {
+  .inner {
+    max-width: var(--wp--style--global--wide-size);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--wp--style--root--padding-left);
+    padding-right: var(--wp--style--root--padding-right);
+    padding-top: var(--wp--preset--spacing--40);
+    padding-bottom: var(--wp--preset--spacing--40);
+
+    .is-layout-constrained & {
+      max-width: var(--wp--style--global--content-size);
+    }
+  }
+
+  .wp-block-heading {
+    margin-top: 0;
+  }
+}

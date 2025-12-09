@@ -2,8 +2,8 @@
 Contributors: filterdigital, paulhalfpenny, robertmeacher, guyhillary, davecpage, ianharrisfilter
 Tags: ai, seo, content, alt-text, image-generation
 Requires at least: 6.3 
-Tested up to: 6.8
-Stable tag: 1.4.0
+Tested up to: 6.9
+Stable tag: 1.5.0
 Requires PHP: 7.4 
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -80,10 +80,19 @@ Yes. The ALT text generation feature is designed to improve accessibility by pro
 
 == Upgrade Notice ==
 
-= 1.4.0 =
-This update includes a new generate FAQs block and new options to select an AI service per feature along with various improvements and bug fixes.
+= 1.5.0 =
+This update includes a new generate summary block, a new grammar checking option for content and an updated choice for page titles and customised text along with various improvements and bug fixes.
 
 == Changelog ==
+
+= 1.5.0 =
+
+**Enhancements:**
+
+* New generate summary block
+* New grammar checking option for content
+* Updated choice for page titles and customised text
+* Various dependency updates and bug fixes
 
 = 1.4.0 =
 

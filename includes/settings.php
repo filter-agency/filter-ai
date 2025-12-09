@@ -51,6 +51,8 @@ function filter_ai_get_default_settings() {
 		'post_tags_prompt'                          => esc_html__( 'Please generate a list of {{number}} words that describe specific details for the following content:', 'filter-ai' ),
 		'post_tags_prompt_service'                  => '',
 
+		'customise_text_pre_prompt'                 => esc_html__( 'For the following prompt please generate 3 options and respond in the following JSON string format: `["option 1", "option 2", "option 3"]`.', 'filter-ai' ),
+
 		'customise_text_rewrite_enabled'            => true,
 		'customise_text_rewrite_prompt'             => esc_html__( 'Please rewrite the following {{type}} into a new version that is a similar length that maintains the core ideas but presents them in a fresh and compelling way:', 'filter-ai' ),
 		'customise_text_rewrite_prompt_service'     => '',
@@ -67,14 +69,23 @@ function filter_ai_get_default_settings() {
 		'customise_text_summarise_prompt'           => esc_html__( 'Please generate a summary of no more than 50 words for the following {{type}}:', 'filter-ai' ),
 		'customise_text_summarise_prompt_service'   => '',
 
+		'customise_text_check_grammar_enabled'      => true,
+		'customise_text_check_grammar_prompt'       => esc_html__( 'Please correct only grammar and spelling in the following {{type}}, but do not remove, change, or add any HTML tags or formatting:', 'filter-ai' ),
+		'customise_text_check_grammar_service'      => '',
+
 		'customise_text_change_tone_enabled'        => true,
 		'customise_text_change_tone_prompt'         => esc_html__( 'Please rewrite the following {{type}} changing its tone to make it sound more {{tone}} while keeping it a similar length:', 'filter-ai' ),
 		'customise_text_change_tone_prompt_service' => '',
 
 		'generate_faq_section_enabled'              => true,
-		'generate_faq_section_pre_prompt'           => esc_html__( 'For the following prompt please respond with the following JSON string format: `[{"question":"...","answer":"..."}]`', 'filter-ai' ),
+		'generate_faq_section_pre_prompt'           => esc_html__( 'For the following prompt please respond with the following JSON string format: `[{"question":"...","answer":"..."}].`', 'filter-ai' ),
 		'generate_faq_section_prompt'               => esc_html__( 'Please can you come up with up to {{number}} FAQs, each consisting of a question and a brief answer, based on the following content:', 'filter-ai' ),
 		'generate_faq_section_prompt_service'       => '',
+
+		'generate_summary_section_enabled'          => true,
+		'generate_summary_section_pre_prompt'       => esc_html__( 'For the following prompt please respond with the following JSON string format: `["summary item 1", "summary item 2"]`.', 'filter-ai' ),
+		'generate_summary_section_prompt'           => esc_html__( 'Please can you provide me with 3–5 bullet points summarising the key takeaways for the following content:', 'filter-ai' ),
+		'generate_summary_section_prompt_service'   => '',
 
 		'wc_product_description_enabled'            => true,
 		'wc_product_description_prompt'             => esc_html__( 'Please generate a description based on the following product information:', 'filter-ai' ),

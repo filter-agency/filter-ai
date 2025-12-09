@@ -165,8 +165,8 @@ const SEOMetaDescriptions = () => {
                   postTypes?.slice(-1).map((type) => type.label)
               )}
             </p>
-            <p>{sprintf(__('Total posts: %s', 'filter-ai'), count.posts)}</p>
-            <p>{sprintf(__('Posts missing SEO meta descriptions: %s', 'filter-ai'), count.postsWithout)}</p>
+            <p>{sprintf(__('Total posts: %s', 'filter-ai'), count.posts?.toString())}</p>
+            <p>{sprintf(__('Posts missing SEO meta descriptions: %s', 'filter-ai'), count.postsWithout?.toString())}</p>
             <table>
               <thead>
                 <tr>
@@ -194,15 +194,17 @@ const SEOMetaDescriptions = () => {
                   services?.[count.lastRunService]?.metadata.name ?? 'unknown'
                 )}
               </p>
-              <p>{sprintf(__('SEO meta descriptions processed: %s', 'filter-ai'), count.actions)}</p>
-              <p>{sprintf(__('Completed SEO meta descriptions: %s', 'filter-ai'), count.completeActions)}</p>
-              <p>{sprintf(__('Failed SEO meta descriptions %s', 'filter-ai'), count.failedActions)}</p>
+              <p>{sprintf(__('SEO meta descriptions processed: %s', 'filter-ai'), count.actions?.toString())}</p>
+              <p>
+                {sprintf(__('Completed SEO meta descriptions: %s', 'filter-ai'), count.completeActions?.toString())}
+              </p>
+              <p>{sprintf(__('Failed SEO meta descriptions %s', 'filter-ai'), count.failedActions?.toString())}</p>
             </PanelBody>
           )}
 
           {!!count.failedActions && (
             <PanelBody
-              title={sprintf(__('Failed SEO meta descriptions: %s', 'filter-ai'), count.failedActions)}
+              title={sprintf(__('Failed SEO meta descriptions: %s', 'filter-ai'), count.failedActions?.toString())}
               initialOpen={false}
             >
               {failedActions?.map((action) => {

@@ -56,10 +56,12 @@ export const useGenerateSEOMetaDescription = () => {
       scrollToField();
     }
 
-    let message = __('SEO meta description has been updated', 'filter-ai');
+    let message;
 
     if (service?.metadata.name) {
       message = sprintf(__('SEO meta description has been updated using %s', 'filter-ai'), service.metadata.name);
+    } else {
+      message = __('SEO meta description has been updated', 'filter-ai');
     }
 
     showNotice({ message });

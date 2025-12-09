@@ -230,6 +230,20 @@ export const sections: Section[] = [
         },
       },
       {
+        key: 'customise_text_check_grammar',
+        serviceKey: 'customise_text_check_grammar_service',
+        toggle: {
+          key: 'customise_text_check_grammar_enabled',
+          label: __('Check Grammar', 'filter-ai'),
+          help: __('Check the grammar of the content.', 'filter-ai'),
+        },
+        prompt: {
+          key: 'customise_text_check_grammar_prompt',
+          label: __('Check grammar prompt', 'filter-ai'),
+          defaultValue: defaultSettings.customise_text_check_grammar_prompt,
+        },
+      },
+      {
         key: 'customise_text_change_tone',
         serviceKey: 'customise_text_change_tone_prompt_service',
         toggle: {
@@ -246,8 +260,8 @@ export const sections: Section[] = [
     ],
   },
   {
-    header: __('FAQ', 'filter-ai'),
-    key: 'faq',
+    header: __('Blocks', 'filter-ai'),
+    key: 'blocks',
     features: [
       {
         key: 'generate_faq_section',
@@ -261,6 +275,20 @@ export const sections: Section[] = [
           key: 'generate_faq_section_prompt',
           label: __('Generate FAQ section prompt', 'filter-ai'),
           defaultValue: defaultSettings.generate_faq_section_prompt,
+        },
+      },
+      {
+        key: 'generate_summary_section',
+        serviceKey: 'generate_summary_section_prompt_service',
+        toggle: {
+          key: 'generate_summary_section_enabled',
+          label: __('Generate a summary section', 'filter-ai'),
+          help: __('Generate a summary section based on the post content.', 'filter-ai'),
+        },
+        prompt: {
+          key: 'generate_summary_section_prompt',
+          label: __('Generate a summary section prompt', 'filter-ai'),
+          defaultValue: defaultSettings.generate_summary_section_prompt,
         },
       },
     ],

@@ -3,7 +3,7 @@
  * Plugin Name: Filter AI
  * Plugin URI: https://filteraiplugin.com
  * Description: Meet your digital sidekick: Filter AI, a plugin that tackles your to-do list faster than you can say 'procrastination'!
- * Version: 1.4.0
+ * Version: 1.5.0
  * Author: Filter
  * Author URI: https://filter.agency
  * Requires at least: 6.3
@@ -134,6 +134,10 @@ register_activation_hook( __FILE__, 'filter_ai_activate' );
  */
 function filter_ai_uninstall() {
 	delete_option( 'filter_ai_settings' );
+	delete_option( 'filter_ai_last_ai_image_alt_text_service' );
+	delete_option( 'filter_ai_last_seo_meta_description_service' );
+	delete_option( 'filter_ai_last_seo_title_service' );
+	delete_option( 'filter_ai_last_ai_image_alt_text_service' );
 }
 
 register_uninstall_hook( __FILE__, 'filter_ai_uninstall' );
@@ -194,6 +198,12 @@ function filter_ai_enqueue_assets() {
 		) . ';',
 		'before'
 	);
+
+	wp_add_inline_script(
+		'filter-ai-script',
+		'window.filter_ai_initial_settings = ' . wp_json_encode( filter_ai_get_settings() ) . ';',
+		'before'
+	);
 }
 
 add_action( 'admin_enqueue_scripts', 'filter_ai_enqueue_assets', -1 );
@@ -227,18 +237,19 @@ function register_custom_block_category( $block_categories ) {
 add_filter( 'block_categories_all', 'register_custom_block_category', 10, 1 );
 
 /**
- * Registers the FAQs block using the metadata loaded from the `block.json` file.
+ * Registers the blocks using the metadata loaded from the `block.json` file.
  * Behind the scenes, it registers also all assets so they can be enqueued
  * through the block editor in the corresponding context.
  *
  * @see https://developer.wordpress.org/reference/functions/register_block_type/
  */
-function filter_ai_faqs_block_init() {
+function filter_ai_block_init() {
 	register_block_type_from_metadata( __DIR__ . '/build/blocks/faq-item' );
 	register_block_type_from_metadata( __DIR__ . '/build/blocks/faqs' );
+	register_block_type_from_metadata( __DIR__ . '/build/blocks/summary' );
 }
 
-add_action( 'init', 'filter_ai_faqs_block_init' );
+add_action( 'init', 'filter_ai_block_init' );
 
 /**
  * Ignore vendor packages and external library directories when running the plugin check plugin.

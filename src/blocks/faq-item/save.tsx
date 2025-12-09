@@ -12,7 +12,13 @@ const FAQItemSave = ({ attributes }: Props) => {
     <div {...blockProps}>
       <details className="filter-ai-faq-item" itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
         <summary className="filter-ai-faq-item-question" itemProp="name">
-          <RichText.Content tagName="h3" value={attributes.question} />
+          <RichText.Content
+            tagName="h3"
+            value={attributes.question}
+            style={{
+              textAlign: attributes.questionAlign as React.CSSProperties['textAlign'],
+            }}
+          />
         </summary>
         <div
           className="filter-ai-faq-item-answer"
