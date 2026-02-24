@@ -17,6 +17,8 @@ type GenerateAltTextPayload = {
   service: AIService;
 };
 
+let isWorking = false;
+
 (() => {
   const AttachmentDetails =
     window.wp?.media?.view?.Attachment?.Details?.TwoColumn || window.wp?.media?.view?.Attachment?.Details;
@@ -172,7 +174,12 @@ type GenerateAltTextPayload = {
 
         this.stopListening(Events, 'filter-ai:generateAltText', this.generateAltText);
       },
-      async generateAltText(customPrompt?: string) {
+      async generateAltText({ prompt, service }: GenerateAltTextPayload) {
+        if (isWorking) {
+          return;
+        }
+
+        isWorking = true;
         showLoadingMessage(__('Alt Text', 'filter-ai'));
 
         try {
@@ -184,7 +191,7 @@ type GenerateAltTextPayload = {
 
           const url = this.model.get('sizes')?.medium?.url || this.model.get('url');
 
-          const altText = await ai.getAltTextFromUrl(url, this.model.get('alt'), customPrompt);
+          const altText = await ai.getAltTextFromUrl(url, this.model.get('alt'), prompt, service?.slug);
 
           if (!altText) {
             throw new Error(__('Sorry, there has been an issue while generating your alt text.', 'filter-ai'));
@@ -206,6 +213,7 @@ type GenerateAltTextPayload = {
           showNotice({ message: error?.message || error, type: 'error' });
         } finally {
           hideLoadingMessage();
+          isWorking = false;
         }
       },
     });
