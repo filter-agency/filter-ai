@@ -146,14 +146,32 @@ function filter_ai_sanitize_settings( $settings ) {
 	$sanitized  = array();
 
 	foreach ( $settings as $key => $value ) {
-		$type = $properties[ $key ]['type'] ?? 'text';
+		// Drop unknown keys rather than letting them through unsanitised.
+		if ( ! isset( $properties[ $key ]['type'] ) ) {
+			continue;
+		}
+
+		$type = $properties[ $key ]['type'];
 
 		switch ( $type ) {
 			case 'boolean':
 				$sanitized[ $key ] = rest_sanitize_boolean( $value );
 				break;
-			default:
+			case 'integer':
+				$sanitized[ $key ] = (int) $value;
+				break;
+			case 'double':
+				$sanitized[ $key ] = (float) $value;
+				break;
+			case 'string':
 				$sanitized[ $key ] = sanitize_text_field( $value );
+				break;
+			case 'array':
+				$sanitized[ $key ] = is_array( $value ) ? array_map( 'sanitize_text_field', $value ) : array();
+				break;
+			default:
+				// Unknown type — drop rather than coerce.
+				continue 2;
 		}
 	}
 
@@ -226,7 +244,7 @@ function filter_ai_get_prompt( $key ) {
 	$settings = filter_ai_get_settings();
 
 	if ( empty( $settings[ $key ] ) ) {
-		throw new Exception( esc_html__( 'There is was an issue retrieving the prompt.', 'filter-ai' ) );
+		throw new Exception( esc_html__( 'There was an issue retrieving the prompt.', 'filter-ai' ) );
 	}
 
 	$prompt = $settings[ $key ];

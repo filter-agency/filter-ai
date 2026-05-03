@@ -171,7 +171,7 @@ add_action( 'filter_ai_batch_seo_title', 'filter_ai_process_batch_seo_title' );
  * API handler to trigger batch generation of SEO title
  */
 function filter_ai_api_batch_seo_title() {
-	check_ajax_referer( 'filter_ai_api', 'nonce' );
+	filter_ai_check_api_request();
 
 	filter_ai_reset_batch( 'filter_ai_batch_seo_title' );
 
@@ -209,7 +209,7 @@ add_action( 'wp_ajax_filter_ai_api_batch_seo_title', 'filter_ai_api_batch_seo_ti
  * API handler to get the SEO title counts
  */
 function filter_ai_api_get_seo_title_count() {
-	check_ajax_referer( 'filter_ai_api', 'nonce' );
+	filter_ai_check_api_request();
 
 	$post_types =
 	array_filter(
@@ -294,7 +294,7 @@ add_action( 'wp_ajax_filter_ai_api_get_seo_title_count', 'filter_ai_api_get_seo_
  * API handler to cancel pending scheduled actions
  */
 function filter_ai_api_cancel_batch_seo_title() {
-	check_ajax_referer( 'filter_ai_api', 'nonce' );
+	filter_ai_check_api_request();
 
 	as_unschedule_all_actions( 'filter_ai_batch_seo_title' );
 

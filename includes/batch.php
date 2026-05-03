@@ -9,10 +9,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Verify nonce + capability for a Filter AI AJAX handler. Sends a 403 and
+ * exits if either check fails.
+ *
+ * Every filter_ai_api_* handler must call this. The shared `filter_ai_api`
+ * nonce is exposed in JS to any logged-in user that loads an admin page,
+ * so the nonce alone is not authorisation — we additionally require the
+ * same capability the settings menu requires.
+ */
+function filter_ai_check_api_request() {
+	check_ajax_referer( 'filter_ai_api', 'nonce' );
+
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_send_json_error( null, 403 );
+	}
+}
+
+/**
  * API handler to trigger Action Scheduler queue
  */
 function filter_ai_api_batch_queue_run() {
-	check_ajax_referer( 'filter_ai_api', 'nonce' );
+	filter_ai_check_api_request();
 
 	if ( class_exists( 'ActionScheduler' ) && method_exists( ActionScheduler::runner(), 'run' ) ) {
 		ActionScheduler::runner()->run();

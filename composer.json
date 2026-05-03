@@ -1,5 +1,5 @@
 {
-  "version": "1.5.1",
+  "version": "1.6.0",
   "name": "filter-agency/filter-ai",
   "description": "Powerful AI content creation tools integrated directly into the WordPress editor for effortless content generation.",
   "type": "wordpress-plugin",
@@ -11,7 +11,10 @@
   "require": {
     "php": ">=7.4",
     "composer/installers": "~1.0",
-    "woocommerce/action-scheduler": "^3.9"
+    "woocommerce/action-scheduler": "^3.9",
+    "stellarwp/telemetry": "^2.4",
+    "stellarwp/container-contract": "^1.1",
+    "lucatume/di52": "^4.0"
   },
   "config": {
     "allow-plugins": {
@@ -20,7 +23,8 @@
     }
   },
   "require-dev": {
-    "wp-coding-standards/wpcs": "^3.0"
+    "wp-coding-standards/wpcs": "^3.0",
+    "brianhenryie/strauss": "^0.21"
   },
   "scripts": {
     "check-cs": [
@@ -29,9 +33,16 @@
     "fix-cs": [
       "@php ./vendor/bin/phpcbf"
     ],
+    "strauss": [
+      "vendor/bin/strauss"
+    ],
     "post-install-cmd": [
+      "@strauss",
       "npm install",
       "npm run build"
+    ],
+    "post-update-cmd": [
+      "@strauss"
     ]
   },
   "extra": {
@@ -39,6 +50,18 @@
       "packages/{$name}": [
         "woocommerce/action-scheduler"
       ]
+    },
+    "strauss": {
+      "target_directory": "vendor-prefixed",
+      "namespace_prefix": "Filter_AI\\Vendor\\",
+      "classmap_prefix": "Filter_AI_Vendor_",
+      "constant_prefix": "FILTER_AI_VENDOR_",
+      "packages": [
+        "stellarwp/telemetry",
+        "stellarwp/container-contract",
+        "lucatume/di52"
+      ],
+      "delete_vendor_packages": true
     }
   }
 }

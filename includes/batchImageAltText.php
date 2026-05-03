@@ -308,7 +308,7 @@ add_action( 'filter_ai_batch_image_alt_text', 'filter_ai_process_batch_image_alt
  * API handler to trigger batch generation of image alt text
  */
 function filter_ai_api_batch_image_alt_text() {
-	check_ajax_referer( 'filter_ai_api', 'nonce' );
+	filter_ai_check_api_request();
 
 	filter_ai_reset_batch( 'filter_ai_batch_image_alt_text' );
 
@@ -346,7 +346,7 @@ add_action( 'wp_ajax_filter_ai_api_batch_image_alt_text', 'filter_ai_api_batch_i
  * API handler to get the image counts
  */
 function filter_ai_api_get_image_count() {
-	check_ajax_referer( 'filter_ai_api', 'nonce' );
+	filter_ai_check_api_request();
 
 	$action_count = filter_ai_get_action_count( 'filter_ai_batch_image_alt_text' );
 
@@ -402,7 +402,7 @@ add_action( 'wp_ajax_filter_ai_api_get_image_count', 'filter_ai_api_get_image_co
  * API handler to cancel pending scheduled actions
  */
 function filter_ai_api_cancel_batch_image_alt_text() {
-	check_ajax_referer( 'filter_ai_api', 'nonce' );
+	filter_ai_check_api_request();
 
 	as_unschedule_all_actions( 'filter_ai_batch_image_alt_text' );
 
@@ -430,8 +430,9 @@ function filter_ai_generate_alt_text_on_upload( $metadata, $attachment_id ) {
 
 		try {
 			filter_ai_process_batch_image_alt_text( $args );
-		} catch ( error ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-			// error silently
+		} catch ( \Throwable $error ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			// Swallow failures silently — we don't want a missing/misconfigured
+			// AI service to break the user's media upload.
 		}
 	}
 

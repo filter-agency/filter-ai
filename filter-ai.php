@@ -3,7 +3,7 @@
  * Plugin Name: Filter AI
  * Plugin URI: https://filteraiplugin.com
  * Description: Meet your digital sidekick: Filter AI, a plugin that tackles your to-do list faster than you can say 'procrastination'!
- * Version: 1.5.1
+ * Version: 1.6.0
  * Author: Filter
  * Author URI: https://filter.agency
  * Requires at least: 6.3
@@ -18,7 +18,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+define( 'FILTER_AI_VERSION', '1.6.0' );
 define( 'FILTER_AI_PATH', plugin_dir_path( __FILE__ ) );
+define( 'FILTER_AI_FILE', __FILE__ );
+
+// Strauss-prefixed dependencies (StellarWP Telemetry, di52, etc.) and the
+// telemetry classes that depend on them. If vendor-prefixed/ is missing
+// (e.g. installed from git without `composer install`), skip telemetry
+// entirely — the class declarations below extend Strauss-prefixed parents
+// and would fatal if loaded.
+if ( file_exists( FILTER_AI_PATH . 'vendor-prefixed/autoload.php' ) ) {
+	require_once FILTER_AI_PATH . 'vendor-prefixed/autoload.php';
+	require_once FILTER_AI_PATH . 'includes/class-telemetry.php';
+	require_once FILTER_AI_PATH . 'includes/class-telemetry-modals.php';
+	add_action( 'plugins_loaded', [ 'Filter_AI_Telemetry', 'bootstrap' ] );
+	add_action( 'plugins_loaded', [ 'Filter_AI_Telemetry_Modals', 'bootstrap' ] );
+}
 
 if ( ! class_exists( 'ActionScheduler' ) ) {
 	require_once plugin_dir_path( __FILE__ ) . 'packages/action-scheduler/action-scheduler.php';
@@ -125,9 +140,24 @@ function filter_ai_activate() {
 	if ( ! empty( $option_value_default ) ) {
 		add_option( 'filter_ai_settings', $option_value_default );
 	}
+
+	if ( class_exists( 'Filter_AI_Telemetry' ) ) {
+		Filter_AI_Telemetry::send_event( 'activated' );
+	}
 }
 
 register_activation_hook( __FILE__, 'filter_ai_activate' );
+
+/**
+ * Fire a deactivation telemetry event.
+ */
+function filter_ai_deactivate() {
+	if ( class_exists( 'Filter_AI_Telemetry' ) ) {
+		Filter_AI_Telemetry::send_event( 'deactivated' );
+	}
+}
+
+register_deactivation_hook( __FILE__, 'filter_ai_deactivate' );
 
 /**
  * Remove setting option when the plugin in uninstalled
@@ -137,7 +167,6 @@ function filter_ai_uninstall() {
 	delete_option( 'filter_ai_last_ai_image_alt_text_service' );
 	delete_option( 'filter_ai_last_seo_meta_description_service' );
 	delete_option( 'filter_ai_last_seo_title_service' );
-	delete_option( 'filter_ai_last_ai_image_alt_text_service' );
 }
 
 register_uninstall_hook( __FILE__, 'filter_ai_uninstall' );

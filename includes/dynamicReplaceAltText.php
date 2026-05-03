@@ -26,7 +26,7 @@ function filter_ai_render_block( $block_content, $block ) {
 		return $block_content;
 	}
 
-	$image_id;
+	$image_id = null;
 
 	if ( ! empty( $block['attrs']['mediaId'] ) ) {
 		$image_id = $block['attrs']['mediaId'];

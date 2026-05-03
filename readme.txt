@@ -3,7 +3,7 @@ Contributors: filterdigital, paulhalfpenny, robertmeacher, guyhillary, davecpage
 Tags: ai, seo, content, alt-text, image-generation
 Requires at least: 6.3 
 Tested up to: 6.9
-Stable tag: 1.5.1
+Stable tag: 1.6.0
 Requires PHP: 7.4 
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -80,10 +80,28 @@ Yes. The ALT text generation feature is designed to improve accessibility by pro
 
 == Upgrade Notice ==
 
-= 1.5.1 =
-Fix generate alt text bug and dependency updates.
+= 1.6.0 =
+Adds anonymous opt-in telemetry, hardening of batch generation endpoints, and several bug fixes.
 
 == Changelog ==
+
+= 1.6.0 =
+
+**Enhancements:**
+
+* New anonymous opt-in telemetry to help us improve Filter AI. Sends only WordPress version, PHP version, locale, and which Filter plugins are active — never post content, user data, or anything personally identifiable. Disabled by default; opt in via the prompt that appears in the WordPress admin after upgrading.
+
+**Bug fixes:**
+
+* Fix media uploads failing when automatic ALT text generation could not reach the configured AI service. The error is now caught silently and the upload completes normally.
+* Fix the settings sanitiser silently coercing array values to empty strings; unknown setting keys are now dropped rather than passed through.
+* Fix undefined-variable notice when rendering image blocks with no media ID.
+* Fix typo in the prompt-retrieval error message.
+* Remove a duplicate option from the uninstall cleanup.
+
+**Security:**
+
+* Hardening of batch generation AJAX endpoints.
 
 = 1.5.1 =
 

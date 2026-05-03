@@ -11,6 +11,9 @@
 	<!-- Exclude the Composer Vendor directory. -->
 	<exclude-pattern>/vendor/*</exclude-pattern>
 
+	<!-- Exclude the Strauss-prefixed third-party dependencies. -->
+	<exclude-pattern>/vendor-prefixed/*</exclude-pattern>
+
 	<!-- Exclude the packages directory. -->
 	<exclude-pattern>/packages/*</exclude-pattern>
 
