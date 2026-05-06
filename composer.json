@@ -26,6 +26,11 @@
     "wp-coding-standards/wpcs": "^3.0",
     "brianhenryie/strauss": "^0.21"
   },
+  "autoload-dev": {
+    "psr-4": {
+      "Composer\\": "vendor/composer/composer/src/Composer/"
+    }
+  },
   "scripts": {
     "check-cs": [
       "@php ./vendor/bin/phpcs"
