@@ -46,6 +46,7 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/batchSEOMetaDescription.php
 require_once plugin_dir_path( __FILE__ ) . 'includes/dynamicReplaceAltText.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/providers/detection.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/rest/class-rest-controller.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/brand-voice.php';
 Filter_AI_REST_Controller::register();
 
 /**
@@ -167,6 +168,12 @@ function filter_ai_activate() {
 		add_option( 'filter_ai_settings', $option_value_default );
 	}
 
+	// First-install hook for the Brand Voice auto-scan (idempotent — no-op if
+	// the option already exists or brand_voice_prompt is already filled in).
+	if ( function_exists( 'filter_ai_brand_voice_init_scan_state' ) ) {
+		filter_ai_brand_voice_init_scan_state();
+	}
+
 	if ( class_exists( 'Filter_AI_Telemetry' ) ) {
 		Filter_AI_Telemetry::send_event( 'activated' );
 	}
@@ -193,6 +200,7 @@ function filter_ai_uninstall() {
 	delete_option( 'filter_ai_last_ai_image_alt_text_service' );
 	delete_option( 'filter_ai_last_seo_meta_description_service' );
 	delete_option( 'filter_ai_last_seo_title_service' );
+	delete_option( 'filter_ai_brand_voice_scan' );
 }
 
 register_uninstall_hook( __FILE__, 'filter_ai_uninstall' );
