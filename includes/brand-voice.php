@@ -369,6 +369,32 @@ function filter_ai_brand_voice_render_admin_notices() {
 		return;
 	}
 
+	// pending_key + a backend present but no key configured. Without this, on
+	// WP 7.0+ native sites without a Connector key, nothing tells the user
+	// globally that the brand voice is waiting on a provider — the
+	// AIServiceNotice React component only renders on the settings page.
+	if ( 'pending_key' === $state['status'] && ! $state['notice_dismissed'] ) {
+		$provider = filter_ai_provider();
+		if ( null !== $provider && ! $provider->is_text_supported( array( 'text_generation' ) ) ) {
+			$config_url  = function_exists( 'wp_ai_client_prompt' )
+				? admin_url( 'options-connectors.php' )
+				: admin_url( 'admin.php?page=filter_ai#api_keys' );
+			$dismiss_url = wp_nonce_url(
+				admin_url( 'admin-post.php?action=filter_ai_brand_voice_dismiss' ),
+				'filter_ai_brand_voice_dismiss'
+			);
+			printf(
+				'<div class="notice notice-info"><p>%s <a href="%s">%s</a> &middot; <a href="%s">%s</a></p></div>',
+				esc_html__( 'Filter AI will auto-generate your brand voice once you configure an AI provider.', 'filter-ai' ),
+				esc_url( $config_url ),
+				esc_html__( 'Configure provider', 'filter-ai' ),
+				esc_url( $dismiss_url ),
+				esc_html__( 'Dismiss', 'filter-ai' )
+			);
+			return;
+		}
+	}
+
 	if ( 'complete' === $state['status'] && ! $state['notice_dismissed'] ) {
 		$settings_url = admin_url( 'admin.php?page=filter_ai' );
 		$dismiss_url  = wp_nonce_url(
