@@ -44,8 +44,9 @@ export const nativeGenerateImage = async (args: {
   return res.images;
 };
 
-export const nativeListProviders = async (): Promise<Record<string, { label: string; capabilities: string[] }>> =>
-  apiFetch({ path: '/filter-ai/v1/providers' });
+export const nativeListProviders = async (): Promise<
+  Record<string, { label: string; capabilities: string[]; is_available: boolean }>
+> => apiFetch({ path: '/filter-ai/v1/providers' });
 
 export const nativeIsSupported = async (capability: 'text' | 'image'): Promise<boolean> => {
   const res = await apiFetch<{ supported: boolean }>({

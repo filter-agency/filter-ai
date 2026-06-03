@@ -8,6 +8,8 @@ import { useSettings } from '@/settings';
 import { useSelect } from '@wordpress/data';
 import AIServiceNotice from '@/components/aiServiceNotice';
 import { useService } from '@/utils/ai/services/useService';
+import { getMode } from '@/utils/ai/services/mode';
+import { nativeIsSupported } from '@/utils/ai/services/nativeClient';
 
 type ImportedImage = {
   url: string;
@@ -32,8 +34,20 @@ const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
 
   const service = useService('generate_image_prompt_service');
 
+  const [nativeImageSupported, setNativeImageSupported] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (getMode() === 'native') {
+      nativeIsSupported('image')
+        .then(setNativeImageSupported)
+        .catch(() => setNativeImageSupported(false));
+    }
+  }, []);
+
   // @ts-expect-error Type 'never' has no call signatures.
-  const AIService = useSelect((select) => select(aiPlugin?.ai?.store)?.getAvailableService(), [aiPlugin]);
+  const legacyAIService = useSelect((select) => select(aiPlugin?.ai?.store)?.getAvailableService(), [aiPlugin]);
+
+  const AIService = getMode() === 'native' ? nativeImageSupported : legacyAIService;
 
   const handleGenerate = async () => {
     setLoading(true);
