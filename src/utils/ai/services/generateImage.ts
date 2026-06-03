@@ -1,6 +1,8 @@
 import { waitForAIPlugin } from '@/utils/useAIPlugin';
 import { select } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
+import { getMode } from './mode';
+import { nativeGenerateImage } from './nativeClient';
 
 type GenerateImageProps = {
   prompt: string;
@@ -17,6 +19,13 @@ export const generateImage = async ({
   aspectRatio,
   service,
 }: GenerateImageProps): Promise<string[]> => {
+  if (getMode() === 'native') {
+    if (!prompt || !feature) {
+      return [];
+    }
+    return nativeGenerateImage({ prompt, feature, candidateCount, aspectRatio, service });
+  }
+
   const aiPlugin = await waitForAIPlugin();
 
   if (!aiPlugin) {
