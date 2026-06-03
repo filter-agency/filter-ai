@@ -76,29 +76,33 @@ class Filter_AI_Provider_AiServices implements Filter_AI_Provider {
 			return new WP_Error( 'filter_ai_unavailable', __( 'AI service not available', 'filter-ai' ) );
 		}
 
-		$service = empty( $provider_slug )
-			? ai_services()->get_available_service( array( 'capabilities' => $capabilities ) )
-			: ai_services()->get_available_service( $provider_slug );
+		try {
+			$service = empty( $provider_slug )
+				? ai_services()->get_available_service( $this->filter( $capabilities, null ) )
+				: ai_services()->get_available_service( $provider_slug );
 
-		$parts = new Parts();
-		$parts->add_text_part( $prompt );
-		foreach ( $files as $file ) {
-			$data = 0 === strpos( $file['data'], 'data:' )
-				? $file['data']
-				: 'data:' . $file['mime_type'] . ';base64,' . $file['data'];
-			$parts->add_file_data_part( $file['mime_type'], $data );
+			$parts = new Parts();
+			$parts->add_text_part( $prompt );
+			foreach ( $files as $file ) {
+				$data = 0 === strpos( $file['data'], 'data:' )
+					? $file['data']
+					: 'data:' . $file['mime_type'] . ';base64,' . $file['data'];
+				$parts->add_file_data_part( $file['mime_type'], $data );
+			}
+
+			$content    = new Content( Content_Role::USER, $parts );
+			$model      = $service->get_model(
+				array(
+					'feature'      => $feature,
+					'capabilities' => $capabilities,
+				)
+			);
+			$candidates = $model->generate_text( $content );
+
+			return Helpers::get_text_from_contents( Helpers::get_candidate_contents( $candidates ) );
+		} catch ( \Throwable $e ) {
+			return new WP_Error( 'filter_ai_generation_failed', $e->getMessage() );
 		}
-
-		$content    = new Content( Content_Role::USER, $parts );
-		$model      = $service->get_model(
-			array(
-				'feature'      => $feature,
-				'capabilities' => $capabilities,
-			)
-		);
-		$candidates = $model->generate_text( $content );
-
-		return Helpers::get_text_from_contents( Helpers::get_candidate_contents( $candidates ) );
 	}
 
 	/**
