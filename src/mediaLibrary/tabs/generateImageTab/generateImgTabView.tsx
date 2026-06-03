@@ -59,7 +59,7 @@ const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
 
   const handleGenerate = async () => {
     setLoading(true);
-    showLoadingMessage(__('AI Images', 'filter-ai'));
+    showLoadingMessage(__('AI Image', 'filter-ai'));
     try {
       const generateImages = await getGeneratedImages(prompt, service?.slug);
       setGeneratedImages(generateImages);
@@ -96,7 +96,7 @@ const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
     }
 
     setImporting(true);
-    showLoadingMessage(__('Images', 'filter-ai'), 'importing');
+    showLoadingMessage(__('Image', 'filter-ai'), 'importing');
 
     try {
       const imported = (await Promise.all(
@@ -157,7 +157,7 @@ const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
     <>
       <AIServiceNotice />
 
-      <h2>{__('Enter a prompt to generate images', 'filter-ai')}</h2>
+      <h2>{__('Enter a prompt to generate an image', 'filter-ai')}</h2>
       <p>
         {__(
           'Be specific by clearly defining the subject of the image, provide context of where the subject is or what they are doing and indicate the desired style and mood you would like your image to have.',
@@ -166,11 +166,8 @@ const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
       </p>
       <p>
         {insertMode
-          ? __('Once your images are generated, select one to insert into your block.', 'filter-ai')
-          : __(
-              'Once your images are generated, you can choose one or more of those to import into your Media Library.',
-              'filter-ai'
-            )}
+          ? __('Once your image is generated, you can insert it into your block.', 'filter-ai')
+          : __('Once your image is generated, you can import it into your Media Library.', 'filter-ai')}
       </p>
 
       <div className="filter-ai-form">
@@ -188,7 +185,7 @@ const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
           className="filter-ai-generate-button"
           disabled={loading || !AIService || !prompt}
         >
-          {loading ? __('Generating...', 'filter-ai') : __('Generate Images', 'filter-ai')}
+          {loading ? __('Generating...', 'filter-ai') : __('Generate Image', 'filter-ai')}
         </Button>
 
         {generatedImages.length > 0 && (
