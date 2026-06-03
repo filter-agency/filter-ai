@@ -15,6 +15,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Filter_AI_Provider_Native implements Filter_AI_Provider {
 
 	/**
+	 * Slug of the provider preferred in the most recent generate_text() call.
+	 *
+	 * @var string
+	 */
+	private $last_provider_slug = '';
+
+	/**
 	 * Build a prompt builder, attaching any multimodal input files.
 	 *
 	 * @param string $prompt Prompt text.
@@ -73,6 +80,8 @@ class Filter_AI_Provider_Native implements Filter_AI_Provider {
 	 */
 	public function generate_text( $prompt, array $files, $feature, array $capabilities, $provider_slug = null ) {
 		try {
+			$this->last_provider_slug = $provider_slug ? (string) $provider_slug : '';
+
 			$builder = $this->builder( $prompt, $files );
 			if ( ! $builder->is_supported_for_text_generation() ) {
 				return new WP_Error( 'filter_ai_unavailable', __( 'No AI provider is configured for text generation.', 'filter-ai' ) );
@@ -106,6 +115,15 @@ class Filter_AI_Provider_Native implements Filter_AI_Provider {
 		} catch ( \Throwable $e ) {
 			return new WP_Error( 'filter_ai_generation_failed', $e->getMessage() );
 		}
+	}
+
+	/**
+	 * Slug of the provider preferred in the most recent generate_text() call.
+	 *
+	 * @return string Provider slug, or '' if unknown / none used yet.
+	 */
+	public function last_provider_slug() {
+		return $this->last_provider_slug;
 	}
 
 	/**

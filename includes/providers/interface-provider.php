@@ -56,4 +56,11 @@ interface Filter_AI_Provider {
 	 * @return array Map of slug => [ 'label' => string, 'capabilities' => string[] ] for configured providers.
 	 */
 	public function list_providers();
+
+	/**
+	 * Slug of the provider used by the most recent generate_text() call.
+	 *
+	 * @return string Provider slug, or '' if unknown / none used yet.
+	 */
+	public function last_provider_slug();
 }

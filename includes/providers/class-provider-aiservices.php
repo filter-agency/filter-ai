@@ -26,6 +26,13 @@ use Felix_Arntz\AI_Services\Services\API\Helpers;
 class Filter_AI_Provider_AiServices implements Filter_AI_Provider {
 
 	/**
+	 * Slug of the provider resolved in the most recent generate_text() call.
+	 *
+	 * @var string
+	 */
+	private $last_provider_slug = '';
+
+	/**
 	 * Build the ai-services service filter.
 	 *
 	 * @param string[]    $capabilities  Capability slugs.
@@ -81,6 +88,8 @@ class Filter_AI_Provider_AiServices implements Filter_AI_Provider {
 				? ai_services()->get_available_service( $this->filter( $capabilities, null ) )
 				: ai_services()->get_available_service( $provider_slug );
 
+			$this->last_provider_slug = method_exists( $service, 'get_service_slug' ) ? $service->get_service_slug() : '';
+
 			$parts = new Parts();
 			$parts->add_text_part( $prompt );
 			foreach ( $files as $file ) {
@@ -128,5 +137,14 @@ class Filter_AI_Provider_AiServices implements Filter_AI_Provider {
 	 */
 	public function list_providers() {
 		return array();
+	}
+
+	/**
+	 * Slug of the provider resolved in the most recent generate_text() call.
+	 *
+	 * @return string Provider slug, or '' if unknown / none used yet.
+	 */
+	public function last_provider_slug() {
+		return $this->last_provider_slug;
 	}
 }
