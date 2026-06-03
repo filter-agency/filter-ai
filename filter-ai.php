@@ -134,6 +134,30 @@ function filter_ai_add_admin_menu() {
 add_action( 'admin_menu', 'filter_ai_add_admin_menu' );
 
 /**
+ * Show an admin notice when no AI backend (native client or ai-services) is available.
+ */
+function filter_ai_no_backend_notice() {
+	if ( ! current_user_can( 'activate_plugins' ) ) {
+		return;
+	}
+
+	$backend = filter_ai_detect_backend(
+		function_exists( 'wp_ai_client_prompt' ),
+		function_exists( 'ai_services' )
+	);
+
+	if ( 'none' !== $backend ) {
+		return;
+	}
+
+	$message = __( 'Filter AI needs an AI backend to work. On WordPress 7.0 or later, add an AI provider key under Settings → Connectors. On earlier versions, install and activate the AI Services plugin.', 'filter-ai' );
+
+	printf( '<div class="notice notice-error"><p>%s</p></div>', esc_html( $message ) );
+}
+
+add_action( 'admin_notices', 'filter_ai_no_backend_notice' );
+
+/**
  * Add setting option on plugin activation
  */
 function filter_ai_activate() {
@@ -199,10 +223,15 @@ function filter_ai_enqueue_assets() {
 		[ 'strategy' => 'defer' ]
 	);
 
+	$style_deps = array( 'wp-components', 'wp-preferences' );
+	if ( 'legacy' === $backend ) {
+		$style_deps[] = 'ais-components';
+	}
+
 	wp_enqueue_style(
 		'filter-ai-styles',
 		plugin_dir_url( __FILE__ ) . 'build/index.css',
-		array( 'ais-components', 'wp-components', 'wp-preferences' ),
+		$style_deps,
 		$asset_metadata['version'],
 	);
 
