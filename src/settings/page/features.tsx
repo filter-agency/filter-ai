@@ -18,6 +18,12 @@ import _ from 'underscore';
 import { sections } from './sections';
 import { verticalDots } from '@/assets/vertical-dots';
 import { __ } from '@wordpress/i18n';
+
+declare global {
+  interface Window {
+    filter_ai_brand_voice?: { regenerate_url: string };
+  }
+}
 import { chevronDown, check } from '@wordpress/icons';
 import { useServices } from '@/utils/ai/services/useServices';
 
@@ -272,6 +278,29 @@ const Features = () => {
                               {__('Reset to default', 'filter-ai')}
                             </Button>
                           )}
+                          {feature.key === 'brand_voice' &&
+                            window.filter_ai_brand_voice?.regenerate_url &&
+                            !!formData?.[feature.prompt.key] && (
+                              <Button
+                                className="filter-ai-settings-field-reset"
+                                variant="link"
+                                href={window.filter_ai_brand_voice.regenerate_url}
+                                onClick={(e: React.MouseEvent) => {
+                                  if (
+                                    !window.confirm(
+                                      __(
+                                        'This will replace the current brand voice with a new one generated from your latest site content. Continue?',
+                                        'filter-ai'
+                                      )
+                                    )
+                                  ) {
+                                    e.preventDefault();
+                                  }
+                                }}
+                              >
+                                {__('Regenerate from site content', 'filter-ai')}
+                              </Button>
+                            )}
                         </>
                       )}
                     </div>

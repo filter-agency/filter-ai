@@ -291,6 +291,19 @@ function filter_ai_enqueue_assets() {
 		) . ';',
 		'before'
 	);
+
+	wp_add_inline_script(
+		'filter-ai-script',
+		'window.filter_ai_brand_voice = ' . wp_json_encode(
+			array(
+				'regenerate_url' => wp_nonce_url(
+					admin_url( 'admin-post.php?action=filter_ai_brand_voice_regenerate' ),
+					'filter_ai_brand_voice_regenerate'
+				),
+			)
+		) . ';',
+		'before'
+	);
 }
 
 add_action( 'admin_enqueue_scripts', 'filter_ai_enqueue_assets', -1 );

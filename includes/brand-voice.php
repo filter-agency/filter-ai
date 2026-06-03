@@ -476,6 +476,41 @@ function filter_ai_brand_voice_ajax_dismiss() {
 }
 
 /**
+ * admin-post.php handler: clear the existing brand voice prompt, reset scan
+ * state, and queue a fresh scan. Triggered by the "Regenerate from site
+ * content" link in the Brand Voice settings card.
+ *
+ * Differs from retry_scan() in that it explicitly clears brand_voice_prompt
+ * — the scheduled handler's "user manually set this" guard would otherwise
+ * bail because the previous successful scan populated it.
+ */
+function filter_ai_brand_voice_regenerate() {
+	check_admin_referer( 'filter_ai_brand_voice_regenerate' );
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_die( esc_html__( 'You do not have permission to do this.', 'filter-ai' ) );
+	}
+	$settings = get_option( 'filter_ai_settings', array() );
+	if ( is_array( $settings ) ) {
+		$settings['brand_voice_prompt'] = '';
+		update_option( 'filter_ai_settings', $settings );
+	}
+	filter_ai_brand_voice_set_state(
+		array(
+			'status'           => 'pending_key',
+			'attempts'         => 0,
+			'error_code'       => null,
+			'error_message'    => null,
+			'started_at'       => null,
+			'completed_at'     => null,
+			'notice_dismissed' => false,
+		)
+	);
+	filter_ai_brand_voice_maybe_queue_scan();
+	wp_safe_redirect( wp_get_referer() ? wp_get_referer() : admin_url( 'admin.php?page=filter_ai' ) );
+	exit;
+}
+
+/**
  * admin-post.php handler: reset attempts and queue another scan attempt.
  */
 function filter_ai_brand_voice_retry_scan() {
@@ -504,3 +539,4 @@ add_action( FILTER_AI_BRAND_VOICE_SCAN_HOOK, 'filter_ai_brand_voice_process_scan
 add_action( 'admin_notices', 'filter_ai_brand_voice_render_admin_notices' );
 add_action( 'wp_ajax_filter_ai_brand_voice_dismiss', 'filter_ai_brand_voice_ajax_dismiss' );
 add_action( 'admin_post_filter_ai_brand_voice_retry', 'filter_ai_brand_voice_retry_scan' );
+add_action( 'admin_post_filter_ai_brand_voice_regenerate', 'filter_ai_brand_voice_regenerate' );
