@@ -23,7 +23,11 @@ function filter_ai_get_default_settings() {
 		'brand_voice_prompt'                        => '',
 
 		'stop_words_enabled'                        => false,
-		'stop_words_prompt'                         => '',
+		// Common AI-generated tells. Comma-separated; users can edit/remove
+		// from these and add their own in Settings → Stop words. Existing
+		// installs with an empty stop_words_prompt pick this up automatically
+		// via filter_ai_pre_filter_option().
+		'stop_words_prompt'                         => __( 'comprehensive, cutting-edge, delve, elevate, embark, ethos, foster, furthermore, groundbreaking, harness, holistic, in conclusion, in summary, intricate, it\'s worth noting, leverage, meticulously, moreover, multifaceted, myriad, navigate, paradigm, pivotal, plethora, realm, robust, seamless, synergy, tapestry, testament, transformative, unleash, unlock', 'filter-ai' ),
 
 		'stop_words_pre_prompt'                     => esc_html__( 'Please avoid using the following words in any generated response:', 'filter-ai' ),
 
