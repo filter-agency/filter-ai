@@ -1,6 +1,8 @@
 import { waitForAIPlugin } from '@/utils/useAIPlugin';
 import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { getMode } from './mode';
+import { nativeGenerateText } from './nativeClient';
 
 const getTextFromContents = async (contents: any) => {
   const aiPlugin = await waitForAIPlugin();
@@ -18,6 +20,14 @@ type Props = {
 };
 
 export const generateText = async ({ prompt, feature, capabilities = [], parts = [], service }: Props) => {
+  if (getMode() === 'native') {
+    if (!prompt || !feature) {
+      return null;
+    }
+    const caps = capabilities.length ? capabilities : ['text_generation'];
+    return nativeGenerateText({ prompt, feature, capabilities: caps, parts, service });
+  }
+
   const aiPlugin = await waitForAIPlugin();
 
   if (!aiPlugin) {
