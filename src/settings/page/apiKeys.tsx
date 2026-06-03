@@ -1,5 +1,6 @@
 import { showNotice, useAIPlugin } from '@/utils';
-import { Button, FlexItem, Panel, PanelBody, PanelHeader } from '@wordpress/components';
+import { getMode } from '@/utils/ai/services/mode';
+import { Button, ExternalLink, FlexItem, Panel, PanelBody, PanelHeader } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -48,6 +49,22 @@ const APIKeys = () => {
   );
 
   const { saveSettings } = useDispatch(aiPlugin?.settings?.store);
+
+  if (getMode() === 'native') {
+    return (
+      <Panel className="filter-ai-settings-panel">
+        <PanelHeader>
+          <h2>{__('API Keys', 'filter-ai')}</h2>
+        </PanelHeader>
+        <PanelBody>
+          <p>{__('On WordPress 7.0 and later, AI provider keys are managed by WordPress itself.', 'filter-ai')}</p>
+          <ExternalLink href="/wp-admin/options-general.php?page=connectors">
+            {__('Open Settings → Connectors', 'filter-ai')}
+          </ExternalLink>
+        </PanelBody>
+      </Panel>
+    );
+  }
 
   const saveChanges = () => {
     saveSettings()
