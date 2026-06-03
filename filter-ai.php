@@ -296,9 +296,19 @@ function filter_ai_enqueue_assets() {
 		'filter-ai-script',
 		'window.filter_ai_brand_voice = ' . wp_json_encode(
 			array(
-				'regenerate_url' => wp_nonce_url(
-					admin_url( 'admin-post.php?action=filter_ai_brand_voice_regenerate' ),
-					'filter_ai_brand_voice_regenerate'
+				// add_query_arg (not wp_nonce_url) — wp_nonce_url runs esc_html()
+				// on its return value, which encodes & as &amp;. That's correct for
+				// embedding in HTML attributes (the browser decodes on parse), but
+				// when this URL is wp_json_encode'd into a JS string and assigned
+				// to React's href, the &amp; persists through to the browser navigation
+				// and the URL parser splits at the embedded &, breaking the _wpnonce
+				// query param into amp;_wpnonce.
+				'regenerate_url' => add_query_arg(
+					array(
+						'action'   => 'filter_ai_brand_voice_regenerate',
+						'_wpnonce' => wp_create_nonce( 'filter_ai_brand_voice_regenerate' ),
+					),
+					admin_url( 'admin-post.php' )
 				),
 			)
 		) . ';',
