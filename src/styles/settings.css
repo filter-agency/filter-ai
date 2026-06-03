@@ -96,6 +96,12 @@
     background: transparent;
     color: #fff;
     border: 0;
+    /* Reserve the active underline's 2px on every tab (transparent on
+       inactive). Without this, WP core's 50ms `border` transition on <a> tags
+       animates the border-bottom width between 0 and 2px when switching tabs,
+       causing a brief 1px row-height drop at the transition midpoint. With the
+       width reserved, only the colour transitions — layout stays put. */
+    border-bottom: 2px solid transparent;
     font-size: 15px;
     line-height: 20px;
     font-weight: 500;
