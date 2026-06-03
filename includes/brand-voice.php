@@ -350,10 +350,44 @@ function filter_ai_brand_voice_handle_failure( array $state, $result ) {
 }
 
 /**
+ * Print the inline script that persists a notice dismissal when the user
+ * clicks the standard WP X button. WordPress core renders the X via the
+ * `is-dismissible` class but only hides the notice in JS — without this
+ * extra hook, the dismissal isn't persisted server-side.
+ */
+function filter_ai_brand_voice_print_dismiss_script() {
+	static $printed = false;
+	if ( $printed ) {
+		return;
+	}
+	$printed = true;
+	$nonce   = wp_create_nonce( 'filter_ai_brand_voice_dismiss' );
+	?>
+	<script>
+	(function () {
+		document.addEventListener( 'click', function ( e ) {
+			if ( ! e.target || ! e.target.classList || ! e.target.classList.contains( 'notice-dismiss' ) ) {
+				return;
+			}
+			var notice = e.target.closest( '.filter-ai-brand-voice-notice' );
+			if ( ! notice || ! window.fetch || ! window.ajaxurl ) {
+				return;
+			}
+			var fd = new FormData();
+			fd.append( 'action', 'filter_ai_brand_voice_dismiss' );
+			fd.append( '_wpnonce', <?php echo wp_json_encode( $nonce ); ?> );
+			fetch( window.ajaxurl, { method: 'POST', body: fd, credentials: 'same-origin' } );
+		} );
+	})();
+	</script>
+	<?php
+}
+
+/**
  * Render the appropriate global admin notice based on current state.
  *
- * The notice for queued|running carries no dismiss UI (the scan is brief).
- * Success and failure notices each carry a dismiss link.
+ * All variants use WordPress's standard `is-dismissible` class for the X
+ * icon; the inline script above persists the dismissal via admin-ajax.
  */
 function filter_ai_brand_voice_render_admin_notices() {
 	if ( ! current_user_can( 'manage_options' ) ) {
@@ -363,9 +397,10 @@ function filter_ai_brand_voice_render_admin_notices() {
 
 	if ( in_array( $state['status'], array( 'queued', 'running' ), true ) ) {
 		printf(
-			'<div class="notice notice-info"><p>%s</p></div>',
+			'<div class="notice notice-info is-dismissible filter-ai-brand-voice-notice"><p>%s</p></div>',
 			esc_html__( 'Filter AI is analysing your site to generate a brand voice. This usually takes under a minute.', 'filter-ai' )
 		);
+		filter_ai_brand_voice_print_dismiss_script();
 		return;
 	}
 
@@ -376,76 +411,60 @@ function filter_ai_brand_voice_render_admin_notices() {
 	if ( 'pending_key' === $state['status'] && ! $state['notice_dismissed'] ) {
 		$provider = filter_ai_provider();
 		if ( null !== $provider && ! $provider->is_text_supported( array( 'text_generation' ) ) ) {
-			$config_url  = function_exists( 'wp_ai_client_prompt' )
+			$config_url = function_exists( 'wp_ai_client_prompt' )
 				? admin_url( 'options-connectors.php' )
 				: admin_url( 'admin.php?page=filter_ai#api_keys' );
-			$dismiss_url = wp_nonce_url(
-				admin_url( 'admin-post.php?action=filter_ai_brand_voice_dismiss' ),
-				'filter_ai_brand_voice_dismiss'
-			);
 			printf(
-				'<div class="notice notice-info"><p>%s <a href="%s">%s</a> &middot; <a href="%s">%s</a></p></div>',
+				'<div class="notice notice-info is-dismissible filter-ai-brand-voice-notice"><p>%s <a href="%s">%s</a></p></div>',
 				esc_html__( 'Filter AI will auto-generate your brand voice once you configure an AI provider.', 'filter-ai' ),
 				esc_url( $config_url ),
-				esc_html__( 'Configure provider', 'filter-ai' ),
-				esc_url( $dismiss_url ),
-				esc_html__( 'Dismiss', 'filter-ai' )
+				esc_html__( 'Configure provider', 'filter-ai' )
 			);
+			filter_ai_brand_voice_print_dismiss_script();
 			return;
 		}
 	}
 
 	if ( 'complete' === $state['status'] && ! $state['notice_dismissed'] ) {
 		$settings_url = admin_url( 'admin.php?page=filter_ai' );
-		$dismiss_url  = wp_nonce_url(
-			admin_url( 'admin-post.php?action=filter_ai_brand_voice_dismiss' ),
-			'filter_ai_brand_voice_dismiss'
-		);
 		printf(
-			'<div class="notice notice-success"><p>%s <a href="%s">%s</a> &middot; <a href="%s">%s</a></p></div>',
+			'<div class="notice notice-success is-dismissible filter-ai-brand-voice-notice"><p>%s <a href="%s">%s</a></p></div>',
 			esc_html__( 'Filter AI generated a brand voice from your site content.', 'filter-ai' ),
 			esc_url( $settings_url ),
-			esc_html__( 'Review or edit', 'filter-ai' ),
-			esc_url( $dismiss_url ),
-			esc_html__( 'Dismiss', 'filter-ai' )
+			esc_html__( 'Review or edit', 'filter-ai' )
 		);
+		filter_ai_brand_voice_print_dismiss_script();
 		return;
 	}
 
 	if ( 'failed' === $state['status'] && ! $state['notice_dismissed'] ) {
-		$retry_url   = wp_nonce_url(
+		$retry_url = wp_nonce_url(
 			admin_url( 'admin-post.php?action=filter_ai_brand_voice_retry' ),
 			'filter_ai_brand_voice_retry'
-		);
-		$dismiss_url = wp_nonce_url(
-			admin_url( 'admin-post.php?action=filter_ai_brand_voice_dismiss' ),
-			'filter_ai_brand_voice_dismiss'
 		);
 		/* translators: %s: the AI provider's error message */
 		$detail = $state['error_message'] ? ' ' . sprintf( __( '(%s)', 'filter-ai' ), $state['error_message'] ) : '';
 		printf(
-			'<div class="notice notice-error"><p>%s%s <a href="%s">%s</a> &middot; <a href="%s">%s</a></p></div>',
+			'<div class="notice notice-error is-dismissible filter-ai-brand-voice-notice"><p>%s%s <a href="%s">%s</a></p></div>',
 			esc_html__( 'Filter AI could not auto-generate a brand voice from your site content.', 'filter-ai' ),
 			esc_html( $detail ),
 			esc_url( $retry_url ),
-			esc_html__( 'Try again', 'filter-ai' ),
-			esc_url( $dismiss_url ),
-			esc_html__( 'Dismiss', 'filter-ai' )
+			esc_html__( 'Try again', 'filter-ai' )
 		);
+		filter_ai_brand_voice_print_dismiss_script();
 	}
 }
 
 /**
- * admin-post.php handler: mark the current notice as dismissed.
+ * admin-ajax handler: persist the dismissal triggered by the WP X icon.
  */
-function filter_ai_brand_voice_dismiss_notice() {
-	check_admin_referer( 'filter_ai_brand_voice_dismiss' );
+function filter_ai_brand_voice_ajax_dismiss() {
+	check_ajax_referer( 'filter_ai_brand_voice_dismiss' );
 	if ( ! current_user_can( 'manage_options' ) ) {
-		wp_die( esc_html__( 'You do not have permission to do this.', 'filter-ai' ) );
+		wp_send_json_error( null, 403 );
 	}
 	filter_ai_brand_voice_set_state( array( 'notice_dismissed' => true ) );
-	wp_safe_redirect( wp_get_referer() ? wp_get_referer() : admin_url() );
-	exit;
+	wp_send_json_success();
 }
 
 /**
@@ -475,5 +494,5 @@ add_action( 'admin_init', 'filter_ai_brand_voice_init_scan_state' );
 add_action( 'admin_init', 'filter_ai_brand_voice_maybe_queue_scan', 20 );
 add_action( FILTER_AI_BRAND_VOICE_SCAN_HOOK, 'filter_ai_brand_voice_process_scan' );
 add_action( 'admin_notices', 'filter_ai_brand_voice_render_admin_notices' );
-add_action( 'admin_post_filter_ai_brand_voice_dismiss', 'filter_ai_brand_voice_dismiss_notice' );
+add_action( 'wp_ajax_filter_ai_brand_voice_dismiss', 'filter_ai_brand_voice_ajax_dismiss' );
 add_action( 'admin_post_filter_ai_brand_voice_retry', 'filter_ai_brand_voice_retry_scan' );
