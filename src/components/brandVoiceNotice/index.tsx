@@ -100,7 +100,7 @@ export default function BrandVoiceNotice() {
 
   if (initial.status === 'queued' || initial.status === 'running') {
     return (
-      <Notice status="info" isDismissible onRemove={handleDismiss}>
+      <Notice status="info" isDismissible onRemove={handleDismiss} className="filter-ai-brand-voice-notice">
         {__(
           'Filter AI is analysing your site to generate a brand voice. This usually takes under a minute.',
           'filter-ai'
@@ -111,7 +111,7 @@ export default function BrandVoiceNotice() {
 
   if (initial.status === 'complete') {
     return (
-      <Notice status="success" isDismissible onRemove={handleDismiss}>
+      <Notice status="success" isDismissible onRemove={handleDismiss} className="filter-ai-brand-voice-notice">
         {__('Filter AI generated a brand voice from your site content.', 'filter-ai')}{' '}
         {bv?.settings_url && <a href={bv.settings_url}>{__('Review or edit', 'filter-ai')}</a>}
       </Notice>
@@ -121,7 +121,7 @@ export default function BrandVoiceNotice() {
   if (initial.status === 'failed') {
     const detail = initial.error_message ? ` (${initial.error_message})` : '';
     return (
-      <Notice status="error" isDismissible onRemove={handleDismiss}>
+      <Notice status="error" isDismissible onRemove={handleDismiss} className="filter-ai-brand-voice-notice">
         {__('Filter AI could not auto-generate a brand voice from your site content.', 'filter-ai')}
         {detail} {bv?.retry_url && <a href={bv.retry_url}>{__('Try again', 'filter-ai')}</a>}
       </Notice>

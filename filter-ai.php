@@ -325,7 +325,11 @@ function filter_ai_enqueue_assets() {
 					: null,
 				'dismiss_nonce'  => wp_create_nonce( 'filter_ai_brand_voice_dismiss' ),
 				'ajax_url'       => admin_url( 'admin-ajax.php' ),
-				'settings_url'   => admin_url( 'admin.php?page=filter_ai' ),
+				// Trailing #brand_voice is read by features.tsx — clicking the
+				// notice's "Review or edit" link opens the Brand voice prompt
+				// editor (and avoids a full reload when already on the page,
+				// since same-URL+hash navigation just fires hashchange).
+				'settings_url'   => admin_url( 'admin.php?page=filter_ai' ) . '#brand_voice',
 			)
 		) . ';',
 		'before'

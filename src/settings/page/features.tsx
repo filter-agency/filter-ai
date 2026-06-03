@@ -131,6 +131,27 @@ const Features = () => {
     }
   }, [settings]);
 
+  // Open a feature's prompt editor when the URL hash matches its key
+  // (e.g. #brand_voice from the brand voice success notice). Listens for
+  // hashchange too so clicking the link while already on the page opens
+  // the panel without a full reload.
+  useEffect(() => {
+    const openFromHash = () => {
+      const hash = window.location.hash.replace(/^#/, '');
+      if (!hash) return;
+      for (const section of sections) {
+        const feature = section.features.find((f) => f.key === hash);
+        if (feature) {
+          setShowExtra({ [section.key]: feature.key });
+          return;
+        }
+      }
+    };
+    openFromHash();
+    window.addEventListener('hashchange', openFromHash);
+    return () => window.removeEventListener('hashchange', openFromHash);
+  }, []);
+
   useEffect(() => {
     const abortController = new AbortController();
 

@@ -446,7 +446,9 @@ function filter_ai_brand_voice_render_admin_notices() {
 	}
 
 	if ( 'complete' === $state['status'] && ! $state['notice_dismissed'] ) {
-		$settings_url = admin_url( 'admin.php?page=filter_ai' );
+		// Trailing #brand_voice opens the Brand voice prompt editor in features.tsx
+		// and prevents a full reload when the user is already on the settings page.
+		$settings_url = admin_url( 'admin.php?page=filter_ai' ) . '#brand_voice';
 		printf(
 			'<div class="notice notice-success is-dismissible filter-ai-brand-voice-notice"><p>%s <a href="%s">%s</a></p></div>',
 			esc_html__( 'Filter AI generated a brand voice from your site content.', 'filter-ai' ),
