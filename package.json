@@ -9,11 +9,13 @@
     "plugin-zip": "wp-scripts build && wp-scripts plugin-zip",
     "start": "wp-scripts start",
     "prepare": "husky",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "test:js": "wp-scripts test-unit-js --config jest.config.js"
   },
   "devDependencies": {
     "@eslint/js": "^9.23.0",
     "@types/diff": "^5.0.8",
+    "@types/jest": "^30.0.0",
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
     "@types/underscore": "^1.13.0",
