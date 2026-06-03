@@ -85,6 +85,15 @@ class Filter_AI_REST_Controller {
 				'callback'            => array( __CLASS__, 'generate_image' ),
 			)
 		);
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/brand-voice/status',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'permission_callback' => array( __CLASS__, 'permission' ),
+				'callback'            => array( __CLASS__, 'brand_voice_status' ),
+			)
+		);
 	}
 
 	/**
@@ -165,6 +174,20 @@ class Filter_AI_REST_Controller {
 			return $result;
 		}
 		return rest_ensure_response( array( 'images' => $result ) );
+	}
+
+	/**
+	 * Handle GET /brand-voice/status — return the current brand voice scan state
+	 * so the React notice can poll for live updates instead of requiring a reload.
+	 *
+	 * @param WP_REST_Request $request The REST request object.
+	 * @return WP_REST_Response
+	 */
+	public static function brand_voice_status( WP_REST_Request $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- Reason: required by REST callback contract.
+		if ( ! function_exists( 'filter_ai_brand_voice_get_state' ) ) {
+			return rest_ensure_response( array() );
+		}
+		return rest_ensure_response( filter_ai_brand_voice_get_state() );
 	}
 
 	/**

@@ -1,5 +1,7 @@
 import { Notice } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
+import { dispatch } from '@wordpress/data';
+import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 
 type BrandVoiceStatusValue = 'pending_key' | 'queued' | 'running' | 'complete' | 'failed' | 'skipped';
@@ -31,10 +33,56 @@ declare global {
  * settings UI already convey "no provider configured" on these screens; the
  * brand voice pending state would be redundant.
  */
+type BrandVoiceStatus = NonNullable<NonNullable<Window['filter_ai_brand_voice']>['status']>;
+
+const isLive = (s?: string) => s === 'queued' || s === 'running';
+
 export default function BrandVoiceNotice() {
   const bv = window.filter_ai_brand_voice;
-  const initial = bv?.status;
+  const [state, setState] = useState<BrandVoiceStatus | null | undefined>(bv?.status);
   const [locallyDismissed, setLocallyDismissed] = useState(false);
+
+  // Poll the REST endpoint while a scan is in progress so the notice
+  // transitions live from queued/running → complete/failed without a
+  // manual page reload. When the scan completes we also invalidate the
+  // core/site settings entity, which causes useSettings() to re-fetch
+  // so the new brand voice prompt appears in the textarea.
+  useEffect(() => {
+    if (!isLive(state?.status)) return;
+    let cancelled = false;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    const poll = async () => {
+      if (cancelled) return;
+      try {
+        const fresh = await apiFetch<BrandVoiceStatus>({ path: '/filter-ai/v1/brand-voice/status' });
+        if (cancelled) return;
+        setState((prev) => {
+          if (isLive(prev?.status) && fresh.status === 'complete') {
+            // refresh the Filter AI settings entity so the textarea picks up
+            // the freshly-written brand_voice_prompt without a page reload.
+            // @ts-expect-error invalidateResolution exists on core/site dispatch
+            dispatch('core').invalidateResolution('getEntityRecord', ['root', 'site']);
+          }
+          return fresh;
+        });
+        if (isLive(fresh.status)) {
+          timeoutId = setTimeout(poll, 1500);
+        }
+      } catch {
+        // Stop polling on error to avoid a request storm; user can still reload.
+      }
+    };
+    timeoutId = setTimeout(poll, 1500);
+    return () => {
+      cancelled = true;
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+    // Intentionally mount-only: we only need to start polling based on the
+    // initial bootstrap state. Status transitions are handled inside the poll.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const initial = state;
 
   if (!initial?.status || locallyDismissed || initial.notice_dismissed) {
     return null;
