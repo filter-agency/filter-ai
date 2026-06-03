@@ -18,12 +18,7 @@ import _ from 'underscore';
 import { sections } from './sections';
 import { verticalDots } from '@/assets/vertical-dots';
 import { __ } from '@wordpress/i18n';
-
-declare global {
-  interface Window {
-    filter_ai_brand_voice?: { regenerate_url: string };
-  }
-}
+// Window.filter_ai_brand_voice is declared in @/components/brandVoiceNotice.
 import { chevronDown, check } from '@wordpress/icons';
 import { useServices } from '@/utils/ai/services/useServices';
 

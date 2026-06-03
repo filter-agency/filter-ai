@@ -401,6 +401,18 @@ function filter_ai_brand_voice_render_admin_notices() {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
+	// On the Filter AI pages the React app renders an equivalent notice in-place,
+	// because those pages set div.wrap to display:none to suppress all admin
+	// notices (a design choice in filter_ai_options_page / filter_ai_batch_page).
+	// Skipping here avoids a hidden duplicate.
+	$screen        = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+	$filter_ai_ids = array(
+		'toplevel_page_filter_ai',
+		'filter-ai_page_filter_ai_submenu_page_batch',
+	);
+	if ( $screen && in_array( $screen->id, $filter_ai_ids, true ) ) {
+		return;
+	}
 	$state = filter_ai_brand_voice_get_state();
 
 	if ( in_array( $state['status'], array( 'queued', 'running' ), true ) ) {

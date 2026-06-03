@@ -7,6 +7,7 @@ import ImageAltText from './imageAltText';
 import SEOTitles from './seoTitles';
 import SEOMetaDescriptions from './seoMetaDescriptions';
 import AIServiceNotice from '@/components/aiServiceNotice';
+import BrandVoiceNotice from '@/components/brandVoiceNotice';
 
 type Tab = {
   label: string;
@@ -108,6 +109,7 @@ const BatchGeneration = () => {
         </nav>
       </header>
       <div className="filter-ai-settings-content">
+        <BrandVoiceNotice />
         <AIServiceNotice />
         <Content />
         <div>

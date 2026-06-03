@@ -5,6 +5,7 @@ import _ from 'underscore';
 import { filterAILogo } from '@/assets/filter-logo';
 import { __ } from '@wordpress/i18n';
 import AIServiceNotice from '@/components/aiServiceNotice';
+import BrandVoiceNotice from '@/components/brandVoiceNotice';
 import Features from './features';
 import APIKeys from './apiKeys';
 import { getMode } from '@/utils/ai/services/mode';
@@ -109,6 +110,7 @@ const Settings = () => {
         </nav>
       </header>
       <div className="filter-ai-settings-content">
+        <BrandVoiceNotice />
         {currentTabKey !== 'api_keys' && <AIServiceNotice />}
         <Content />
       </div>

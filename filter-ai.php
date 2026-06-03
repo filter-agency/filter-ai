@@ -310,6 +310,22 @@ function filter_ai_enqueue_assets() {
 					),
 					admin_url( 'admin-post.php' )
 				),
+				'retry_url'      => add_query_arg(
+					array(
+						'action'   => 'filter_ai_brand_voice_retry',
+						'_wpnonce' => wp_create_nonce( 'filter_ai_brand_voice_retry' ),
+					),
+					admin_url( 'admin-post.php' )
+				),
+				// State + dismiss wiring so the React-rendered notice can
+				// mirror the PHP one on the Filter AI pages (where admin
+				// notices are hidden by the page's div.wrap[display:none]).
+				'status'         => function_exists( 'filter_ai_brand_voice_get_state' )
+					? filter_ai_brand_voice_get_state()
+					: null,
+				'dismiss_nonce'  => wp_create_nonce( 'filter_ai_brand_voice_dismiss' ),
+				'ajax_url'       => admin_url( 'admin-ajax.php' ),
+				'settings_url'   => admin_url( 'admin.php?page=filter_ai' ),
 			)
 		) . ';',
 		'before'
