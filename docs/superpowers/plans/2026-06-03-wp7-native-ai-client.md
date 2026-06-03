@@ -53,6 +53,29 @@ No code change — this captures the exact method signatures the Native backend 
 
 **Files:** none (discovery only). Output: paste results into the PR description / a scratch note.
 
+> **STATUS: COMPLETED 2026-06-03. Findings (these are now baked into Tasks 9 & 12):**
+>
+> - `wp_ai_client_prompt()` returns `WP_AI_Client_Prompt_Builder`, which exposes only
+>   `__construct(WordPress\AiClient\Providers\ProviderRegistry $registry, $prompt)`,
+>   `using_abilities($abilities)`, and `__call()`. **All fluent methods
+>   (`with_file`, `using_model_preference`, `generate_text`, `generate_image`,
+>   `is_supported_for_*`) are magic via `__call`** — confirmed callable: a keyless env
+>   returns `is_supported_for_text_generation() === false` and
+>   `is_supported_for_image_generation() === false` (no error).
+> - `wp_get_connectors()` returns an **array** keyed by slug; each value is an array
+>   `{ name, description, type, authentication{method,credentials_url,setting_name,constant_name,env_var_name}, plugin{file,is_active} }`.
+>   **AI providers have `type === 'ai_provider'`** (`anthropic`, `google`, `openai`);
+>   `akismet` is `type === 'spam_filtering'` and must be excluded from provider lists.
+> - Provider slugs (`openai`/`anthropic`/`google`) **match ai-services exactly** → the
+>   Task 7 slug-map needs no aliases.
+> - Provider/model API: `WordPress\AiClient\AiClient::defaultRegistry()` →
+>   `ProviderRegistry` with `getRegisteredProviderIds()`, `hasProvider($id)`,
+>   `isProviderConfigured($id)`, `findProviderModelsMetadataForSupport($id, $requirements)`,
+>   `getProviderModel(...)`. `AiClient::isConfigured()` is the global check. This is the
+>   source for Task 12 (replaces the earlier `wp_get_connector()->get_models()` guess).
+>   Residual unknown: exact `$requirements` argument shape for
+>   `findProviderModelsMetadataForSupport()`.
+
 - [ ] **Step 1: Dump the PromptBuilder + Connectors surface**
 
 Create `/Users/paulhalfpenny/Sites/filter-ai/.wp-probe2.php`:
@@ -735,16 +758,21 @@ class Filter_AI_Provider_Native implements Filter_AI_Provider {
 
 	public function list_providers() {
 		$out = array();
-		if ( function_exists( 'wp_get_connectors' ) ) {
-			foreach ( (array) wp_get_connectors() as $slug => $connector ) {
-				if ( ! is_string( $slug ) ) {
-					continue;
-				}
-				$out[ $slug ] = array(
-					'label'        => $slug,
-					'capabilities' => array(),
-				);
+		if ( ! function_exists( 'wp_get_connectors' ) ) {
+			return $out;
+		}
+		$registry = class_exists( 'WordPress\\AiClient\\AiClient' ) ? WordPress\AiClient\AiClient::defaultRegistry() : null;
+		foreach ( (array) wp_get_connectors() as $slug => $connector ) {
+			// Connectors are arrays; only AI providers (type 'ai_provider') belong here
+			// — e.g. 'akismet' is type 'spam_filtering' and must be excluded (Task 1).
+			if ( ! is_string( $slug ) || ! is_array( $connector ) || 'ai_provider' !== ( $connector['type'] ?? '' ) ) {
+				continue;
 			}
+			$out[ $slug ] = array(
+				'label'        => isset( $connector['name'] ) ? $connector['name'] : $slug,
+				'capabilities' => array(),
+				'is_available' => $registry ? (bool) $registry->isProviderConfigured( $slug ) : false,
+			);
 		}
 		return $out;
 	}
@@ -1083,15 +1111,15 @@ In `class-provider-native.php`, replace the `builder()` method and add a resolve
 				: 'data:' . $file['mime_type'] . ';base64,' . $file['data'];
 			$builder = $builder->with_file( $data );
 		}
-		$model = $this->preferred_model( $provider_slug );
+		$model = $this->preferred_model( $provider_slug, $capabilities );
 		if ( $model ) {
 			$builder = $builder->using_model_preference( $model );
 		}
 		return $builder;
 	}
 
-	private function preferred_model( $provider_slug ) {
-		if ( empty( $provider_slug ) || ! function_exists( 'wp_get_connector' ) ) {
+	private function preferred_model( $provider_slug, array $capabilities ) {
+		if ( empty( $provider_slug ) || ! class_exists( 'WordPress\\AiClient\\AiClient' ) ) {
 			return null;
 		}
 		$available = array_keys( $this->list_providers() );
@@ -1100,9 +1128,16 @@ In `class-provider-native.php`, replace the `builder()` method and add a resolve
 		if ( null === $slug ) {
 			return null;
 		}
-		$connector = wp_get_connector( $slug );
-		$models    = ( $connector && method_exists( $connector, 'get_models' ) ) ? $connector->get_models() : array();
-		return ! empty( $models ) ? ( is_object( $models[0] ) ? $models[0]->get_id() : $models[0] ) : null;
+		$registry = WordPress\AiClient\AiClient::defaultRegistry();
+		if ( ! $registry->isProviderConfigured( $slug ) ) {
+			return null; // not configured → fall back to automatic selection
+		}
+		// Task 1 confirmed this is the model-lookup API. Confirm the $requirements
+		// argument shape during implementation (the method exists; its arg object
+		// was not dumped). Returns model metadata; take the first id.
+		$models = $registry->findProviderModelsMetadataForSupport( $slug, $capabilities );
+		$first  = is_array( $models ) ? reset( $models ) : $models;
+		return ( is_object( $first ) && method_exists( $first, 'getId' ) ) ? $first->getId() : null;
 	}
 ```
 
