@@ -47,6 +47,7 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/dynamicReplaceAltText.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/providers/detection.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/rest/class-rest-controller.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/brand-voice.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/enqueue-scope.php';
 Filter_AI_REST_Controller::register();
 
 /**
@@ -214,6 +215,15 @@ function filter_ai_enqueue_assets() {
 		function_exists( 'ai_services' )
 	);
 	if ( 'none' === $backend ) {
+		return;
+	}
+
+	// Only load on screens where Filter AI actually provides UI. Loading the
+	// bundle on unrelated admin pages caused 503s on /wp/v2/settings from the
+	// React app's settings fetch during plugin-update maintenance windows
+	// (Asana 1212305396787864).
+	$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+	if ( ! filter_ai_should_enqueue_assets( $screen ) ) {
 		return;
 	}
 
