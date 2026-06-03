@@ -163,14 +163,54 @@ class Filter_AI_Provider_Native implements Filter_AI_Provider {
 	public function generate_image( $prompt, array $config, $feature, $provider_slug = null ) {
 		try {
 			$builder = $this->builder( $prompt, array(), $provider_slug, array() );
+
+			// Image generation routinely takes longer than the AI Client's 30s default
+			// HTTP timeout, so raise the ceiling for this request (the default is set in
+			// WP_AI_Client_Prompt_Builder's constructor; using_request_options() overrides
+			// it). Also force inline (base64) output so getDataUri() always has data to
+			// return — some providers otherwise hand back a remote URL, for which
+			// getDataUri() yields null. Mirrors the core "ai" plugin's image path.
+			$request_options = new WordPress\AiClient\Providers\Http\DTO\RequestOptions();
+			$request_options->setTimeout( 120 );
+			$builder = $builder
+				->using_request_options( $request_options )
+				->as_output_file_type( WordPress\AiClient\Files\Enums\FileTypeEnum::inline() );
+
 			if ( ! $builder->is_supported_for_image_generation() ) {
 				return new WP_Error( 'filter_ai_unavailable', __( 'No AI provider is configured for image generation.', 'filter-ai' ) );
 			}
-			$file = $builder->generate_image();
-			if ( is_wp_error( $file ) ) {
-				return $file;
+
+			// Honour the request's generation config (candidate count + aspect ratio)
+			// so native (WP 7.0+) behaves like the legacy ai-services path; both are
+			// driven by the same request from src/utils/ai/getGeneratedImages.ts.
+			// These are image-specific, so they are applied here rather than in
+			// builder(). Aspect ratio is set after the support check to keep that
+			// check's model-matching behaviour identical to before.
+			$aspect_ratio = isset( $config['aspect_ratio'] ) ? $config['aspect_ratio'] : null;
+			if ( ! empty( $aspect_ratio ) ) {
+				$builder = $builder->as_output_media_aspect_ratio( (string) $aspect_ratio );
 			}
-			return array( $file->getDataUri() );
+
+			$candidate_count = isset( $config['candidate_count'] ) ? (int) $config['candidate_count'] : 1;
+			if ( $candidate_count < 1 ) {
+				$candidate_count = 1;
+			}
+
+			$files = $builder->generate_images( $candidate_count );
+			if ( is_wp_error( $files ) ) {
+				return $files;
+			}
+
+			$images = array();
+			foreach ( (array) $files as $file ) {
+				if ( is_object( $file ) && method_exists( $file, 'getDataUri' ) ) {
+					$data_uri = $file->getDataUri();
+					if ( ! empty( $data_uri ) ) {
+						$images[] = $data_uri;
+					}
+				}
+			}
+			return $images;
 		} catch ( \Throwable $e ) {
 			return new WP_Error( 'filter_ai_generation_failed', $e->getMessage() );
 		}
