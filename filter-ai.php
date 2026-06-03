@@ -11,7 +11,6 @@
  * License: GPLv3
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain: filter-ai
- * Requires Plugins: ai-services
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -45,6 +44,9 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/batchImageAltText.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/batchSEOTitle.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/batchSEOMetaDescription.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/dynamicReplaceAltText.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/providers/detection.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/rest/class-rest-controller.php';
+Filter_AI_REST_Controller::register();
 
 /**
  *  Add settings link to the plugin action links
@@ -175,12 +177,19 @@ register_uninstall_hook( __FILE__, 'filter_ai_uninstall' );
  *  Add scripts and styles
  */
 function filter_ai_enqueue_assets() {
-	if ( ! function_exists( 'ai_services' ) ) {
+	$backend = filter_ai_detect_backend(
+		function_exists( 'wp_ai_client_prompt' ),
+		function_exists( 'ai_services' )
+	);
+	if ( 'none' === $backend ) {
 		return;
 	}
 
 	$asset_metadata = require plugin_dir_path( __FILE__ ) . 'build/index.asset.php';
-	array_push( $asset_metadata['dependencies'], 'ais-ai', 'ais-settings', 'ais-components', 'underscore', 'wp-block-editor', 'wp-core-data', 'wp-i18n' );
+	array_push( $asset_metadata['dependencies'], 'underscore', 'wp-block-editor', 'wp-core-data', 'wp-i18n', 'wp-api-fetch' );
+	if ( 'legacy' === $backend ) {
+		array_push( $asset_metadata['dependencies'], 'ais-ai', 'ais-settings', 'ais-components' );
+	}
 
 	wp_enqueue_script(
 		'filter-ai-script',
@@ -233,16 +242,30 @@ function filter_ai_enqueue_assets() {
 		'window.filter_ai_initial_settings = ' . wp_json_encode( filter_ai_get_settings() ) . ';',
 		'before'
 	);
+
+	wp_add_inline_script(
+		'filter-ai-script',
+		'window.filter_ai_ai = ' . wp_json_encode(
+			array(
+				'mode'    => 'native' === $backend ? 'native' : 'legacy',
+				'restUrl' => esc_url_raw( rest_url( 'filter-ai/v1' ) ),
+				'nonce'   => wp_create_nonce( 'wp_rest' ),
+			)
+		) . ';',
+		'before'
+	);
 }
 
 add_action( 'admin_enqueue_scripts', 'filter_ai_enqueue_assets', -1 );
 
-add_filter(
-	'ai_services_request_timeout',
-	function () {
-		return 60;
-	}
-);
+if ( function_exists( 'ai_services' ) ) {
+	add_filter(
+		'ai_services_request_timeout',
+		function () {
+			return 60;
+		}
+	);
+}
 
 /**
  * Add block category
