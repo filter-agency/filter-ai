@@ -199,7 +199,15 @@ function filter_ai_brand_voice_sample_content( $limit = 10 ) {
  * @return string
  */
 function filter_ai_brand_voice_build_prompt( array $samples ) {
-	$header = __( 'Analyse the following content samples from a WordPress site and describe the site\'s brand voice in 2–3 sentences. Focus on tone, vocabulary, sentence structure, and intended audience. Output only the description, with no preamble, list markers, or quotation marks.', 'filter-ai' );
+	// The output is prefixed to every future AI generation request for this
+	// site, so it must be phrased as directives to the AI ("Write in…", "Use…",
+	// "Avoid…") rather than as a description of how the site already writes
+	// ("The brand voice is…", "Sentences are…"). The explicit anti-examples
+	// below are deliberate; without them models default to descriptive prose.
+	$header = __(
+		"You are configuring a reusable brand-voice instruction that will be prefixed to every AI-generated piece of content on a WordPress site. Analyse the samples below to infer the site's tone, vocabulary, sentence structure, and intended audience, then write a 2–3 sentence INSTRUCTION TO THE AI (not a description of the site) that tells it how to write so its output matches this voice.\n\nWrite it as direct commands, e.g.: \"Write in a thoughtful, understated tone. Use plain but considered vocabulary; avoid jargon and hype. Address a professional audience of developers and editors who value craft over flash.\"\n\nDo NOT write descriptions like \"The brand voice is thoughtful…\" or \"Sentences are clear…\" — those are about the site, not instructions for the writer. Output only the instruction text: no preamble, no quotation marks, no list markers, no meta-commentary.",
+		'filter-ai'
+	);
 
 	$blocks = array();
 	foreach ( $samples as $i => $s ) {
