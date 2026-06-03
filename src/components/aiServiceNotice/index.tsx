@@ -18,13 +18,19 @@ export default function AIServiceNotice() {
     }
   }, []);
 
-  const legacyService = useSelect(
+  // Use the ai-services settings store (live; setApiKey updates it
+  // synchronously on every keystroke) rather than ai.store.getAvailableService(),
+  // which is memoized and only refreshes on a full page reload — that delay
+  // is why the notice used to linger after a key was saved.
+  const hasAnyLegacyKey = useSelect(
     (select) => {
-      if (getMode() === 'native' || !aiPlugin?.ai?.store) {
-        return undefined;
+      if (getMode() === 'native' || !aiPlugin?.settings?.store) {
+        return false;
       }
       // @ts-expect-error Type 'never' has no call signatures.
-      return select(aiPlugin.ai.store)?.getAvailableService();
+      const { getServices, getApiKey } = select(aiPlugin.settings.store) || {};
+      const services = getServices?.() || {};
+      return Object.keys(services).some((slug: string) => !!getApiKey?.(slug));
     },
     [aiPlugin]
   );
@@ -43,7 +49,7 @@ export default function AIServiceNotice() {
     return null;
   }
 
-  if (legacyService === null) {
+  if (!hasAnyLegacyKey) {
     return (
       <Notice status="error" isDismissible={false}>
         {createInterpolateElement(

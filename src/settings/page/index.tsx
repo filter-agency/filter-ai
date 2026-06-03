@@ -90,7 +90,7 @@ const Settings = () => {
         </nav>
       </header>
       <div className="filter-ai-settings-content">
-        <AIServiceNotice />
+        {currentTabKey !== 'api_keys' && <AIServiceNotice />}
         <Content />
       </div>
     </div>
