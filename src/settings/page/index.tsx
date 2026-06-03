@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
 import AIServiceNotice from '@/components/aiServiceNotice';
 import Features from './features';
 import APIKeys from './apiKeys';
+import { getMode } from '@/utils/ai/services/mode';
 
 type Tab = {
   label: string;
@@ -16,15 +17,21 @@ type Tabs = Record<string, Tab>;
 
 const baseUrl = '?page=filter_ai';
 
+// API keys are managed by WordPress core in Settings → Connectors on WP 7.0+,
+// so the API Keys tab is only shown on the legacy (ai-services) backend.
 const tabs: Tabs = {
   features: {
     label: __('Features', 'filter-ai'),
     Component: Features,
   },
-  api_keys: {
-    label: __('API Keys', 'filter-ai'),
-    Component: APIKeys,
-  },
+  ...(getMode() === 'legacy'
+    ? {
+        api_keys: {
+          label: __('API Keys', 'filter-ai'),
+          Component: APIKeys,
+        },
+      }
+    : {}),
 };
 
 const getKey = () => {
