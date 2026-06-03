@@ -22,7 +22,7 @@ function filter_ai_get_default_settings() {
 		'brand_voice_enabled'                       => false,
 		'brand_voice_prompt'                        => '',
 
-		'stop_words_enabled'                        => false,
+		'stop_words_enabled'                        => true,
 		// Common AI-generated tells. Comma-separated; users can edit/remove
 		// from these and add their own in Settings → Stop words. Existing
 		// installs with an empty stop_words_prompt pick this up automatically
