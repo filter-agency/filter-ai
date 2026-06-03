@@ -71,6 +71,7 @@ const BatchGeneration = () => {
           <img src={filterAILogo} alt={__('Filter AI logo', 'filter-ai')} />
           <div>
             <h1>{__('Filter AI Batch Generation', 'filter-ai')}</h1>
+            <p>{__('Run AI generation across many posts, pages, and media items at once.', 'filter-ai')}</p>
           </div>
         </div>
         <nav className="nav-tab-wrapper">
