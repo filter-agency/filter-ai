@@ -100,6 +100,14 @@
     line-height: 20px;
     font-weight: 500;
     padding: 12px 16px;
+
+    /* Suppress the sticky blue focus ring after a click — the red underline on
+       .nav-tab-active is the selection cue. Keyboard focus (focus-visible)
+       still shows the browser default for accessibility. */
+    &:focus:not(:focus-visible) {
+      box-shadow: none;
+      outline: 0;
+    }
   }
 
   & .nav-tab:not(.nav-tab-active) {
