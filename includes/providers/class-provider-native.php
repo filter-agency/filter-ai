@@ -24,11 +24,13 @@ class Filter_AI_Provider_Native implements Filter_AI_Provider {
 	/**
 	 * Build a prompt builder, attaching any multimodal input files.
 	 *
-	 * @param string $prompt Prompt text.
-	 * @param array  $files  Each: [ 'mime_type' => string, 'data' => base64-or-data-uri ].
+	 * @param string      $prompt        Prompt text.
+	 * @param array       $files         Each: [ 'mime_type' => string, 'data' => base64-or-data-uri ].
+	 * @param string|null $provider_slug Per-feature provider slug, or null for automatic selection.
+	 * @param string[]    $capabilities  Required capability slugs (e.g. 'text_generation').
 	 * @return WP_AI_Client_Prompt_Builder
 	 */
-	private function builder( $prompt, array $files = array() ) {
+	private function builder( $prompt, array $files = array(), $provider_slug = null, array $capabilities = array() ) {
 		$builder = wp_ai_client_prompt( $prompt );
 		foreach ( $files as $file ) {
 			$data    = 0 === strpos( $file['data'], 'data:' )
@@ -36,7 +38,64 @@ class Filter_AI_Provider_Native implements Filter_AI_Provider {
 				: 'data:' . $file['mime_type'] . ';base64,' . $file['data'];
 			$builder = $builder->with_file( $data );
 		}
+		$model = $this->preferred_model( $provider_slug, $capabilities );
+		if ( $model ) {
+			$builder = $builder->using_model_preference( $model );
+		}
 		return $builder;
+	}
+
+	/**
+	 * Resolve a model id for the chosen provider, or null for automatic selection.
+	 *
+	 * Uses WordPress\AiClient\Providers\ProviderRegistry::findProviderModelsMetadataForSupport()
+	 * which requires a ModelRequirements DTO (confirmed via reflection on the live install).
+	 * Capabilities are passed as CapabilityEnum instances built from the string slugs.
+	 * Any failure (missing class, unconfigured provider, bad capability slug, etc.) returns
+	 * null so the caller falls back to automatic model selection — never fatal.
+	 *
+	 * @param string|null $provider_slug Stored per-feature provider slug.
+	 * @param string[]    $capabilities  Required capabilities (e.g. ['text_generation']).
+	 * @return string|null Model ID to prefer, or null for automatic selection.
+	 */
+	private function preferred_model( $provider_slug, array $capabilities ) {
+		if ( empty( $provider_slug ) || ! class_exists( 'WordPress\\AiClient\\AiClient' ) ) {
+			return null;
+		}
+		try {
+			$available = array_keys( $this->list_providers() );
+			require_once __DIR__ . '/slug-map.php';
+			$slug = filter_ai_map_service_slug( $provider_slug, $available );
+			if ( null === $slug ) {
+				return null;
+			}
+			$registry = WordPress\AiClient\AiClient::defaultRegistry();
+			if ( ! $registry->isProviderConfigured( $slug ) ) {
+				return null;
+			}
+
+			// Build capability enum instances from string slugs.
+			$capability_class   = 'WordPress\\AiClient\\Providers\\Models\\Enums\\CapabilityEnum';
+			$requirements_class = 'WordPress\\AiClient\\Providers\\Models\\DTO\\ModelRequirements';
+			if ( ! class_exists( $capability_class ) || ! class_exists( $requirements_class ) ) {
+				return null;
+			}
+			$capability_enums = array();
+			foreach ( $capabilities as $cap ) {
+				$enum = $capability_class::tryFrom( (string) $cap );
+				if ( null !== $enum ) {
+					$capability_enums[] = $enum;
+				}
+			}
+			// Use an empty requirements object if no valid capabilities were supplied —
+			// the registry will return all models for the provider.
+			$requirements = new $requirements_class( $capability_enums, array() );
+			$models       = $registry->findProviderModelsMetadataForSupport( $slug, $requirements );
+			$first        = is_array( $models ) ? reset( $models ) : $models;
+			return ( is_object( $first ) && method_exists( $first, 'getId' ) ) ? $first->getId() : null;
+		} catch ( \Throwable $e ) {
+			return null; // any failure → automatic selection
+		}
 	}
 
 	/**
@@ -82,7 +141,7 @@ class Filter_AI_Provider_Native implements Filter_AI_Provider {
 		try {
 			$this->last_provider_slug = $provider_slug ? (string) $provider_slug : '';
 
-			$builder = $this->builder( $prompt, $files );
+			$builder = $this->builder( $prompt, $files, $provider_slug, $capabilities );
 			if ( ! $builder->is_supported_for_text_generation() ) {
 				return new WP_Error( 'filter_ai_unavailable', __( 'No AI provider is configured for text generation.', 'filter-ai' ) );
 			}
@@ -103,7 +162,7 @@ class Filter_AI_Provider_Native implements Filter_AI_Provider {
 	 */
 	public function generate_image( $prompt, array $config, $feature, $provider_slug = null ) {
 		try {
-			$builder = $this->builder( $prompt );
+			$builder = $this->builder( $prompt, array(), $provider_slug, array() );
 			if ( ! $builder->is_supported_for_image_generation() ) {
 				return new WP_Error( 'filter_ai_unavailable', __( 'No AI provider is configured for image generation.', 'filter-ai' ) );
 			}
