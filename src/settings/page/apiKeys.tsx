@@ -41,8 +41,11 @@ const APIKeys = () => {
 
   const services: Record<string, Service> = useSelect(
     (select) => {
+      if (getMode() === 'native' || !aiPlugin?.settings?.store) {
+        return {};
+      }
       // @ts-expect-error
-      const { getServices } = select(aiPlugin?.settings?.store) || {};
+      const { getServices } = select(aiPlugin.settings.store) || {};
       return getServices?.() || {};
     },
     [aiPlugin]
@@ -58,7 +61,7 @@ const APIKeys = () => {
         </PanelHeader>
         <PanelBody>
           <p>{__('On WordPress 7.0 and later, AI provider keys are managed by WordPress itself.', 'filter-ai')}</p>
-          <ExternalLink href="/wp-admin/options-general.php?page=connectors">
+          <ExternalLink href="/wp-admin/options-connectors.php">
             {__('Open Settings → Connectors', 'filter-ai')}
           </ExternalLink>
         </PanelBody>

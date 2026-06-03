@@ -44,8 +44,16 @@ const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
     }
   }, []);
 
-  // @ts-expect-error Type 'never' has no call signatures.
-  const legacyAIService = useSelect((select) => select(aiPlugin?.ai?.store)?.getAvailableService(), [aiPlugin]);
+  const legacyAIService = useSelect(
+    (select) => {
+      if (getMode() === 'native' || !aiPlugin?.ai?.store) {
+        return undefined;
+      }
+      // @ts-expect-error Type 'never' has no call signatures.
+      return select(aiPlugin.ai.store)?.getAvailableService();
+    },
+    [aiPlugin]
+  );
 
   const AIService = getMode() === 'native' ? nativeImageSupported : legacyAIService;
 
