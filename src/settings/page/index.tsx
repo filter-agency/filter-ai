@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { flushSync } from 'react-dom';
 import { createRoot, useState, useEffect, useMemo } from '@wordpress/element';
 import _ from 'underscore';
 import { filterAILogo } from '@/assets/filter-logo';
@@ -82,7 +83,25 @@ const Settings = () => {
             const isActive = currentTabKey === key;
 
             return (
-              <a key={key} href={`${baseUrl}#${key}`} className={`nav-tab ${isActive ? 'nav-tab-active' : ''}`}>
+              <a
+                key={key}
+                href={`${baseUrl}#${key}`}
+                className={`nav-tab ${isActive ? 'nav-tab-active' : ''}`}
+                onClick={(e) => {
+                  // Modifier-clicks / middle-click / right-click → let the
+                  // browser handle the link normally (open in new tab, etc.).
+                  if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) {
+                    return;
+                  }
+                  e.preventDefault();
+                  // flushSync makes the tab-content swap happen in the same
+                  // frame as the click, eliminating the 1–2 frame window where
+                  // the previous tab's content (and its contextual notices)
+                  // was visible under the new active-tab indicator.
+                  window.history.replaceState(null, '', `${baseUrl}#${key}`);
+                  flushSync(() => setCurrentTabKey(key));
+                }}
+              >
                 {tabs[key].label}
               </a>
             );

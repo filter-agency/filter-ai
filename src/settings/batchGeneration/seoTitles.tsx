@@ -64,15 +64,6 @@ const SEOTitles = () => {
   const [isCancelling, setIsCancelling] = useState(false);
   const [isGenerateButtonDisabled, setIsGenerateButtonDisabled] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  // Hide the Yoast notice by default and flip it on after first paint via
-  // useEffect. Without this the notice renders synchronously on mount, so
-  // during the 1–2 frame React render window when switching tabs the previous
-  // tab's notice is briefly visible under the new active-tab indicator —
-  // perceived as a flash on the wrong screen.
-  const [showYoastNotice, setShowYoastNotice] = useState(false);
-  useEffect(() => {
-    setShowYoastNotice(!window.filter_ai_dependencies?.yoast_seo);
-  }, []);
   const [postTypes, setPostTypes] = useState<PostType[]>([]);
   const [defaultTemplates, setDefaultTemplates] = useState<Template[]>([]);
 
@@ -192,7 +183,7 @@ const SEOTitles = () => {
 
   return (
     <>
-      {showYoastNotice && (
+      {!window.filter_ai_dependencies.yoast_seo && (
         <Notice status="error" isDismissible={false}>
           {__('Please install and activate the Yoast SEO plugin.', 'filter-ai')}
         </Notice>
