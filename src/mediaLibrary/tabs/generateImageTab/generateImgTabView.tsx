@@ -63,7 +63,9 @@ const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
     try {
       const generateImages = await getGeneratedImages(prompt, service?.slug);
       setGeneratedImages(generateImages);
-      setSelectedIndexes([]);
+      // Auto-select all generated images (currently always 1) so the user can
+      // import/insert directly without a redundant 'select' click.
+      setSelectedIndexes(generateImages.map((_, i) => i));
     } catch (error) {
       console.error('Failed to generate images:', error);
 
@@ -190,9 +192,7 @@ const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
 
         {generatedImages.length > 0 && (
           <>
-            <h3>
-              {insertMode ? __('Select an image to insert', 'filter-ai') : __('Select images to import', 'filter-ai')}
-            </h3>
+            <h3>{__('Generated image', 'filter-ai')}</h3>
             <Grid columns={3} gap={3} className="filter-ai-image-grid ">
               {generatedImages.map((img, i) => {
                 const isSelected = selectedIndexes.includes(i);
@@ -217,8 +217,8 @@ const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
               {importing
                 ? __('Importing...', 'filter-ai')
                 : insertMode
-                  ? __('Insert Selected', 'filter-ai')
-                  : __('Import Selected', 'filter-ai')}
+                  ? __('Insert into block', 'filter-ai')
+                  : __('Import to Media Library', 'filter-ai')}
             </Button>
           </>
         )}
