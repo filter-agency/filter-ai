@@ -95,10 +95,7 @@
     margin: 0;
     background: transparent;
     color: #fff;
-    /* Reserve space for the active underline on every tab so switching tabs
-       doesn't shift the header height by 2px. */
     border: 0;
-    border-bottom: 2px solid transparent;
     font-size: 15px;
     line-height: 20px;
     font-weight: 500;
@@ -117,10 +114,18 @@
     opacity: 0.75;
   }
 
-  & .nav-tab-active {
-    /* Brand pink softened to ~65% opacity so the cue reads as accent rather
-       than alert on the dark navy header. */
-    border-bottom-color: rgba(225, 35, 108, 0.65);
+  /* Override WP core's `.nav-tab-active, ...:focus:active` rule (common.css)
+     which would otherwise flash a light-grey background and 1px grey border
+     when you mouse-down on the already-active tab. The :focus:active variant
+     has specificity (0,3,0) — we need to match or beat it on every interactive
+     state. */
+  & .nav-tab-active,
+  & .nav-tab-active:hover,
+  & .nav-tab-active:focus,
+  & .nav-tab-active:focus:active {
+    background: transparent;
+    color: #fff;
+    border-bottom: 2px solid #e1236c;
   }
 }
 
