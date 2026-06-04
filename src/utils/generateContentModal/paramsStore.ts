@@ -60,9 +60,12 @@ export const clearGenerationParams = (clientId: string): void => {
   dispatch(store).clearParams(clientId);
 };
 
+// Narrow selector type derived from the selectors object — avoids repeated inline casts.
+type ParamsSelectors = { getParams: (clientId: string) => StreamArgs | undefined };
+
 /** Read params for a block directly (non-reactive, for use in async functions). */
 export const getGenerationParams = (clientId: string): StreamArgs | undefined =>
-  (select(store) as { getParams: (id: string) => StreamArgs | undefined }).getParams(clientId);
+  (select(store) as unknown as ParamsSelectors).getParams(clientId);
 
 /**
  * React hook — returns params for the given clientId, or undefined if none stored.
@@ -72,7 +75,7 @@ export const useGenerationParams = (clientId: string | undefined): StreamArgs | 
   useSelect(
     (selectFn) => {
       if (!clientId) return undefined;
-      return (selectFn(store) as { getParams: (id: string) => StreamArgs | undefined }).getParams(clientId);
+      return (selectFn(store) as unknown as ParamsSelectors).getParams(clientId);
     },
     [clientId]
   );
