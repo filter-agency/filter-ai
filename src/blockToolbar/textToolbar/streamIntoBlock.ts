@@ -1,5 +1,5 @@
 import { dispatch, select } from '@wordpress/data';
-import { pasteHandler } from '@wordpress/blocks';
+import { pasteHandler, createBlock } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
 import { showNotice, showLoadingMessage, hideLoadingMessage } from '@/utils';
 import { generateTextStream } from '@/utils/ai/services/generateText';
@@ -24,6 +24,13 @@ export type StreamArgs = {
    * new content lands. Omit on the first generation (single-block replacement).
    */
   replaceClientIds?: string[];
+  /**
+   * Append mode: insert the generated blocks AFTER the target block instead of
+   * replacing it, leaving the original content intact. Only applies to a first
+   * generation — Regenerate always replaces its own previous output, so this is
+   * ignored when replaceClientIds is set.
+   */
+  append?: boolean;
 };
 
 const blockEditorDispatch = () =>
@@ -31,15 +38,42 @@ const blockEditorDispatch = () =>
     updateBlockAttributes: (id: string, attrs: Record<string, unknown>) => void;
     replaceBlock: (id: string, blocks: unknown | unknown[]) => void;
     replaceBlocks: (clientIds: string[], blocks: unknown[]) => void;
+    insertBlocks: (blocks: unknown[], index: number, rootClientId?: string) => void;
   };
 
 const blockEditorSelect = () =>
   select('core/block-editor') as unknown as {
     getBlock: (id: string) => { clientId: string } | null | undefined;
+    getBlockRootClientId: (id: string) => string | undefined;
+    getBlockIndex: (id: string) => number;
   };
 
 const writeContent = (clientId: string, content: string) => {
   blockEditorDispatch().updateBlockAttributes(clientId, { content });
+};
+
+/**
+ * Parse a streamed markdown response into Gutenberg blocks.
+ *
+ * Strips any stray code fence the model wrapped the response in, then runs it
+ * through pasteHandler (which understands markdown headings/lists, unlike
+ * rawHandler). Returns the cleaned text and the parsed blocks (which may be
+ * empty if the response was blank or unparseable).
+ */
+const parseMarkdownToBlocks = (markdown: string): { cleaned: string; blocks: Array<{ clientId: string }> } => {
+  const cleaned = (markdown || '')
+    .trim()
+    .replace(/^```(?:markdown|md)?\s*\n/, '')
+    .replace(/\n```\s*$/, '');
+  let blocks: Array<{ clientId: string }> = [];
+  if (cleaned) {
+    try {
+      blocks = (pasteHandler({ HTML: '', plainText: cleaned }) as unknown as Array<{ clientId: string }>) || [];
+    } catch {
+      blocks = [];
+    }
+  }
+  return { cleaned, blocks };
 };
 
 /** Human-readable block name used in the loading overlay copy. */
@@ -70,21 +104,11 @@ const labelForBlock = (name: string): string => {
  */
 const replaceWithParsedBlocks = (replaceIds: string[], markdown: string): string[] => {
   const primaryId = replaceIds[0];
+  const { cleaned, blocks } = parseMarkdownToBlocks(markdown);
 
-  const trimmed = (markdown || '').trim();
-  if (!trimmed) {
+  if (!cleaned) {
     writeContent(primaryId, '');
     return [primaryId];
-  }
-
-  // Strip any code fence the model wrapped the response in despite the prompt.
-  const cleaned = trimmed.replace(/^```(?:markdown|md)?\s*\n/, '').replace(/\n```\s*$/, '');
-
-  let blocks: Array<{ clientId: string }> = [];
-  try {
-    blocks = (pasteHandler({ HTML: '', plainText: cleaned }) as unknown as Array<{ clientId: string }>) || [];
-  } catch {
-    blocks = [];
   }
 
   if (!blocks.length) {
@@ -107,6 +131,32 @@ const replaceWithParsedBlocks = (replaceIds: string[], markdown: string): string
 };
 
 /**
+ * Insert the generated blocks immediately AFTER the target block, leaving the
+ * target (and its content) untouched. Returns the clientIds of the inserted
+ * blocks. Used by append mode.
+ */
+const appendAfterBlock = (clientId: string, markdown: string): string[] => {
+  const { cleaned, blocks } = parseMarkdownToBlocks(markdown);
+  if (!cleaned) {
+    // Nothing came back — leave the block untouched and report no new blocks.
+    return [clientId];
+  }
+
+  // Fall back to a single paragraph if the markdown didn't parse into blocks.
+  const finalBlocks =
+    blocks.length > 0
+      ? blocks
+      : [createBlock('core/paragraph', { content: cleaned }) as unknown as { clientId: string }];
+
+  const sel = blockEditorSelect();
+  const rootClientId = sel.getBlockRootClientId(clientId);
+  const index = sel.getBlockIndex(clientId);
+  blockEditorDispatch().insertBlocks(finalBlocks as unknown[], index + 1, rootClientId);
+
+  return finalBlocks.map((b) => b.clientId);
+};
+
+/**
  * Generate AI text and write it into the block(s), then store the params and
  * all resulting clientIds so the user can regenerate without opening the modal.
  */
@@ -118,6 +168,7 @@ export const streamIntoBlock = async ({
   length,
   service,
   replaceClientIds,
+  append,
 }: StreamArgs): Promise<void> => {
   if (!clientId) return;
 
@@ -132,11 +183,26 @@ export const streamIntoBlock = async ({
       () => undefined
     );
 
-    // On first generation: replaceIds = [clientId].
-    // On regeneration:     replaceIds = all blocks from the previous generation.
-    const replaceIds = replaceClientIds && replaceClientIds.length > 0 ? replaceClientIds : [clientId];
+    // Three modes:
+    // - Regenerate (replaceClientIds set): replace the previous output set.
+    //   Append is ignored here — Regenerate always replaces its own output.
+    // - Append (first generation, append=true): insert after the target block,
+    //   leaving it intact.
+    // - Replace (first generation, default): replace the target block.
+    const isRegenerate = !!replaceClientIds && replaceClientIds.length > 0;
+    let newClientIds: string[];
+    let replacedIds: string[] = [];
 
-    const newClientIds = replaceWithParsedBlocks(replaceIds, markdown);
+    if (isRegenerate) {
+      replacedIds = replaceClientIds as string[];
+      newClientIds = replaceWithParsedBlocks(replacedIds, markdown);
+    } else if (append) {
+      newClientIds = appendAfterBlock(clientId, markdown);
+    } else {
+      replacedIds = [clientId];
+      newClientIds = replaceWithParsedBlocks(replacedIds, markdown);
+    }
+
     const firstClientId = newClientIds[0];
 
     // Store params + all new clientIds against the first block so Regenerate
@@ -151,8 +217,8 @@ export const streamIntoBlock = async ({
     };
     storeGenerationParams(firstClientId, stored);
 
-    // Clear stale entries for any blocks that are no longer the key.
-    for (const oldId of replaceIds) {
+    // Clear stale entries for any replaced blocks that are no longer the key.
+    for (const oldId of replacedIds) {
       if (oldId !== firstClientId) {
         clearGenerationParams(oldId);
       }

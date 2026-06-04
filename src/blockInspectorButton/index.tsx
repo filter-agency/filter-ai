@@ -40,7 +40,7 @@ const BlockInspectorButton = () => {
   const open = () => {
     showGenerateContentModal({
       blockName: selected.name,
-      onSubmit: ({ prompt, keywords, length }) => {
+      onSubmit: ({ prompt, keywords, length, append }) => {
         streamIntoBlock({
           clientId: selected.clientId,
           blockName: selected.name,
@@ -48,6 +48,7 @@ const BlockInspectorButton = () => {
           keywords,
           length,
           service: service?.slug,
+          append,
         });
       },
     });

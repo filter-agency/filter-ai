@@ -403,7 +403,7 @@ export const TextToolbar = ({ attributes, setAttributes, name, clientId }: Block
     if (!clientId) return;
     showGenerateContentModal({
       blockName: name,
-      onSubmit: ({ prompt, keywords, length }) => {
+      onSubmit: ({ prompt, keywords, length, append }) => {
         streamIntoBlock({
           clientId,
           blockName: name,
@@ -411,6 +411,7 @@ export const TextToolbar = ({ attributes, setAttributes, name, clientId }: Block
           keywords,
           length,
           service: generateContentService?.slug,
+          append,
         });
       },
     });
