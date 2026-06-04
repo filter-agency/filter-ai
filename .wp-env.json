@@ -15,7 +15,7 @@
       }
     },
     "tests": {
-      "core": "https://wordpress.org/wordpress-6.7.zip",
+      "core": "https://wordpress.org/wordpress-6.7.2.zip",
       "plugins": ["https://downloads.wordpress.org/plugin/ai-services.zip", "."]
     }
   }
