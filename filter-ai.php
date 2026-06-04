@@ -39,6 +39,7 @@ if ( ! class_exists( 'ActionScheduler' ) ) {
 }
 
 require_once plugin_dir_path( __FILE__ ) . 'includes/settings.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/post-content.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/batch.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/batchImageAltText.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/batchSEOTitle.php';

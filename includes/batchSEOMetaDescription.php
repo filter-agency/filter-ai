@@ -68,7 +68,7 @@ function filter_ai_process_batch_seo_meta_description( $args ) {
 	$current_user_id      = get_current_user_id();
 	$seo_meta_description = get_post_meta( $post_id, '_yoast_wpseo_metadesc', true );
 	$post                 = get_post( $post_id );
-	$post_content         = $post->post_content;
+	$post_content         = filter_ai_get_post_content( $post );
 
 	if ( ! empty( $seo_meta_description ) ) {
 		return;
