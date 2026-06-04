@@ -3,18 +3,31 @@ import { createInterpolateElement, useState, useEffect } from '@wordpress/elemen
 import { __, sprintf } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
 import { useAIPlugin } from '@/utils';
+import { waitForAIPlugin } from '@/utils/useAIPlugin';
 import { getMode } from '@/utils/ai/services/mode';
 import { nativeIsSupported } from '@/utils/ai/services/nativeClient';
 
 export default function AIServiceNotice() {
   const aiPlugin = useAIPlugin();
   const [nativeSupported, setNativeSupported] = useState<boolean | null>(null);
+  // Legacy (ai-services) readiness. The ai-services JS loads asynchronously, so
+  // useAIPlugin() returns null for the first render(s); during that window the
+  // key check below reports "no key" and the error notice flashes red even when
+  // a key IS configured. Mirror the native path's "unknown until resolved"
+  // approach: render nothing until the plugin is available (or we time out).
+  const [legacyReady, setLegacyReady] = useState(false);
 
   useEffect(() => {
     if (getMode() === 'native') {
       nativeIsSupported('text')
         .then(setNativeSupported)
         .catch(() => setNativeSupported(false));
+    } else {
+      // Resolve when window.aiServices.ai is present; on timeout still mark
+      // ready so a genuinely unconfigured site eventually sees the notice.
+      waitForAIPlugin()
+        .then(() => setLegacyReady(true))
+        .catch(() => setLegacyReady(true));
     }
   }, []);
 
@@ -46,6 +59,12 @@ export default function AIServiceNotice() {
         </Notice>
       );
     }
+    return null;
+  }
+
+  // Legacy: don't render anything until the ai-services plugin has loaded, so
+  // we never flash the error before we can actually check for a saved key.
+  if (!legacyReady) {
     return null;
   }
 
