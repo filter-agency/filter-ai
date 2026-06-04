@@ -19,6 +19,12 @@ function filter_ai_get_default_settings() {
 
 		'common_prompt_different'                   => esc_html__( 'Making sure it is different to the current text:', 'filter-ai' ),
 
+		// Comma-separated custom-field (meta) keys to pull content from when a
+		// post stores its main content outside post_content (WooCommerce, ACF,
+		// page builders). Used by filter_ai_get_post_content(). See Asana
+		// ticket 1211920629937080.
+		'content_custom_fields'                     => '',
+
 		'brand_voice_enabled'                       => false,
 		'brand_voice_prompt'                        => '',
 
@@ -80,6 +86,10 @@ function filter_ai_get_default_settings() {
 		'customise_text_change_tone_enabled'        => true,
 		'customise_text_change_tone_prompt'         => esc_html__( 'Please rewrite the following {{type}} changing its tone to make it sound more {{tone}} while keeping it a similar length:', 'filter-ai' ),
 		'customise_text_change_tone_prompt_service' => '',
+
+		'generate_content_enabled'                  => true,
+		'generate_content_prompt'                   => esc_html__( "Write structured content based on the following user prompt. Match the configured brand voice when one is set. Incorporate any supplied keywords naturally — do not pad or repeat them.\n\nFormat the response as Markdown so it can be converted into WordPress blocks: use `##` and `###` for headings where the content benefits from them, blank-line-separated paragraphs for prose, `- ` for unordered lists and `1.` for ordered lists. Do not wrap the response in a code fence. Respond with the content only — no preamble, no commentary, no closing line.", 'filter-ai' ),
+		'generate_content_prompt_service'           => '',
 
 		'generate_faq_section_enabled'              => true,
 		'generate_faq_section_pre_prompt'           => esc_html__( 'For the following prompt please respond with the following JSON string format: `[{"question":"...","answer":"..."}].`', 'filter-ai' ),

@@ -8,10 +8,14 @@
  * builders — so batch generation failed with "Missing content" on those posts.
  * See Asana ticket 1211920629937080.
  *
- * This adds a sensible automatic fallback to the excerpt (which is where, for
- * example, WooCommerce stores the product short description) and, crucially,
- * exposes the `filter_ai_post_content` filter so a site can supply content from
- * its own custom fields and keep using the Batch Generation tool.
+ * Resolution order:
+ *   1. post_content
+ *   2. values of any custom-field (meta) keys registered in Settings
+ *      (the `content_custom_fields` option — see the Batch Generation screen)
+ *   3. post_excerpt (fallback; this is where WooCommerce keeps the product
+ *      short description, for example)
+ * The result is then passed through the `filter_ai_post_content` filter so a
+ * site can supply or adjust content programmatically as well.
  *
  * @package Filter_AI
  */
@@ -21,20 +25,56 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Choose the base generation content from a post's content and excerpt.
+ * Parse the comma-separated `content_custom_fields` setting into a clean list
+ * of meta keys. Pure helper (no WordPress calls) so it can be unit-tested.
  *
- * Pure helper (no WordPress calls) so it can be unit-tested. Prefers the post
- * content; falls back to the excerpt when the content is empty or whitespace.
- *
- * @param mixed $post_content The post_content value.
- * @param mixed $post_excerpt The post_excerpt value.
- * @return string Trimmed content, or '' when both are empty.
+ * @param mixed $raw The raw setting value (comma-separated string).
+ * @return string[] De-duplicated, trimmed, non-empty meta keys.
  */
-function filter_ai_choose_post_content( $post_content, $post_excerpt ) {
-	$content = is_string( $post_content ) ? trim( $post_content ) : '';
-	if ( '' !== $content ) {
-		return $content;
+function filter_ai_parse_custom_field_keys( $raw ) {
+	if ( ! is_string( $raw ) || '' === trim( $raw ) ) {
+		return array();
 	}
+	$keys = array_map( 'trim', explode( ',', $raw ) );
+	$keys = array_filter(
+		$keys,
+		static function ( $key ) {
+			return '' !== $key;
+		}
+	);
+	return array_values( array_unique( $keys ) );
+}
+
+/**
+ * Merge a post's content, custom-field values, and excerpt into one string.
+ *
+ * Pure helper (no WordPress calls) so it can be unit-tested. Uses post_content
+ * plus any non-empty custom-field values; if none of those produce text, falls
+ * back to the excerpt. Non-string custom-field values (e.g. ACF arrays) are
+ * skipped. Duplicate fragments are removed and the rest joined with blank lines.
+ *
+ * @param mixed   $post_content  The post_content value.
+ * @param mixed[] $custom_values Values read from the registered custom fields.
+ * @param mixed   $post_excerpt  The post_excerpt value.
+ * @return string Merged content, or '' when nothing usable is available.
+ */
+function filter_ai_merge_post_content( $post_content, array $custom_values, $post_excerpt ) {
+	$parts = array();
+
+	if ( is_string( $post_content ) && '' !== trim( $post_content ) ) {
+		$parts[] = trim( $post_content );
+	}
+
+	foreach ( $custom_values as $value ) {
+		if ( is_string( $value ) && '' !== trim( $value ) ) {
+			$parts[] = trim( $value );
+		}
+	}
+
+	if ( ! empty( $parts ) ) {
+		return implode( "\n\n", array_values( array_unique( $parts ) ) );
+	}
+
 	return is_string( $post_excerpt ) ? trim( $post_excerpt ) : '';
 }
 
@@ -50,27 +90,30 @@ function filter_ai_get_post_content( $post ) {
 		return '';
 	}
 
-	$content = filter_ai_choose_post_content( $post->post_content, $post->post_excerpt );
+	$settings = function_exists( 'filter_ai_get_settings' ) ? filter_ai_get_settings() : array();
+	$keys     = filter_ai_parse_custom_field_keys( isset( $settings['content_custom_fields'] ) ? $settings['content_custom_fields'] : '' );
+
+	$custom_values = array();
+	foreach ( $keys as $key ) {
+		$custom_values[] = get_post_meta( $post->ID, $key, true );
+	}
+
+	$content = filter_ai_merge_post_content( $post->post_content, $custom_values, $post->post_excerpt );
 
 	/**
 	 * Filters the content Filter AI uses for per-post generation (SEO titles,
 	 * meta descriptions, and other content-derived output).
 	 *
-	 * Sites whose post content lives in custom fields — ACF, page builders,
-	 * WooCommerce, etc. — can append or replace the content here so the Batch
-	 * Generation tool has something to work with. Example:
+	 * Most sites can register their custom fields under Settings instead, but
+	 * this filter remains available for content that needs code to assemble
+	 * (e.g. ACF repeater/flexible-content fields):
 	 *
 	 *     add_filter( 'filter_ai_post_content', function ( $content, $post ) {
-	 *         if ( 'product' === $post->post_type ) {
-	 *             $custom = get_post_meta( $post->ID, 'my_product_blurb', true );
-	 *             if ( $custom ) {
-	 *                 $content = trim( $content . "\n\n" . $custom );
-	 *             }
-	 *         }
+	 *         // append/replace $content as needed
 	 *         return $content;
 	 *     }, 10, 2 );
 	 *
-	 * @param string  $content The resolved content (post_content, or excerpt fallback; may be empty).
+	 * @param string  $content The resolved content (may be empty).
 	 * @param WP_Post $post    The post being processed.
 	 */
 	$content = apply_filters( 'filter_ai_post_content', $content, $post );
