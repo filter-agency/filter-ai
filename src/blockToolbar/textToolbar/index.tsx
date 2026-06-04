@@ -1,4 +1,4 @@
-import { MenuItem, Popover, NavigableMenu } from '@wordpress/components';
+import { MenuItem, MenuGroup, Popover, NavigableMenu } from '@wordpress/components';
 import { useMemo, useState, useEffect } from '@wordpress/element';
 import {
   hideLoadingMessage,
@@ -11,6 +11,9 @@ import {
   resetGrammarCheckModal,
   showChoiceModal,
 } from '@/utils';
+import { showGenerateContentModal } from '@/utils/generateContentModal';
+import { streamIntoBlock, regenerateBlock } from './streamIntoBlock';
+import { useGenerationParams } from '@/utils/generateContentModal/paramsStore';
 import { BlockEditProps } from '@/types';
 import { useSettings } from '@/settings';
 import { insert, toHTMLString, slice, create } from '@wordpress/rich-text';
@@ -54,7 +57,7 @@ type PromptKey =
 
 type OnClick = (promptKey: string, params?: Record<string, string>) => Promise<void>;
 
-export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps) => {
+export const TextToolbar = ({ attributes, setAttributes, name, clientId }: BlockEditProps) => {
   const [changeToneAnchor, setChangeToneAnchor] = useState<HTMLButtonElement | null>(null);
   const [showChangeToneOptions, setShowChangeToneOptions] = useState(false);
 
@@ -79,6 +82,9 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
 
   const changeTonePrompt = usePrompts('customise_text_change_tone_prompt');
   const changeTonePromptService = useService('customise_text_change_tone_prompt_service');
+
+  const generateContentService = useService('generate_content_prompt_service');
+  const regenerateParams = useGenerationParams(clientId);
 
   const promptConfigs = useMemo(
     () => ({
@@ -393,9 +399,27 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
     }
   }, [grammarModal.choice, grammarModal.context]);
 
+  const onGenerateFromPrompt = () => {
+    if (!clientId) return;
+    showGenerateContentModal({
+      blockName: name,
+      onSubmit: ({ prompt, keywords, length }) => {
+        streamIntoBlock({
+          clientId,
+          blockName: name,
+          prompt,
+          keywords,
+          length,
+          service: generateContentService?.slug,
+        });
+      },
+    });
+  };
+
   if (
     hasMultiSelection ||
     ![
+      settings?.generate_content_enabled,
       settings?.customise_text_rewrite_enabled,
       settings?.customise_text_expand_enabled,
       settings?.customise_text_condense_enabled,
@@ -411,6 +435,28 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
     <ToolbarButton>
       {({ onClose }) => (
         <>
+          {settings?.generate_content_enabled && (
+            <MenuGroup>
+              <MenuItem
+                onClick={() => {
+                  onClose();
+                  onGenerateFromPrompt();
+                }}
+              >
+                {__('Generate From Prompt', 'filter-ai')}
+              </MenuItem>
+              {regenerateParams && (
+                <MenuItem
+                  onClick={() => {
+                    onClose();
+                    regenerateBlock(clientId);
+                  }}
+                >
+                  {__('Regenerate', 'filter-ai')}
+                </MenuItem>
+              )}
+            </MenuGroup>
+          )}
           {settings?.customise_text_rewrite_enabled && (
             <MenuItem
               onClick={() => {
@@ -477,7 +523,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
               </MenuItem>
               {showChangeToneOptions && (
                 <Popover
-                  className="components-dropdown__content"
+                  className="components-dropdown__content filter-ai-components-popover"
                   anchor={changeToneAnchor}
                   placement="right-start"
                   expandOnMobile
