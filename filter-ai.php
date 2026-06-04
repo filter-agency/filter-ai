@@ -160,10 +160,16 @@ function filter_ai_add_admin_menu() {
 add_action( 'admin_menu', 'filter_ai_add_admin_menu' );
 
 /**
- * Nudge the Filter AI admin-menu icon slightly larger than the default 20px
- * dashicon slot. WordPress renders the menu icon as a background-image with
- * `background-size: 20px`; because the lettermark is tall and narrow it reads
- * smaller than the neighbouring dashicons, so we bump the background-size.
+ * Tweak the Filter AI admin-menu icon.
+ *
+ * 1. Nudge it slightly larger than the default 20px dashicon slot — the
+ *    lettermark is tall and narrow so it reads smaller than its neighbours.
+ * 2. Hide the .wp-menu-image::before pseudo. Our icon is a background-image
+ *    (the menu was registered with an SVG data URI, so WordPress adds the
+ *    `.svg` class), which means the ::before — used only for dashicon-font
+ *    glyphs — serves no purpose. In the current/selected state WordPress gives
+ *    that empty pseudo a white background, leaving a rogue white mark beside
+ *    the icon; suppressing it removes that artifact.
  *
  * Output inline on admin_head because the sidebar appears on every admin screen
  * while the plugin's bundled stylesheet is scoped to Filter AI screens only.
@@ -171,7 +177,10 @@ add_action( 'admin_menu', 'filter_ai_add_admin_menu' );
  * @return void
  */
 function filter_ai_admin_menu_icon_style() {
-	echo '<style id="filter-ai-admin-menu-icon">#adminmenu #toplevel_page_filter_ai .wp-menu-image { background-size: 22px auto; }</style>' . "\n";
+	echo '<style id="filter-ai-admin-menu-icon">'
+		. '#adminmenu #toplevel_page_filter_ai .wp-menu-image { background-size: 22px auto; }'
+		. '#adminmenu #toplevel_page_filter_ai .wp-menu-image::before { content: none; display: none; }'
+		. '</style>' . "\n";
 }
 
 add_action( 'admin_head', 'filter_ai_admin_menu_icon_style' );
