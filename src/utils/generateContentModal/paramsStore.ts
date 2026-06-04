@@ -13,6 +13,12 @@ export type GenerationParams = {
   length: string;
   service?: string;
   blockName: string;
+  /**
+   * All clientIds produced by the last generation (first + any siblings from a
+   * multi-block result). Stored so that Regenerate can replace the entire
+   * previous generation — not just the first block — via replaceBlocks().
+   */
+  generatedClientIds: string[];
 };
 
 type State = Record<string, GenerationParams>; // clientId → params

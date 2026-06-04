@@ -1,4 +1,4 @@
-import { dispatch } from '@wordpress/data';
+import { dispatch, select } from '@wordpress/data';
 import { pasteHandler } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
 import { showNotice, showLoadingMessage, hideLoadingMessage } from '@/utils';
@@ -17,12 +17,25 @@ export type StreamArgs = {
   keywords: string[];
   length: string;
   service?: string;
+  /**
+   * When regenerating: the full set of block clientIds produced by the previous
+   * generation. Providing this causes replaceBlocks() to replace all of them at
+   * once, so sibling blocks from the previous generation don't linger after the
+   * new content lands. Omit on the first generation (single-block replacement).
+   */
+  replaceClientIds?: string[];
 };
 
 const blockEditorDispatch = () =>
   dispatch('core/block-editor') as unknown as {
     updateBlockAttributes: (id: string, attrs: Record<string, unknown>) => void;
     replaceBlock: (id: string, blocks: unknown | unknown[]) => void;
+    replaceBlocks: (clientIds: string[], blocks: unknown[]) => void;
+  };
+
+const blockEditorSelect = () =>
+  select('core/block-editor') as unknown as {
+    getBlock: (id: string) => { clientId: string } | null | undefined;
   };
 
 const writeContent = (clientId: string, content: string) => {
@@ -43,18 +56,25 @@ const labelForBlock = (name: string): string => {
 };
 
 /**
- * Convert a markdown response into one or more Gutenberg blocks and replace the
- * target block. Returns the clientId of the first resulting block so the caller
- * can store generation params against it.
+ * Convert a markdown response into one or more Gutenberg blocks, replacing the
+ * target block(s). Returns the clientIds of all resulting blocks.
  *
- * - Multi-block result: returns blocks[0].clientId from the pasteHandler array.
- * - Single-block fallback (plain text): returns the original clientId unchanged.
+ * `replaceIds` is the set of blocks to replace — usually `[clientId]` on a
+ * first generation, or all previously generated block clientIds on regeneration.
+ * Any ids in `replaceIds` that no longer exist in the editor are silently skipped
+ * so that manually-deleted sibling blocks don't cause errors.
+ *
+ * - Multi-block result: uses replaceBlocks() to atomically swap all replaceIds.
+ * - Single-block / empty result: falls back to updateBlockAttributes on the
+ *   primary (first) id.
  */
-const replaceWithParsedBlocks = (clientId: string, markdown: string): string => {
+const replaceWithParsedBlocks = (replaceIds: string[], markdown: string): string[] => {
+  const primaryId = replaceIds[0];
+
   const trimmed = (markdown || '').trim();
   if (!trimmed) {
-    writeContent(clientId, '');
-    return clientId;
+    writeContent(primaryId, '');
+    return [primaryId];
   }
 
   // Strip any code fence the model wrapped the response in despite the prompt.
@@ -68,17 +88,27 @@ const replaceWithParsedBlocks = (clientId: string, markdown: string): string => 
   }
 
   if (!blocks.length) {
-    writeContent(clientId, cleaned);
-    return clientId;
+    writeContent(primaryId, cleaned);
+    return [primaryId];
   }
 
-  blockEditorDispatch().replaceBlock(clientId, blocks as unknown[]);
-  return blocks[0].clientId;
+  if (replaceIds.length === 1) {
+    // Single-block replacement — use the simpler replaceBlock API.
+    blockEditorDispatch().replaceBlock(primaryId, blocks as unknown[]);
+  } else {
+    // Multi-block regeneration: filter to only blocks still present in the
+    // editor (user may have deleted some siblings since the last generation).
+    const existing = replaceIds.filter((id) => !!blockEditorSelect().getBlock(id));
+    const idsToReplace = existing.length > 0 ? existing : [primaryId];
+    blockEditorDispatch().replaceBlocks(idsToReplace, blocks as unknown[]);
+  }
+
+  return blocks.map((b) => b.clientId);
 };
 
 /**
- * Generate AI text and write it into the block, then store the params used so
- * the user can regenerate without reopening the modal.
+ * Generate AI text and write it into the block(s), then store the params and
+ * all resulting clientIds so the user can regenerate without opening the modal.
  */
 export const streamIntoBlock = async ({
   clientId,
@@ -87,6 +117,7 @@ export const streamIntoBlock = async ({
   keywords,
   length,
   service,
+  replaceClientIds,
 }: StreamArgs): Promise<void> => {
   if (!clientId) return;
 
@@ -101,17 +132,30 @@ export const streamIntoBlock = async ({
       () => undefined
     );
 
-    const firstClientId = replaceWithParsedBlocks(clientId, markdown);
+    // On first generation: replaceIds = [clientId].
+    // On regeneration:     replaceIds = all blocks from the previous generation.
+    const replaceIds = replaceClientIds && replaceClientIds.length > 0 ? replaceClientIds : [clientId];
 
-    // Store params against the first resulting block so "Regenerate" can find them.
-    const stored: GenerationParams = { prompt, keywords, length, service, blockName };
+    const newClientIds = replaceWithParsedBlocks(replaceIds, markdown);
+    const firstClientId = newClientIds[0];
+
+    // Store params + all new clientIds against the first block so Regenerate
+    // can find and atomically replace all of them next time.
+    const stored: GenerationParams = {
+      prompt,
+      keywords,
+      length,
+      service,
+      blockName,
+      generatedClientIds: newClientIds,
+    };
     storeGenerationParams(firstClientId, stored);
 
-    // If replaceBlock created new blocks, the original clientId no longer exists —
-    // remove any stale entry for it so the Regenerate item doesn't ghost on
-    // unrelated blocks that happen to reuse the same slot.
-    if (firstClientId !== clientId) {
-      clearGenerationParams(clientId);
+    // Clear stale entries for any blocks that are no longer the key.
+    for (const oldId of replaceIds) {
+      if (oldId !== firstClientId) {
+        clearGenerationParams(oldId);
+      }
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -125,12 +169,9 @@ export const streamIntoBlock = async ({
 };
 
 /**
- * Re-run generation for a block using the params from the most recent
- * Generate From Prompt call. No modal is shown — the same blue overlay
- * appears and the same structured output is written on completion.
- *
- * If no params are stored for this clientId (e.g. the block hasn't been
- * generated into yet), logs a warning and returns without doing anything.
+ * Re-run generation for a block using the params from the most recent Generate
+ * From Prompt call. No modal is shown. All blocks produced by the previous
+ * generation are replaced atomically so nothing lingers.
  */
 export const regenerateBlock = async (clientId: string): Promise<void> => {
   const params = getGenerationParams(clientId);
@@ -138,5 +179,9 @@ export const regenerateBlock = async (clientId: string): Promise<void> => {
     console.warn('[Filter AI] regenerateBlock: no stored params for clientId', clientId);
     return;
   }
-  await streamIntoBlock({ clientId, ...params });
+  await streamIntoBlock({
+    clientId,
+    ...params,
+    replaceClientIds: params.generatedClientIds,
+  });
 };

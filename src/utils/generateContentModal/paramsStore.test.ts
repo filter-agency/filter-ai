@@ -16,6 +16,7 @@ const PARAMS: GenerationParams = {
   length: '80 words',
   service: 'anthropic',
   blockName: 'core/paragraph',
+  generatedClientIds: ['block-a', 'block-b', 'block-c'],
 };
 
 describe('paramsStore', () => {
