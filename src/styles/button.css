@@ -22,7 +22,7 @@
     background 0.1s ease-in-out;
 
   & img {
-    max-width: 15px;
+    max-width: 12px;
     width: auto;
     height: 100%;
   }

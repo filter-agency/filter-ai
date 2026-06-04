@@ -101,6 +101,29 @@ function filter_ai_batch_page() {
 }
 
 /**
+ * Build the data: URI for the Filter AI lettermark used as the admin menu icon.
+ *
+ * Mirrors filterAIIconWhite in src/assets/filter-logo.ts but rendered white-on-
+ * transparent so it reads clearly against the WordPress admin sidebar. Returned
+ * as a base64 data URI — `add_menu_page` accepts SVG data URIs directly and
+ * leaves them at the natural 20x20 sizing slot.
+ *
+ * @return string
+ */
+function filter_ai_admin_menu_icon() {
+	// The lettermark paths span 93 wide × 162 tall. Wrap them in a square
+	// 162×162 viewBox (centred horizontally with 34.5px either side) and
+	// declare width/height="20" so WordPress renders it at the standard 20×20
+	// menu-icon slot instead of scaling by the tall aspect ratio.
+	$svg = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="-34.5 0 162 162" fill="none">'
+		. '<path d="M14 122H0V37H54V51H14V73H48V86H14V122Z" fill="#ffffff"/>'
+		. '<path d="M0 162V150H54V162H0Z" fill="#ffffff"/>'
+		. '<path d="M85 0L82.48 5.5L77 8L82.48 10.52L85 16L87.5 10.52L93 8L87.5 5.5M65 6L60 17L49 22L60 27L65 38L70 27L81 22L70 17M85 28L82.48 33.48L77 36L82.48 38.5L85 44L87.5 38.5L93 36L87.5 33.48" fill="#ffffff"/>'
+		. '</svg>';
+	return 'data:image/svg+xml;base64,' . base64_encode( $svg ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- This is an inlined SVG icon, not obfuscated data.
+}
+
+/**
  *  Set up admin menu
  */
 function filter_ai_add_admin_menu() {
@@ -110,7 +133,7 @@ function filter_ai_add_admin_menu() {
 		'manage_options',
 		'filter_ai',
 		'filter_ai_options_page',
-		'none',
+		filter_ai_admin_menu_icon(),
 		81,
 	);
 
@@ -134,6 +157,23 @@ function filter_ai_add_admin_menu() {
 }
 
 add_action( 'admin_menu', 'filter_ai_add_admin_menu' );
+
+/**
+ * Nudge the Filter AI admin-menu icon slightly larger than the default 20px
+ * dashicon slot. WordPress renders the menu icon as a background-image with
+ * `background-size: 20px`; because the lettermark is tall and narrow it reads
+ * smaller than the neighbouring dashicons, so we bump the background-size.
+ *
+ * Output inline on admin_head because the sidebar appears on every admin screen
+ * while the plugin's bundled stylesheet is scoped to Filter AI screens only.
+ *
+ * @return void
+ */
+function filter_ai_admin_menu_icon_style() {
+	echo '<style id="filter-ai-admin-menu-icon">#adminmenu #toplevel_page_filter_ai .wp-menu-image { background-size: 26px auto; }</style>' . "\n";
+}
+
+add_action( 'admin_head', 'filter_ai_admin_menu_icon_style' );
 
 /**
  * Show an admin notice when no AI backend (native client or ai-services) is available.
