@@ -170,7 +170,7 @@ add_action( 'admin_menu', 'filter_ai_add_admin_menu' );
  * @return void
  */
 function filter_ai_admin_menu_icon_style() {
-	echo '<style id="filter-ai-admin-menu-icon">#adminmenu #toplevel_page_filter_ai .wp-menu-image { background-size: 26px auto; }</style>' . "\n";
+	echo '<style id="filter-ai-admin-menu-icon">#adminmenu #toplevel_page_filter_ai .wp-menu-image { background-size: 22px auto; }</style>' . "\n";
 }
 
 add_action( 'admin_head', 'filter_ai_admin_menu_icon_style' );
