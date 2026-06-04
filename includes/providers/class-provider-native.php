@@ -152,6 +152,29 @@ class Filter_AI_Provider_Native implements Filter_AI_Provider {
 	}
 
 	/**
+	 * Stream text generation. WordPress 7.0's WP_AI_Client_Prompt_Builder ships
+	 * no streaming method today — the underlying PHP AI Client SDK exposes only
+	 * synchronous generateText(). Return WP_Error so the REST layer falls back
+	 * to one-shot generate_text() and emits a single SSE frame. When core adds
+	 * streaming (likely a 7.x point release), replace this stub with a
+	 * $builder->stream_generate_text() call via the existing __call proxy —
+	 * zero JS changes required.
+	 *
+	 * @param string      $prompt        Prompt text.
+	 * @param array       $files         Multimodal input files.
+	 * @param string      $feature       Filter AI feature id.
+	 * @param string[]    $capabilities  Required capabilities.
+	 * @param string|null $provider_slug Optional provider slug.
+	 * @return Generator|WP_Error
+	 */
+	public function stream_generate_text( $prompt, array $files, $feature, array $capabilities, $provider_slug = null ) {
+		return new WP_Error(
+			'filter_ai_streaming_unsupported',
+			__( 'Streaming text is not yet supported by the WordPress 7.0 native AI Client.', 'filter-ai' )
+		);
+	}
+
+	/**
 	 * Generate one or more images from a prompt.
 	 *
 	 * @param string      $prompt        Prompt text.

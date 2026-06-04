@@ -40,6 +40,21 @@ interface Filter_AI_Provider {
 	public function generate_text( $prompt, array $files, $feature, array $capabilities, $provider_slug = null );
 
 	/**
+	 * Stream text generation from a prompt. Implementations that don't support
+	 * streaming should return WP_Error with code 'filter_ai_streaming_unsupported'
+	 * so the REST layer can fall back to one-shot generate_text() and emit a
+	 * single SSE frame.
+	 *
+	 * @param string      $prompt        The prompt text.
+	 * @param array       $files         Each: [ 'mime_type' => string, 'data' => base64-or-data-uri ].
+	 * @param string      $feature       Filter AI feature id.
+	 * @param string[]    $capabilities  Required capabilities.
+	 * @param string|null $provider_slug Stored per-feature provider, or null.
+	 * @return Generator|WP_Error Generator yielding text fragments, or WP_Error.
+	 */
+	public function stream_generate_text( $prompt, array $files, $feature, array $capabilities, $provider_slug = null );
+
+	/**
 	 * Generate one or more images from a prompt.
 	 *
 	 * @param string      $prompt        The prompt text.
