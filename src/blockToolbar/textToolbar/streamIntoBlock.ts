@@ -7,6 +7,7 @@ import {
   storeGenerationParams,
   clearGenerationParams,
   getGenerationParams,
+  type GenerationParams,
 } from '@/utils/generateContentModal/paramsStore';
 
 export type StreamArgs = {
@@ -103,7 +104,8 @@ export const streamIntoBlock = async ({
     const firstClientId = replaceWithParsedBlocks(clientId, markdown);
 
     // Store params against the first resulting block so "Regenerate" can find them.
-    storeGenerationParams(firstClientId, { prompt, keywords, length, service, blockName });
+    const stored: GenerationParams = { prompt, keywords, length, service, blockName };
+    storeGenerationParams(firstClientId, stored);
 
     // If replaceBlock created new blocks, the original clientId no longer exists —
     // remove any stale entry for it so the Regenerate item doesn't ghost on

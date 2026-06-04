@@ -1,8 +1,13 @@
-import { createReduxStore, dispatch, register, useSelect, resolveSelect, select } from '@wordpress/data';
+import { createReduxStore, dispatch, register, useSelect, select } from '@wordpress/data';
 
 const storeName = 'filter-ai/generate-params-store';
 
-export type StreamArgs = {
+/**
+ * Generation params stored per block. Named GenerationParams (not GenerationParams)
+ * to avoid confusion with the GenerationParams type in streamIntoBlock.ts, which
+ * additionally includes `clientId`.
+ */
+export type GenerationParams = {
   prompt: string;
   keywords: string[];
   length: string;
@@ -10,10 +15,10 @@ export type StreamArgs = {
   blockName: string;
 };
 
-type State = Record<string, StreamArgs>; // clientId → params
+type State = Record<string, GenerationParams>; // clientId → params
 
 type Action =
-  | { type: 'STORE_PARAMS'; clientId: string; params: StreamArgs }
+  | { type: 'STORE_PARAMS'; clientId: string; params: GenerationParams }
   | { type: 'CLEAR_PARAMS'; clientId: string };
 
 const store = createReduxStore(storeName, {
@@ -31,7 +36,7 @@ const store = createReduxStore(storeName, {
     }
   },
   actions: {
-    storeParams: (clientId: string, params: StreamArgs): Action => ({
+    storeParams: (clientId: string, params: GenerationParams): Action => ({
       type: 'STORE_PARAMS',
       clientId,
       params,
@@ -42,16 +47,18 @@ const store = createReduxStore(storeName, {
     }),
   },
   selectors: {
-    getParams: (state: State, clientId: string): StreamArgs | undefined => state[clientId],
+    getParams: (state: State, clientId: string): GenerationParams | undefined => state[clientId],
   },
 });
 
-if (!resolveSelect(store)) {
+// Guard against double-registration in HMR / multi-import scenarios.
+// `select(storeName)` returns undefined when the store hasn't been registered yet.
+if (!select(storeName)) {
   register(store);
 }
 
 /** Store generation params for a block after a successful generation. */
-export const storeGenerationParams = (clientId: string, params: StreamArgs): void => {
+export const storeGenerationParams = (clientId: string, params: GenerationParams): void => {
   dispatch(store).storeParams(clientId, params);
 };
 
@@ -61,17 +68,17 @@ export const clearGenerationParams = (clientId: string): void => {
 };
 
 // Narrow selector type derived from the selectors object — avoids repeated inline casts.
-type ParamsSelectors = { getParams: (clientId: string) => StreamArgs | undefined };
+type ParamsSelectors = { getParams: (clientId: string) => GenerationParams | undefined };
 
 /** Read params for a block directly (non-reactive, for use in async functions). */
-export const getGenerationParams = (clientId: string): StreamArgs | undefined =>
+export const getGenerationParams = (clientId: string): GenerationParams | undefined =>
   (select(store) as unknown as ParamsSelectors).getParams(clientId);
 
 /**
  * React hook — returns params for the given clientId, or undefined if none stored.
  * Re-renders the component whenever the stored params for this clientId change.
  */
-export const useGenerationParams = (clientId: string | undefined): StreamArgs | undefined =>
+export const useGenerationParams = (clientId: string | undefined): GenerationParams | undefined =>
   useSelect(
     (selectFn) => {
       if (!clientId) return undefined;
