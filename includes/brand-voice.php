@@ -376,10 +376,11 @@ function filter_ai_brand_voice_print_dismiss_script() {
 	<script>
 	(function () {
 		document.addEventListener( 'click', function ( e ) {
-			if ( ! e.target || ! e.target.classList || ! e.target.classList.contains( 'notice-dismiss' ) ) {
+			var dismiss = e.target && e.target.closest ? e.target.closest( '.notice-dismiss' ) : null;
+			if ( ! dismiss ) {
 				return;
 			}
-			var notice = e.target.closest( '.filter-ai-brand-voice-notice' );
+			var notice = dismiss.closest( '.filter-ai-brand-voice-notice' );
 			if ( ! notice || ! window.fetch || ! window.ajaxurl ) {
 				return;
 			}
