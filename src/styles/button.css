@@ -22,7 +22,7 @@
     background 0.1s ease-in-out;
 
   & img {
-    max-width: 15px;
+    max-width: 14px;
     width: auto;
     height: 100%;
   }
@@ -85,10 +85,35 @@
   }
 }
 
+/* Filter AI icon in the block inspector's card header, right-aligned on the
+   block-name (title) row — mirrors the post-level F icon placement.
+   align-self: flex-start keeps the icon aligned with the title even when the
+   card is a flat flex-row (WP 6.7) where the text column is taller than one
+   line. On WP 7.0 the button is injected into the card's title HStack and
+   flex-start is equally correct there. */
+.block-editor-block-inspector .block-editor-block-card .filter-ai-block-inspector-button {
+  margin-left: auto;
+  align-self: flex-start;
+  flex-shrink: 0;
+}
+
 .filter-ai-components-popover {
   box-sizing: border-box;
   will-change: transform;
   z-index: 1000000;
+}
+
+/* Gutenberg's DropdownMenu auto-focuses its first item on open, and WordPress
+   draws the focus ring on :focus — which fires for mouse opens too, leaving a
+   persistent blue ring on the first item (and on the first item of submenus
+   like Change Tone). Suppress the ring only when focus is NOT keyboard-driven
+   (:not(:focus-visible)), so keyboard users still get a visible focus
+   indicator. Scoped to Filter AI's own popovers so other plugins' menus are
+   untouched. */
+.filter-ai-components-popover .components-menu-item__button:focus:not(:focus-visible),
+.filter-ai-components-popover .components-button:focus:not(:focus-visible) {
+  box-shadow: none;
+  outline: none;
 }
 
 .media-modal > #filter-ai-media-modal-container {

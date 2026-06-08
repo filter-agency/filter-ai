@@ -15,6 +15,9 @@ const LoadingMessage = () => {
         return __('Importing %s', 'filter-ai');
       case 'checking grammar':
         return __('Checking Grammar for %s', 'filter-ai');
+      case 'generating content':
+        // No %s — the label is not used in the title for this type.
+        return __('Generating your content', 'filter-ai');
       default:
         return __('Generating %s', 'filter-ai');
     }
@@ -47,10 +50,12 @@ const LoadingMessage = () => {
             ? sprintf(__('Importing and processing your %s...', 'filter-ai'), convertToLowerCase(label))
             : type === 'checking grammar'
               ? sprintf(__('Reviewing and correcting grammar for your %s...', 'filter-ai'), convertToLowerCase(label))
-              : sprintf(
-                  __('Analysing your requirements and crafting the perfect %s.', 'filter-ai'),
-                  convertToLowerCase(label)
-                )}
+              : type === 'generating content'
+                ? __("We're generating your content and adding it to the page.", 'filter-ai')
+                : sprintf(
+                    __('Analysing your requirements and crafting the perfect %s.', 'filter-ai'),
+                    convertToLowerCase(label)
+                  )}
         </p>
         <p>{__('This can take a few moments.', 'filter-ai')}</p>
         <div className="filter-ai-loading-message-animation">

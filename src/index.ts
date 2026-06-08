@@ -2,6 +2,7 @@ import './styles/index.css';
 
 import './settings';
 import './blockToolbar';
+import './blockInspectorButton';
 import './blockEditor';
 import './mediaLibrary';
 import './postToolbar';
@@ -14,3 +15,4 @@ import './utils/loadingMessage/container';
 import './utils/seoTitleOptionsModal/container';
 import './utils/checkGrammarModal/container';
 import './utils/choiceModal/container';
+import './utils/generateContentModal/container';

@@ -12,8 +12,7 @@ export const getGeneratedImages = async (prompt: string, service?: string) => {
   const images = await generateImage({
     prompt: `${settings?.generate_image_pre_prompt || ''} ${prompt}`,
     feature: 'generate-ai-img-feature',
-    candidateCount: 3,
-    aspectRatio: '1:1',
+    candidateCount: 1,
     service,
   });
 

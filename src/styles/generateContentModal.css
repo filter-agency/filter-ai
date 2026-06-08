@@ -1,0 +1,69 @@
+/* GenerateContentModal — prompt/keywords/length form (modal extends
+   filter-ai-modal-base, defined in sharedModal.css). */
+
+/* Tighten the vertical rhythm between Prompt / Keywords / Length. The shared
+   .filter-ai-modal-content uses gap:24px; scope a smaller gap here and drop the
+   per-field margin so the three inputs sit close together. */
+.filter-ai-generate-content-modal .filter-ai-modal-content {
+  gap: 12px;
+}
+
+.filter-ai-generate-content-modal__field {
+  margin-top: 0;
+}
+
+/* Keywords: reserve enough height for a couple of rows of tokens so adding a
+   keyword doesn't make the field grow/jump. Tokens align to the top so they
+   fill the reserved space downward. */
+.filter-ai-generate-content-modal .components-form-token-field__input-container {
+  width: 100%;
+  min-height: 58px;
+  align-items: flex-start;
+  align-content: flex-start;
+}
+
+/* Pull the close (X) button down so it sits vertically centred on the heading
+   rather than hugging the very top of the header. */
+.filter-ai-generate-content-modal .filter-ai-modal-header .components-button {
+  margin-top: 4px;
+}
+
+/* Keep the Cancel/Generate buttons the same size and aligned. A WordPress
+   global button style applies a stray margin-top to the (second) primary
+   button, dropping it ~5px below Cancel and inflating the row. Reset it and
+   centre-align the row so both buttons sit on the same line. */
+.filter-ai-generate-content-modal .filter-ai-modal-actions-group {
+  align-items: center;
+}
+
+.filter-ai-generate-content-modal .filter-ai-modal-actions-group .components-button {
+  margin-top: 0;
+}
+
+/* Generate button: brand pink with the white F lettermark. */
+.filter-ai-generate-content-modal .filter-ai-modal-content .components-button.is-primary.filter-ai-generate-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #e1236c;
+  border-color: #e1236c;
+  color: #fff;
+}
+
+.filter-ai-generate-content-modal
+  .filter-ai-modal-content
+  .components-button.is-primary.filter-ai-generate-button:hover:not(:disabled) {
+  background: #c41d5d;
+  border-color: #c41d5d;
+  color: #fff;
+}
+
+.filter-ai-generate-button__icon {
+  width: auto;
+  height: 14px;
+  display: block;
+}
+
+/* NOTE: while generating, the feature shows Filter AI's standard full-screen
+   processing overlay (.filter-ai-loading-message, see loadingMessage.css) with
+   the "Generating your text" copy — there is no in-block indicator. */

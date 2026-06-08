@@ -8,14 +8,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use Felix_Arntz\AI_Services\Services\API\Enums\AI_Capability;
-use Felix_Arntz\AI_Services\Services\API\Enums\Content_Role;
-use Felix_Arntz\AI_Services\Services\API\Types\Content;
-use Felix_Arntz\AI_Services\Services\API\Types\Parts;
-use Felix_Arntz\AI_Services\Services\API\Helpers;
-
 require_once __DIR__ . '/settings.php';
 require_once __DIR__ . '/helpers.php';
+require_once __DIR__ . '/providers/detection.php';
 
 /**
  * Get list of all image mime types
@@ -231,70 +226,38 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 		return;
 	}
 
-	$required_capabilities = array(
-		'capabilities' => array(
-			AI_Capability::MULTIMODAL_INPUT,
-			AI_Capability::TEXT_GENERATION,
-		),
-	);
-
 	try {
 		wp_set_current_user( $user_id );
 
-		$required_slugs = array();
-
-		if ( ! empty( $service_slug ) ) {
-			$required_slugs = array(
-				'slugs' => array( $service_slug ),
-			);
-		}
-
-		if ( ai_services()->has_available_services( array_merge( $required_slugs, $required_capabilities ) ) === false ) {
+		$provider = filter_ai_provider();
+		if ( null === $provider ) {
 			throw new Exception( esc_html__( 'AI service not available', 'filter-ai' ) );
 		}
 
-		if ( ! empty( $service_slug ) ) {
-			$service = ai_services()->get_available_service( $service_slug );
-		} else {
-			$service = ai_services()->get_available_service( $required_capabilities );
-		}
-
-		update_option( 'filter_ai_last_ai_image_alt_text_service', $service->get_service_slug() );
-
-		$parts = new Parts();
-
 		$prompt = filter_ai_get_prompt( 'image_alt_text_prompt' );
-
-		$parts->add_text_part( $prompt );
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		$image_data = file_get_contents( $image_path );
 
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-		$image_base_64 = 'data:' . $image_mime_type . ';base64,' . base64_encode( $image_data );
-
-		$parts->add_file_data_part( $image_mime_type, $image_base_64 );
-
-		$content = new Content( Content_Role::USER, $parts );
-
-		$model = $service->get_model(
-			array_merge(
+		$text = $provider->generate_text(
+			$prompt,
+			array(
 				array(
-					'feature' => 'filter-ai-image-alt-text',
+					'mime_type' => $image_mime_type,
+					// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+					'data'      => base64_encode( $image_data ),
 				),
-				$required_capabilities,
-			)
+			),
+			'filter-ai-image-alt-text',
+			array( 'multimodal_input', 'text_generation' ),
+			$service_slug
 		);
 
-		$candidates = $model->generate_text( $content );
-
-		$text = Helpers::get_text_from_contents(
-			Helpers::get_candidate_contents( $candidates )
-		);
-
-		if ( empty( $text ) ) {
+		if ( is_wp_error( $text ) || empty( $text ) ) {
 			throw new Exception( esc_html__( 'Issue generating alt text', 'filter-ai' ) );
 		}
+
+		update_option( 'filter_ai_last_ai_image_alt_text_service', $provider->last_provider_slug() );
 
 		update_post_meta( $image_id, '_wp_attachment_image_alt', $text );
 	} finally {

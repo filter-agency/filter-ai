@@ -11,7 +11,6 @@
  * License: GPLv3
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain: filter-ai
- * Requires Plugins: ai-services
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -40,11 +39,17 @@ if ( ! class_exists( 'ActionScheduler' ) ) {
 }
 
 require_once plugin_dir_path( __FILE__ ) . 'includes/settings.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/post-content.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/batch.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/batchImageAltText.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/batchSEOTitle.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/batchSEOMetaDescription.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/dynamicReplaceAltText.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/providers/detection.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/rest/class-rest-controller.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/brand-voice.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/enqueue-scope.php';
+Filter_AI_REST_Controller::register();
 
 /**
  *  Add settings link to the plugin action links
@@ -97,6 +102,29 @@ function filter_ai_batch_page() {
 }
 
 /**
+ * Build the data: URI for the Filter AI lettermark used as the admin menu icon.
+ *
+ * Mirrors filterAIIconWhite in src/assets/filter-logo.ts but rendered white-on-
+ * transparent so it reads clearly against the WordPress admin sidebar. Returned
+ * as a base64 data URI — `add_menu_page` accepts SVG data URIs directly and
+ * leaves them at the natural 20x20 sizing slot.
+ *
+ * @return string
+ */
+function filter_ai_admin_menu_icon() {
+	// The lettermark paths span 93 wide × 162 tall. Wrap them in a square
+	// 162×162 viewBox (centred horizontally with 34.5px either side) and
+	// declare width/height="20" so WordPress renders it at the standard 20×20
+	// menu-icon slot instead of scaling by the tall aspect ratio.
+	$svg = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="-34.5 0 162 162" fill="none">'
+		. '<path d="M14 122H0V37H54V51H14V73H48V86H14V122Z" fill="#ffffff"/>'
+		. '<path d="M0 162V150H54V162H0Z" fill="#ffffff"/>'
+		. '<path d="M85 0L82.48 5.5L77 8L82.48 10.52L85 16L87.5 10.52L93 8L87.5 5.5M65 6L60 17L49 22L60 27L65 38L70 27L81 22L70 17M85 28L82.48 33.48L77 36L82.48 38.5L85 44L87.5 38.5L93 36L87.5 33.48" fill="#ffffff"/>'
+		. '</svg>';
+	return 'data:image/svg+xml;base64,' . base64_encode( $svg ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- This is an inlined SVG icon, not obfuscated data.
+}
+
+/**
  *  Set up admin menu
  */
 function filter_ai_add_admin_menu() {
@@ -106,7 +134,7 @@ function filter_ai_add_admin_menu() {
 		'manage_options',
 		'filter_ai',
 		'filter_ai_options_page',
-		'none',
+		filter_ai_admin_menu_icon(),
 		81,
 	);
 
@@ -132,6 +160,56 @@ function filter_ai_add_admin_menu() {
 add_action( 'admin_menu', 'filter_ai_add_admin_menu' );
 
 /**
+ * Tweak the Filter AI admin-menu icon.
+ *
+ * 1. Nudge it slightly larger than the default 20px dashicon slot — the
+ *    lettermark is tall and narrow so it reads smaller than its neighbours.
+ * 2. Hide the .wp-menu-image::before pseudo. Our icon is a background-image
+ *    (the menu was registered with an SVG data URI, so WordPress adds the
+ *    `.svg` class), which means the ::before — used only for dashicon-font
+ *    glyphs — serves no purpose. In the current/selected state WordPress gives
+ *    that empty pseudo a white background, leaving a rogue white mark beside
+ *    the icon; suppressing it removes that artifact.
+ *
+ * Output inline on admin_head because the sidebar appears on every admin screen
+ * while the plugin's bundled stylesheet is scoped to Filter AI screens only.
+ *
+ * @return void
+ */
+function filter_ai_admin_menu_icon_style() {
+	echo '<style id="filter-ai-admin-menu-icon">'
+		. '#adminmenu #toplevel_page_filter_ai .wp-menu-image { background-size: 24px auto; }'
+		. '#adminmenu #toplevel_page_filter_ai .wp-menu-image::before { content: none; display: none; }'
+		. '</style>' . "\n";
+}
+
+add_action( 'admin_head', 'filter_ai_admin_menu_icon_style' );
+
+/**
+ * Show an admin notice when no AI backend (native client or ai-services) is available.
+ */
+function filter_ai_no_backend_notice() {
+	if ( ! current_user_can( 'activate_plugins' ) ) {
+		return;
+	}
+
+	$backend = filter_ai_detect_backend(
+		function_exists( 'wp_ai_client_prompt' ),
+		function_exists( 'ai_services' )
+	);
+
+	if ( 'none' !== $backend ) {
+		return;
+	}
+
+	$message = __( 'Filter AI needs an AI backend to work. On WordPress 7.0 or later, add an AI provider key under Settings → Connectors. On earlier versions, install and activate the AI Services plugin.', 'filter-ai' );
+
+	printf( '<div class="notice notice-error"><p>%s</p></div>', esc_html( $message ) );
+}
+
+add_action( 'admin_notices', 'filter_ai_no_backend_notice' );
+
+/**
  * Add setting option on plugin activation
  */
 function filter_ai_activate() {
@@ -139,6 +217,12 @@ function filter_ai_activate() {
 
 	if ( ! empty( $option_value_default ) ) {
 		add_option( 'filter_ai_settings', $option_value_default );
+	}
+
+	// First-install hook for the Brand Voice auto-scan (idempotent — no-op if
+	// the option already exists or brand_voice_prompt is already filled in).
+	if ( function_exists( 'filter_ai_brand_voice_init_scan_state' ) ) {
+		filter_ai_brand_voice_init_scan_state();
 	}
 
 	if ( class_exists( 'Filter_AI_Telemetry' ) ) {
@@ -167,6 +251,7 @@ function filter_ai_uninstall() {
 	delete_option( 'filter_ai_last_ai_image_alt_text_service' );
 	delete_option( 'filter_ai_last_seo_meta_description_service' );
 	delete_option( 'filter_ai_last_seo_title_service' );
+	delete_option( 'filter_ai_brand_voice_scan' );
 }
 
 register_uninstall_hook( __FILE__, 'filter_ai_uninstall' );
@@ -175,12 +260,30 @@ register_uninstall_hook( __FILE__, 'filter_ai_uninstall' );
  *  Add scripts and styles
  */
 function filter_ai_enqueue_assets() {
-	if ( ! function_exists( 'ai_services' ) ) {
+	$has_native = function_exists( 'wp_ai_client_prompt' );
+	$backend    = filter_ai_detect_backend(
+		$has_native,
+		function_exists( 'ai_services' ),
+		$has_native && filter_ai_native_has_configured_providers()
+	);
+	if ( 'none' === $backend ) {
+		return;
+	}
+
+	// Only load on screens where Filter AI actually provides UI. Loading the
+	// bundle on unrelated admin pages caused 503s on /wp/v2/settings from the
+	// React app's settings fetch during plugin-update maintenance windows
+	// (Asana 1212305396787864).
+	$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+	if ( ! filter_ai_should_enqueue_assets( $screen ) ) {
 		return;
 	}
 
 	$asset_metadata = require plugin_dir_path( __FILE__ ) . 'build/index.asset.php';
-	array_push( $asset_metadata['dependencies'], 'ais-ai', 'ais-settings', 'ais-components', 'underscore', 'wp-block-editor', 'wp-core-data', 'wp-i18n' );
+	array_push( $asset_metadata['dependencies'], 'underscore', 'wp-block-editor', 'wp-core-data', 'wp-i18n', 'wp-api-fetch' );
+	if ( 'legacy' === $backend ) {
+		array_push( $asset_metadata['dependencies'], 'ais-ai', 'ais-settings', 'ais-components' );
+	}
 
 	wp_enqueue_script(
 		'filter-ai-script',
@@ -190,10 +293,15 @@ function filter_ai_enqueue_assets() {
 		[ 'strategy' => 'defer' ]
 	);
 
+	$style_deps = array( 'wp-components', 'wp-preferences' );
+	if ( 'legacy' === $backend ) {
+		$style_deps[] = 'ais-components';
+	}
+
 	wp_enqueue_style(
 		'filter-ai-styles',
 		plugin_dir_url( __FILE__ ) . 'build/index.css',
-		array( 'ais-components', 'wp-components', 'wp-preferences' ),
+		$style_deps,
 		$asset_metadata['version'],
 	);
 
@@ -233,16 +341,73 @@ function filter_ai_enqueue_assets() {
 		'window.filter_ai_initial_settings = ' . wp_json_encode( filter_ai_get_settings() ) . ';',
 		'before'
 	);
+
+	wp_add_inline_script(
+		'filter-ai-script',
+		'window.filter_ai_ai = ' . wp_json_encode(
+			array(
+				'mode'    => 'native' === $backend ? 'native' : 'legacy',
+				'restUrl' => esc_url_raw( rest_url( 'filter-ai/v1' ) ),
+				'nonce'   => wp_create_nonce( 'wp_rest' ),
+			)
+		) . ';',
+		'before'
+	);
+
+	wp_add_inline_script(
+		'filter-ai-script',
+		'window.filter_ai_brand_voice = ' . wp_json_encode(
+			array(
+				// add_query_arg (not wp_nonce_url) — wp_nonce_url runs esc_html()
+				// on its return value, which encodes & as &amp;. That's correct for
+				// embedding in HTML attributes (the browser decodes on parse), but
+				// when this URL is wp_json_encode'd into a JS string and assigned
+				// to React's href, the &amp; persists through to the browser navigation
+				// and the URL parser splits at the embedded &, breaking the _wpnonce
+				// query param into amp;_wpnonce.
+				'regenerate_url' => add_query_arg(
+					array(
+						'action'   => 'filter_ai_brand_voice_regenerate',
+						'_wpnonce' => wp_create_nonce( 'filter_ai_brand_voice_regenerate' ),
+					),
+					admin_url( 'admin-post.php' )
+				),
+				'retry_url'      => add_query_arg(
+					array(
+						'action'   => 'filter_ai_brand_voice_retry',
+						'_wpnonce' => wp_create_nonce( 'filter_ai_brand_voice_retry' ),
+					),
+					admin_url( 'admin-post.php' )
+				),
+				// State + dismiss wiring so the React-rendered notice can
+				// mirror the PHP one on the Filter AI pages (where admin
+				// notices are hidden by the page's div.wrap[display:none]).
+				'status'         => function_exists( 'filter_ai_brand_voice_get_state' )
+					? filter_ai_brand_voice_get_state()
+					: null,
+				'dismiss_nonce'  => wp_create_nonce( 'filter_ai_brand_voice_dismiss' ),
+				'ajax_url'       => admin_url( 'admin-ajax.php' ),
+				// Trailing #brand_voice is read by features.tsx — clicking the
+				// notice's "Review or edit" link opens the Brand voice prompt
+				// editor (and avoids a full reload when already on the page,
+				// since same-URL+hash navigation just fires hashchange).
+				'settings_url'   => admin_url( 'admin.php?page=filter_ai' ) . '#brand_voice',
+			)
+		) . ';',
+		'before'
+	);
 }
 
 add_action( 'admin_enqueue_scripts', 'filter_ai_enqueue_assets', -1 );
 
-add_filter(
-	'ai_services_request_timeout',
-	function () {
-		return 60;
-	}
-);
+if ( function_exists( 'ai_services' ) ) {
+	add_filter(
+		'ai_services_request_timeout',
+		function () {
+			return 60;
+		}
+	);
+}
 
 /**
  * Add block category

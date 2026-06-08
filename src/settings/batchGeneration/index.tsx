@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { flushSync } from 'react-dom';
 import { filterAILogo } from '@/assets/filter-logo';
 import { createRoot, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -6,6 +7,7 @@ import ImageAltText from './imageAltText';
 import SEOTitles from './seoTitles';
 import SEOMetaDescriptions from './seoMetaDescriptions';
 import AIServiceNotice from '@/components/aiServiceNotice';
+import BrandVoiceNotice from '@/components/brandVoiceNotice';
 
 type Tab = {
   label: string;
@@ -71,6 +73,7 @@ const BatchGeneration = () => {
           <img src={filterAILogo} alt={__('Filter AI logo', 'filter-ai')} />
           <div>
             <h1>{__('Filter AI Batch Generation', 'filter-ai')}</h1>
+            <p>{__('Run AI generation across many posts, pages, and media items at once.', 'filter-ai')}</p>
           </div>
         </div>
         <nav className="nav-tab-wrapper">
@@ -78,7 +81,27 @@ const BatchGeneration = () => {
             const isActive = currentTabKey === key;
 
             return (
-              <a key={key} href={`${baseUrl}#${key}`} className={`nav-tab ${isActive ? 'nav-tab-active' : ''}`}>
+              <a
+                key={key}
+                href={`${baseUrl}#${key}`}
+                className={`nav-tab ${isActive ? 'nav-tab-active' : ''}`}
+                onClick={(e) => {
+                  // Modifier-clicks / middle-click / right-click → let the
+                  // browser handle the link normally (open in new tab, etc.).
+                  if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) {
+                    return;
+                  }
+                  e.preventDefault();
+                  // Update the URL bar without firing hashchange (which is the
+                  // async path that introduced the 1–2 frame delay where the
+                  // previous tab's content was still painted under the new
+                  // active-tab indicator). flushSync forces React to apply the
+                  // state update and re-render BEFORE returning from this
+                  // handler, so the DOM is correct before the next paint.
+                  window.history.replaceState(null, '', `${baseUrl}#${key}`);
+                  flushSync(() => setCurrentTabKey(key));
+                }}
+              >
                 {tabs[key].label}
               </a>
             );
@@ -86,6 +109,7 @@ const BatchGeneration = () => {
         </nav>
       </header>
       <div className="filter-ai-settings-content">
+        <BrandVoiceNotice />
         <AIServiceNotice />
         <Content />
         <div>

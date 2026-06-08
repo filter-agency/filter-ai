@@ -8,6 +8,8 @@ import { useSettings } from '@/settings';
 import { useSelect } from '@wordpress/data';
 import AIServiceNotice from '@/components/aiServiceNotice';
 import { useService } from '@/utils/ai/services/useService';
+import { getMode } from '@/utils/ai/services/mode';
+import { nativeIsSupported } from '@/utils/ai/services/nativeClient';
 
 type ImportedImage = {
   url: string;
@@ -32,16 +34,43 @@ const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
 
   const service = useService('generate_image_prompt_service');
 
-  // @ts-expect-error Type 'never' has no call signatures.
-  const AIService = useSelect((select) => select(aiPlugin?.ai?.store)?.getAvailableService(), [aiPlugin]);
+  const [nativeImageSupported, setNativeImageSupported] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (getMode() === 'native') {
+      nativeIsSupported('image')
+        .then(setNativeImageSupported)
+        .catch(() => setNativeImageSupported(false));
+    }
+  }, []);
+
+  const legacyAIService = useSelect(
+    (select) => {
+      if (getMode() === 'native' || !aiPlugin?.ai?.store) {
+        return undefined;
+      }
+      // @ts-expect-error Type 'never' has no call signatures.
+      return select(aiPlugin.ai.store)?.getAvailableService();
+    },
+    [aiPlugin]
+  );
+
+  const AIService = getMode() === 'native' ? nativeImageSupported : legacyAIService;
 
   const handleGenerate = async () => {
     setLoading(true);
-    showLoadingMessage(__('AI Images', 'filter-ai'));
+    showLoadingMessage(__('AI Image', 'filter-ai'));
     try {
       const generateImages = await getGeneratedImages(prompt, service?.slug);
+
+      if (!generateImages.length) {
+        throw new Error(__('No image was generated. Check your AI provider configuration and try again.', 'filter-ai'));
+      }
+
       setGeneratedImages(generateImages);
-      setSelectedIndexes([]);
+      // Auto-select all generated images (currently always 1) so the user can
+      // import/insert directly without a redundant 'select' click.
+      setSelectedIndexes(generateImages.map((_, i) => i));
     } catch (error) {
       console.error('Failed to generate images:', error);
 
@@ -60,7 +89,7 @@ const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
     if (insertMode) {
       setSelectedIndexes([index]);
     } else {
-      setSelectedIndexes((prev) => (prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]));
+      setSelectedIndexes((prev) => (prev.indexOf(index) !== -1 ? prev.filter((i) => i !== index) : [...prev, index]));
     }
   };
 
@@ -74,7 +103,7 @@ const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
     }
 
     setImporting(true);
-    showLoadingMessage(__('Images', 'filter-ai'), 'importing');
+    showLoadingMessage(__('Image', 'filter-ai'), 'importing');
 
     try {
       const imported = (await Promise.all(
@@ -113,20 +142,6 @@ const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
     }
   };
 
-  useEffect(() => {
-    const modal = document.querySelector('.filter-ai-generator-modal') as HTMLDivElement;
-
-    if (!modal) {
-      return;
-    }
-
-    if (loading || importing) {
-      modal.style.display = 'none';
-    } else {
-      modal.style.display = '';
-    }
-  }, [loading, importing]);
-
   if (!settings?.generate_image_enabled) {
     return null;
   }
@@ -135,7 +150,7 @@ const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
     <>
       <AIServiceNotice />
 
-      <h2>{__('Enter a prompt to generate images', 'filter-ai')}</h2>
+      <h2>{__('Enter a prompt to generate an image', 'filter-ai')}</h2>
       <p>
         {__(
           'Be specific by clearly defining the subject of the image, provide context of where the subject is or what they are doing and indicate the desired style and mood you would like your image to have.',
@@ -144,11 +159,8 @@ const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
       </p>
       <p>
         {insertMode
-          ? __('Once your images are generated, select one to insert into your block.', 'filter-ai')
-          : __(
-              'Once your images are generated, you can choose one or more of those to import into your Media Library.',
-              'filter-ai'
-            )}
+          ? __('Once your image is generated, you can insert it into your block.', 'filter-ai')
+          : __('Once your image is generated, you can import it into your Media Library.', 'filter-ai')}
       </p>
 
       <div className="filter-ai-form">
@@ -162,26 +174,28 @@ const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
 
         <Button
           variant="secondary"
-          onClick={handleGenerate}
+          onClick={() => void handleGenerate()}
           className="filter-ai-generate-button"
           disabled={loading || !AIService || !prompt}
         >
-          {loading ? __('Generating...', 'filter-ai') : __('Generate Images', 'filter-ai')}
+          {loading ? __('Generating...', 'filter-ai') : __('Generate Image', 'filter-ai')}
         </Button>
 
         {generatedImages.length > 0 && (
           <>
-            <h3>
-              {insertMode ? __('Select an image to insert', 'filter-ai') : __('Select images to import', 'filter-ai')}
-            </h3>
+            <h3>{__('Generated image', 'filter-ai')}</h3>
             <Grid columns={3} gap={3} className="filter-ai-image-grid ">
               {generatedImages.map((img, i) => {
-                const isSelected = selectedIndexes.includes(i);
+                const isSelected = selectedIndexes.indexOf(i) !== -1;
                 return (
                   <button
                     key={i}
+                    type="button"
                     className={`filter-ai-image-wrapper ${isSelected ? 'selected' : ''}`}
-                    onClick={() => toggleSelectImage(i)}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      toggleSelectImage(i);
+                    }}
                     disabled={importing}
                   >
                     <img src={img} className="filter-ai-image" />
@@ -198,8 +212,8 @@ const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
               {importing
                 ? __('Importing...', 'filter-ai')
                 : insertMode
-                  ? __('Insert Selected', 'filter-ai')
-                  : __('Import Selected', 'filter-ai')}
+                  ? __('Insert into block', 'filter-ai')
+                  : __('Import to Media Library', 'filter-ai')}
             </Button>
           </>
         )}

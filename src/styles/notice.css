@@ -29,6 +29,26 @@
   }
 }
 
+/* Brand voice global notice — shrink the dismiss X to ~16px and force
+   vertical centering. @wordpress/components defaults to a 24px SVG inside
+   a 24px button (no breathing room) and applies align-self: flex-start to
+   the button (overrides the notice's align-items: center). */
+.filter-ai-brand-voice-notice .components-notice__dismiss {
+  align-self: center;
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.filter-ai-brand-voice-notice .components-notice__dismiss svg {
+  width: 16px;
+  height: 16px;
+}
+
 .filter-ai-notice-snackbar {
   background-color: #cef8e0;
   border-radius: 8px;

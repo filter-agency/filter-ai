@@ -3,6 +3,7 @@ import { RawHTML, useCallback, useEffect, useMemo, useState } from '@wordpress/e
 import { __, sprintf } from '@wordpress/i18n';
 import { useSettings } from '../useSettings';
 import { useServices } from '@/utils/ai/services/useServices';
+import ContentSource from './contentSource';
 
 const defaultCount = {
   posts: 0,
@@ -186,6 +187,9 @@ const SEOMetaDescriptions = () => {
               </tbody>
             </table>
           </PanelBody>
+
+          <ContentSource />
+
           {!inProgress && count.actions > 0 && (
             <PanelBody title={__('Previous run stats', 'filter-ai')}>
               <p>

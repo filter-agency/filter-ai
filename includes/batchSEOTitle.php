@@ -8,14 +8,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use Felix_Arntz\AI_Services\Services\API\Enums\AI_Capability;
-use Felix_Arntz\AI_Services\Services\API\Enums\Content_Role;
-use Felix_Arntz\AI_Services\Services\API\Types\Content;
-use Felix_Arntz\AI_Services\Services\API\Types\Parts;
-use Felix_Arntz\AI_Services\Services\API\Helpers;
-
 require_once __DIR__ . '/settings.php';
 require_once __DIR__ . '/helpers.php';
+require_once __DIR__ . '/providers/detection.php';
 
 /**
  * Get posts for a specific post_type that is missing _yoast_wpseo_title meta
@@ -86,7 +81,7 @@ function filter_ai_process_batch_seo_title( $args ) {
 	$current_user_id = get_current_user_id();
 	$seo_title       = get_post_meta( $post_id, '_yoast_wpseo_title', true );
 	$post            = get_post( $post_id );
-	$post_content    = $post->post_content;
+	$post_content    = filter_ai_get_post_content( $post );
 
 	if ( ! empty( $seo_title ) ) {
 		return;
@@ -96,57 +91,29 @@ function filter_ai_process_batch_seo_title( $args ) {
 		throw new Exception( esc_html__( 'Missing content', 'filter-ai' ) );
 	}
 
-	$required_capabilities = array(
-		'capabilities' => array(
-			AI_Capability::TEXT_GENERATION,
-		),
-	);
-
 	try {
 		wp_set_current_user( $user_id );
 
-		$required_slugs = array();
-
-		if ( ! empty( $service_slug ) ) {
-			$required_slugs['slugs'] = [ $service_slug ];
-		}
-
-		if ( ai_services()->has_available_services( array_merge( $required_slugs, $required_capabilities ) ) === false ) {
+		$provider = filter_ai_provider();
+		if ( null === $provider ) {
 			throw new Exception( esc_html__( 'AI service not available', 'filter-ai' ) );
 		}
 
-		if ( ! empty( $service_slug ) ) {
-			$service = ai_services()->get_available_service( $service_slug );
-		} else {
-			$service = ai_services()->get_available_service( $required_capabilities );
-		}
-
-		update_option( 'filter_ai_last_seo_title_service', $service->get_service_slug() );
-
-		$parts = new Parts();
-
 		$prompt = filter_ai_get_prompt( 'yoast_seo_title_prompt' );
 
-		$parts->add_text_part( $prompt . ' ' . $post_content );
-
-		$content = new Content( Content_Role::USER, $parts );
-
-		$candidates = $service->get_model(
-			array_merge(
-				array(
-					'feature' => 'filter-ai-seo-title',
-				),
-				$required_capabilities,
-			)
-		)->generate_text( $content );
-
-		$text = Helpers::get_text_from_contents(
-			Helpers::get_candidate_contents( $candidates )
+		$text = $provider->generate_text(
+			$prompt . ' ' . $post_content,
+			array(),
+			'filter-ai-seo-title',
+			array( 'text_generation' ),
+			$service_slug
 		);
 
-		if ( empty( $text ) ) {
+		if ( is_wp_error( $text ) || empty( $text ) ) {
 			throw new Exception( esc_html__( 'Issue generating SEO title', 'filter-ai' ) );
 		}
+
+		update_option( 'filter_ai_last_seo_title_service', $provider->last_provider_slug() );
 
 		$wpseo_titles = get_option( 'wpseo_titles', [] );
 		$yoast_title  = isset( $wpseo_titles[ 'title-' . $post_type ] ) ? $wpseo_titles[ 'title-' . $post_type ] : null;

@@ -9,11 +9,13 @@
     "plugin-zip": "wp-scripts build && wp-scripts plugin-zip",
     "start": "wp-scripts start",
     "prepare": "husky",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "test:js": "wp-scripts test-unit-js --config jest.config.js"
   },
   "devDependencies": {
     "@eslint/js": "^9.23.0",
     "@types/diff": "^5.0.8",
+    "@types/jest": "^29.5.0",
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
     "@types/underscore": "^1.13.0",
@@ -40,12 +42,13 @@
   ],
   "dependencies": {
     "@lottiefiles/dotlottie-react": "^0.14.1",
+    "@wordpress/api-fetch": "^7.48.0",
     "@wordpress/components": "^30.7.0",
     "@wordpress/data": "^10.34.0",
     "@wordpress/element": "^6.34.0",
     "@wordpress/hooks": "^4.34.0",
-    "@wordpress/icons": "^11.1.0",
     "@wordpress/i18n": "^6.7.0",
+    "@wordpress/icons": "^11.1.0",
     "@wordpress/rich-text": "^7.34.0",
     "@wordpress/url": "^4.34.0",
     "diff": "^5.2.2",

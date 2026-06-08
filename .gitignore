@@ -3,3 +3,9 @@ node_modules
 vendor/*
 build
 filter-ai.zip
+
+# wp-env personal overrides (shared .wp-env.json IS committed)
+.wp-env.override.json
+
+# PHPUnit result cache (test-run artifact)
+.phpunit.result.cache
