@@ -2,8 +2,8 @@
 Contributors: filterdigital, paulhalfpenny, robertmeacher, guyhillary, davecpage, ianharrisfilter
 Tags: ai, seo, content, alt-text, image-generation
 Requires at least: 6.3 
-Tested up to: 6.9
-Stable tag: 1.6.0
+Tested up to: 7.0
+Stable tag: 1.7.0
 Requires PHP: 7.4 
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -40,7 +40,7 @@ Key capabilities include:
   Auto-generate concise excerpts and suggest relevant tags to improve discoverability and site structure.
 
 * **Choice of AI provider and BYO API key**
-  Bring your own API key and choose from supported providers; switch providers without disrupting workflows.
+  Bring your own API key and choose from supported providers; switch providers without disrupting workflows. On WordPress 7.0 and later, Filter AI uses the built-in WordPress AI Client and you manage provider API keys in **Settings → Connectors** — no extra plugin required. On earlier WordPress versions, Filter AI uses the [AI Services plugin](https://wordpress.org/plugins/ai-services/).
 
 * **Batch processing and workflow controls**
   Apply actions across many posts, pages or media items to save time and ensure consistent output.
@@ -70,6 +70,9 @@ Yes. Batch processing is available for meta data, ALT text and other supported o
 = Is the plugin accessible-friendly? =
 Yes. The ALT text generation feature is designed to improve accessibility by producing descriptive ALT attributes for images.
 
+= Do I need the AI Services plugin? =
+It depends on your WordPress version. On WordPress 7.0 and later, Filter AI uses the built-in WordPress AI Client and Settings → Connectors for API key management — the AI Services plugin is not required. On WordPress versions below 7.0, the AI Services plugin is required and Filter AI continues to use it exactly as before.
+
 == Screenshots ==
 
 1. Filter AI settings: brand voice, API keys and prompt templates.
@@ -80,10 +83,19 @@ Yes. The ALT text generation feature is designed to improve accessibility by pro
 
 == Upgrade Notice ==
 
-= 1.6.0 =
-Adds anonymous opt-in telemetry, hardening of batch generation endpoints, and several bug fixes.
+= 1.7.0 =
+Adds WordPress 7 native AI support, brand voice generation, inline regeneration controls, and batch SEO improvements.
 
 == Changelog ==
+
+= 1.7.0 =
+
+**Enhancements:**
+
+* Added: Native WordPress 7.0 AI Client support — on WP 7.0+, Filter AI uses the built-in AI Client and Settings → Connectors for API keys, with no dependency on the AI Services plugin.
+* Added: First-party REST endpoints (filter-ai/v1) powering the editor features on WP 7.0+.
+* Changed: AI requests now route through an internal provider abstraction that selects the native client (WP 7.0+) or AI Services (older versions) automatically.
+* Maintained: Full backwards compatibility — on WordPress below 7.0, Filter AI continues to use the AI Services plugin exactly as before.
 
 = 1.6.0 =
 

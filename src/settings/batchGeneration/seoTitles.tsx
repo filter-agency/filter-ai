@@ -3,6 +3,7 @@ import { RawHTML, useCallback, useEffect, useMemo, useState } from '@wordpress/e
 import { __, sprintf } from '@wordpress/i18n';
 import { useSettings } from '../useSettings';
 import { useServices } from '@/utils/ai/services/useServices';
+import ContentSource from './contentSource';
 
 const defaultCount = {
   posts: 0,
@@ -241,6 +242,8 @@ const SEOTitles = () => {
               </tbody>
             </table>
           </PanelBody>
+
+          <ContentSource />
 
           {!!defaultTemplates?.length && (
             <PanelBody title={__('Default Yoast SEO title template', 'filter-ai')} initialOpen={false}>

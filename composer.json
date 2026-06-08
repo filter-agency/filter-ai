@@ -1,5 +1,5 @@
 {
-  "version": "1.6.0",
+  "version": "1.7.0",
   "name": "filter-agency/filter-ai",
   "description": "Powerful AI content creation tools integrated directly into the WordPress editor for effortless content generation.",
   "type": "wordpress-plugin",
@@ -24,7 +24,8 @@
   },
   "require-dev": {
     "wp-coding-standards/wpcs": "^3.0",
-    "brianhenryie/strauss": "^0.21"
+    "brianhenryie/strauss": "^0.21",
+    "phpunit/phpunit": "^9.6"
   },
   "autoload-dev": {
     "psr-4": {
@@ -37,6 +38,9 @@
     ],
     "fix-cs": [
       "@php ./vendor/bin/phpcbf"
+    ],
+    "test-php": [
+      "@php ./vendor/bin/phpunit"
     ],
     "strauss": [
       "vendor/bin/strauss"

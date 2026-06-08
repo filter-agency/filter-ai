@@ -96,17 +96,41 @@
     background: transparent;
     color: #fff;
     border: 0;
+    /* Reserve the active underline's 2px on every tab (transparent on
+       inactive). Without this, WP core's 50ms `border` transition on <a> tags
+       animates the border-bottom width between 0 and 2px when switching tabs,
+       causing a brief 1px row-height drop at the transition midpoint. With the
+       width reserved, only the colour transitions — layout stays put. */
+    border-bottom: 2px solid transparent;
     font-size: 15px;
     line-height: 20px;
     font-weight: 500;
     padding: 12px 16px;
+
+    /* Suppress the sticky blue focus ring after a click — the underline on
+       .nav-tab-active is the selection cue. Keyboard focus (focus-visible)
+       still shows the browser default for accessibility. */
+    &:focus:not(:focus-visible) {
+      box-shadow: none;
+      outline: 0;
+    }
   }
 
   & .nav-tab:not(.nav-tab-active) {
     opacity: 0.75;
   }
 
-  & .nav-tab-active {
+  /* Override WP core's `.nav-tab-active, ...:focus:active` rule (common.css)
+     which would otherwise flash a light-grey background and 1px grey border
+     when you mouse-down on the already-active tab. The :focus:active variant
+     has specificity (0,3,0) — we need to match or beat it on every interactive
+     state. */
+  & .nav-tab-active,
+  & .nav-tab-active:hover,
+  & .nav-tab-active:focus,
+  & .nav-tab-active:focus:active {
+    background: transparent;
+    color: #fff;
     border-bottom: 2px solid #e1236c;
   }
 }
@@ -202,6 +226,10 @@
 
 .filter-ai-settings-field-reset.filter-ai-settings-field-reset {
   margin-top: 8px;
+}
+
+.filter-ai-content-source-save.filter-ai-content-source-save {
+  margin-top: 16px;
 }
 
 .filter-ai-settings-toggle-options {

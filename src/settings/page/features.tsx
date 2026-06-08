@@ -18,6 +18,7 @@ import _ from 'underscore';
 import { sections } from './sections';
 import { verticalDots } from '@/assets/vertical-dots';
 import { __ } from '@wordpress/i18n';
+// Window.filter_ai_brand_voice is declared in @/components/brandVoiceNotice.
 import { chevronDown, check } from '@wordpress/icons';
 import { useServices } from '@/utils/ai/services/useServices';
 
@@ -129,6 +130,27 @@ const Features = () => {
       setFormData(settings);
     }
   }, [settings]);
+
+  // Open a feature's prompt editor when the URL hash matches its key
+  // (e.g. #brand_voice from the brand voice success notice). Listens for
+  // hashchange too so clicking the link while already on the page opens
+  // the panel without a full reload.
+  useEffect(() => {
+    const openFromHash = () => {
+      const hash = window.location.hash.replace(/^#/, '');
+      if (!hash) return;
+      for (const section of sections) {
+        const feature = section.features.find((f) => f.key === hash);
+        if (feature) {
+          setShowExtra({ [section.key]: feature.key });
+          return;
+        }
+      }
+    };
+    openFromHash();
+    window.addEventListener('hashchange', openFromHash);
+    return () => window.removeEventListener('hashchange', openFromHash);
+  }, []);
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -272,6 +294,29 @@ const Features = () => {
                               {__('Reset to default', 'filter-ai')}
                             </Button>
                           )}
+                          {feature.key === 'brand_voice' &&
+                            window.filter_ai_brand_voice?.regenerate_url &&
+                            !!formData?.[feature.prompt.key] && (
+                              <Button
+                                className="filter-ai-settings-field-reset"
+                                variant="link"
+                                href={window.filter_ai_brand_voice.regenerate_url}
+                                onClick={(e: React.MouseEvent) => {
+                                  if (
+                                    !window.confirm(
+                                      __(
+                                        'This will replace the current brand voice with a new one generated from your latest site content. Continue?',
+                                        'filter-ai'
+                                      )
+                                    )
+                                  ) {
+                                    e.preventDefault();
+                                  }
+                                }}
+                              >
+                                {__('Regenerate from site content', 'filter-ai')}
+                              </Button>
+                            )}
                         </>
                       )}
                     </div>

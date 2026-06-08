@@ -1,8 +1,16 @@
 import { uploadMedia } from '@wordpress/media-utils';
 import { __, sprintf } from '@wordpress/i18n';
-import { waitForAIPlugin } from '../useAIPlugin';
 
 let refreshTimeout: NodeJS.Timeout | null = null;
+
+const dataUrlToBlob = async (dataUrl: string): Promise<Blob | null> => {
+  try {
+    const res = await fetch(dataUrl);
+    return await res.blob();
+  } catch {
+    return null;
+  }
+};
 
 export const refreshMediaLibrary = () => {
   if (refreshTimeout) {
@@ -24,16 +32,7 @@ export const refreshMediaLibrary = () => {
 
 export const uploadGeneratedImageToMediaLibrary = async (dataUrl: string, filename: string, promptText?: string) => {
   return new Promise(async (resolve, reject) => {
-    const aiPlugin = await waitForAIPlugin();
-
-    if (!aiPlugin) {
-      reject(__('Error loading AI plugin', 'filter-ai'));
-      return;
-    }
-
-    const { helpers } = aiPlugin.ai;
-
-    const blob = await helpers.base64DataUrlToBlob(dataUrl);
+    const blob = await dataUrlToBlob(dataUrl);
 
     if (!blob) {
       reject(__('Failed to convert base64 to Blob', 'filter-ai'));

@@ -174,6 +174,23 @@ export const sections: Section[] = [
     key: 'customise_text',
     features: [
       {
+        key: 'generate_content',
+        serviceKey: 'generate_content_prompt_service',
+        toggle: {
+          key: 'generate_content_enabled',
+          label: __('Generate from prompt', 'filter-ai'),
+          help: __(
+            'Add a "Generate from prompt" action to paragraph, heading, and list-item blocks. The AI response streams directly into the block.',
+            'filter-ai'
+          ),
+        },
+        prompt: {
+          key: 'generate_content_prompt',
+          label: __('Generate from prompt — base prompt', 'filter-ai'),
+          defaultValue: defaultSettings.generate_content_prompt,
+        },
+      },
+      {
         key: 'customise_text_rewrite',
         serviceKey: 'customise_text_rewrite_prompt_service',
         toggle: {

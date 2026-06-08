@@ -1,11 +1,14 @@
 import { ReactNode } from 'react';
+import { flushSync } from 'react-dom';
 import { createRoot, useState, useEffect, useMemo } from '@wordpress/element';
 import _ from 'underscore';
 import { filterAILogo } from '@/assets/filter-logo';
 import { __ } from '@wordpress/i18n';
 import AIServiceNotice from '@/components/aiServiceNotice';
+import BrandVoiceNotice from '@/components/brandVoiceNotice';
 import Features from './features';
 import APIKeys from './apiKeys';
+import { getMode } from '@/utils/ai/services/mode';
 
 type Tab = {
   label: string;
@@ -16,15 +19,21 @@ type Tabs = Record<string, Tab>;
 
 const baseUrl = '?page=filter_ai';
 
+// API keys are managed by WordPress core in Settings → Connectors on WP 7.0+,
+// so the API Keys tab is only shown on the legacy (ai-services) backend.
 const tabs: Tabs = {
   features: {
     label: __('Features', 'filter-ai'),
     Component: Features,
   },
-  api_keys: {
-    label: __('API Keys', 'filter-ai'),
-    Component: APIKeys,
-  },
+  ...(getMode() === 'legacy'
+    ? {
+        api_keys: {
+          label: __('API Keys', 'filter-ai'),
+          Component: APIKeys,
+        },
+      }
+    : {}),
 };
 
 const getKey = () => {
@@ -75,7 +84,25 @@ const Settings = () => {
             const isActive = currentTabKey === key;
 
             return (
-              <a key={key} href={`${baseUrl}#${key}`} className={`nav-tab ${isActive ? 'nav-tab-active' : ''}`}>
+              <a
+                key={key}
+                href={`${baseUrl}#${key}`}
+                className={`nav-tab ${isActive ? 'nav-tab-active' : ''}`}
+                onClick={(e) => {
+                  // Modifier-clicks / middle-click / right-click → let the
+                  // browser handle the link normally (open in new tab, etc.).
+                  if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) {
+                    return;
+                  }
+                  e.preventDefault();
+                  // flushSync makes the tab-content swap happen in the same
+                  // frame as the click, eliminating the 1–2 frame window where
+                  // the previous tab's content (and its contextual notices)
+                  // was visible under the new active-tab indicator.
+                  window.history.replaceState(null, '', `${baseUrl}#${key}`);
+                  flushSync(() => setCurrentTabKey(key));
+                }}
+              >
                 {tabs[key].label}
               </a>
             );
@@ -83,7 +110,8 @@ const Settings = () => {
         </nav>
       </header>
       <div className="filter-ai-settings-content">
-        <AIServiceNotice />
+        <BrandVoiceNotice />
+        {currentTabKey !== 'api_keys' && <AIServiceNotice />}
         <Content />
       </div>
     </div>

@@ -2,8 +2,8 @@
   'root' => 
   array (
     'name' => 'filter-agency/filter-ai',
-    'pretty_version' => '1.6.0',
-    'version' => '1.6.0.0',
+    'pretty_version' => '1.7.0',
+    'version' => '1.7.0.0',
     'reference' => NULL,
     'type' => 'wordpress-plugin',
     'install_path' => __DIR__ . '/../',
