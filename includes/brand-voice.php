@@ -176,14 +176,16 @@ function filter_ai_brand_voice_sample_content( $limit = 10 ) {
 
 	$samples = array();
 	foreach ( $query->posts as $id ) {
-		$raw  = (string) get_post_field( 'post_content', $id );
-		$text = trim( wp_strip_all_tags( $raw ) );
-		if ( mb_strlen( $text ) <= 500 ) {
+		$raw         = (string) get_post_field( 'post_content', $id );
+		$text        = trim( wp_strip_all_tags( $raw ) );
+		$text_length = function_exists( 'mb_strlen' ) ? mb_strlen( $text ) : strlen( $text );
+		if ( $text_length <= 500 ) {
 			continue;
 		}
+		$excerpt   = function_exists( 'mb_substr' ) ? mb_substr( $text, 0, 1500 ) : substr( $text, 0, 1500 );
 		$samples[] = array(
 			'title'   => (string) get_the_title( $id ),
-			'excerpt' => mb_substr( $text, 0, 1500 ),
+			'excerpt' => $excerpt,
 		);
 		if ( count( $samples ) >= $limit ) {
 			break;
