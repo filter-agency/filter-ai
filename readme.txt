@@ -3,7 +3,7 @@ Contributors: filterdigital, paulhalfpenny, robertmeacher, guyhillary, davecpage
 Tags: ai, seo, content, alt-text, image-generation
 Requires at least: 6.3 
 Tested up to: 6.9
-Stable tag: 1.6.0
+Stable tag: 1.7.0
 Requires PHP: 7.4 
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -80,10 +80,24 @@ Yes. The ALT text generation feature is designed to improve accessibility by pro
 
 == Upgrade Notice ==
 
-= 1.6.0 =
-Adds anonymous opt-in telemetry, hardening of batch generation endpoints, and several bug fixes.
+= 1.7.0 =
+Adds WordPress 7 native AI support, brand voice generation, inline regeneration controls, and batch SEO improvements.
 
 == Changelog ==
+
+= 1.7.0 =
+
+**Enhancements:**
+
+* Adds WordPress 7 native AI Client support alongside the existing AI Services backend.
+* Introduces provider detection, provider abstraction, REST endpoints, and JS clients for native text/image generation.
+* Removes the hard dependency on AI Services where native providers are available, while preserving legacy fallback behaviour.
+* Adds Connectors-aware settings updates, backend availability notices, and no-provider handling.
+* Adds Brand Voice generation from site content, regeneration controls, and live status updates.
+* Adds inline Regenerate support for generated content, including stored generation params and an append/replace flow.
+* Improves batch SEO generation by supporting custom content fields for SEO titles and meta descriptions.
+* Includes UI polish for settings tabs, notices, toolbar/sidebar icons, and Save-button spacing.
+* Various dependency updates and bug fixes
 
 = 1.6.0 =
 
