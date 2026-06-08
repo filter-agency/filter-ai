@@ -180,7 +180,7 @@ export const TextToolbar = ({ attributes, setAttributes, name }: BlockEditProps)
           setAttributes({ content: newText });
         }
 
-        let message = sprintf(__('Your %s has been updated', 'filter-ai'), label.toLowerCase());
+        let message: string = sprintf(__('Your %s has been updated', 'filter-ai'), label.toLowerCase());
 
         const { service } = promptConfigs[promptKey as PromptKey] || {};
 
