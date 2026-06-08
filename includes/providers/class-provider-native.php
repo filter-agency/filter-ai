@@ -107,7 +107,7 @@ class Filter_AI_Provider_Native implements Filter_AI_Provider {
 	 */
 	public function is_text_supported( array $capabilities, $provider_slug = null ) {
 		try {
-			return (bool) $this->builder( 'capability check' )->is_supported_for_text_generation();
+			return (bool) $this->builder( 'capability check', array(), $provider_slug, $capabilities )->is_supported_for_text_generation();
 		} catch ( \Throwable $e ) {
 			return false;
 		}
