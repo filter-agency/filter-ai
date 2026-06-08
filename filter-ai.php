@@ -260,9 +260,11 @@ register_uninstall_hook( __FILE__, 'filter_ai_uninstall' );
  *  Add scripts and styles
  */
 function filter_ai_enqueue_assets() {
-	$backend = filter_ai_detect_backend(
-		function_exists( 'wp_ai_client_prompt' ),
-		function_exists( 'ai_services' )
+	$has_native = function_exists( 'wp_ai_client_prompt' );
+	$backend    = filter_ai_detect_backend(
+		$has_native,
+		function_exists( 'ai_services' ),
+		$has_native && filter_ai_native_has_configured_providers()
 	);
 	if ( 'none' === $backend ) {
 		return;
