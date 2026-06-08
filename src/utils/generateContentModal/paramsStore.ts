@@ -3,9 +3,8 @@ import { createReduxStore, dispatch, register, useSelect, select } from '@wordpr
 const storeName = 'filter-ai/generate-params-store';
 
 /**
- * Generation params stored per block. Named GenerationParams (not GenerationParams)
- * to avoid confusion with the GenerationParams type in streamIntoBlock.ts, which
- * additionally includes `clientId`.
+ * Generation params stored per block. Named GenerationParams (not StreamArgs)
+ * to avoid confusion with the StreamArgs type in streamIntoBlock.ts, which
  */
 export type GenerationParams = {
   prompt: string;
