@@ -61,7 +61,7 @@ const APIKeys = () => {
         </PanelHeader>
         <PanelBody>
           <p>{__('On WordPress 7.0 and later, AI provider keys are managed by WordPress itself.', 'filter-ai')}</p>
-          <ExternalLink href="/wp-admin/options-connectors.php">
+          <ExternalLink href="options-connectors.php">
             {__('Open Settings → Connectors', 'filter-ai')}
           </ExternalLink>
         </PanelBody>
