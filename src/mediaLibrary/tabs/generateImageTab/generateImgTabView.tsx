@@ -62,6 +62,11 @@ const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
     showLoadingMessage(__('AI Image', 'filter-ai'));
     try {
       const generateImages = await getGeneratedImages(prompt, service?.slug);
+
+      if (!generateImages.length) {
+        throw new Error(__('No image was generated. Check your AI provider configuration and try again.', 'filter-ai'));
+      }
+
       setGeneratedImages(generateImages);
       // Auto-select all generated images (currently always 1) so the user can
       // import/insert directly without a redundant 'select' click.
@@ -84,7 +89,7 @@ const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
     if (insertMode) {
       setSelectedIndexes([index]);
     } else {
-      setSelectedIndexes((prev) => (prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]));
+      setSelectedIndexes((prev) => (prev.indexOf(index) !== -1 ? prev.filter((i) => i !== index) : [...prev, index]));
     }
   };
 
@@ -137,20 +142,6 @@ const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
     }
   };
 
-  useEffect(() => {
-    const modal = document.querySelector('.filter-ai-generator-modal') as HTMLDivElement;
-
-    if (!modal) {
-      return;
-    }
-
-    if (loading || importing) {
-      modal.style.display = 'none';
-    } else {
-      modal.style.display = '';
-    }
-  }, [loading, importing]);
-
   if (!settings?.generate_image_enabled) {
     return null;
   }
@@ -183,7 +174,7 @@ const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
 
         <Button
           variant="secondary"
-          onClick={handleGenerate}
+          onClick={() => void handleGenerate()}
           className="filter-ai-generate-button"
           disabled={loading || !AIService || !prompt}
         >
@@ -195,12 +186,16 @@ const GenerateImgTabView = ({ callback, insertMode = false }: Props) => {
             <h3>{__('Generated image', 'filter-ai')}</h3>
             <Grid columns={3} gap={3} className="filter-ai-image-grid ">
               {generatedImages.map((img, i) => {
-                const isSelected = selectedIndexes.includes(i);
+                const isSelected = selectedIndexes.indexOf(i) !== -1;
                 return (
                   <button
                     key={i}
+                    type="button"
                     className={`filter-ai-image-wrapper ${isSelected ? 'selected' : ''}`}
-                    onClick={() => toggleSelectImage(i)}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      toggleSelectImage(i);
+                    }}
                     disabled={importing}
                   >
                     <img src={img} className="filter-ai-image" />
