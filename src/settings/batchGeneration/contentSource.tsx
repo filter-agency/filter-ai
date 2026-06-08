@@ -50,7 +50,13 @@ const ContentSource = () => {
         onChange={setValue}
         placeholder={__('e.g. product_blurb, _custom_body', 'filter-ai')}
       />
-      <Button variant="secondary" onClick={save} isBusy={isSaving} disabled={isSaving}>
+      <Button
+        className="filter-ai-content-source-save"
+        variant="secondary"
+        onClick={save}
+        isBusy={isSaving}
+        disabled={isSaving}
+      >
         {__('Save', 'filter-ai')}
       </Button>
     </PanelBody>

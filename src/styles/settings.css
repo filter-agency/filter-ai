@@ -228,6 +228,10 @@
   margin-top: 8px;
 }
 
+.filter-ai-content-source-save.filter-ai-content-source-save {
+  margin-top: 16px;
+}
+
 .filter-ai-settings-toggle-options {
   &.has-icon {
     padding: 0;
