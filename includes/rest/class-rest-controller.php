@@ -29,11 +29,22 @@ class Filter_AI_REST_Controller {
 	}
 
 	/**
-	 * Permission callback — requires manage_options capability.
+	 * Permission callback for editor workflows.
+	 *
+	 * Allows users who can edit posts to use block-editor/media AI features.
+	 *
+	 * @return bool True when the current user can edit posts.
+	 */
+	public static function permission_editor() {
+		return current_user_can( 'edit_posts' );
+	}
+
+	/**
+	 * Permission callback for admin-only settings/status routes.
 	 *
 	 * @return bool True when the current user can manage options.
 	 */
-	public static function permission() {
+	public static function permission_admin() {
 		return current_user_can( 'manage_options' );
 	}
 
@@ -48,7 +59,7 @@ class Filter_AI_REST_Controller {
 			'/providers',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'permission_callback' => array( __CLASS__, 'permission' ),
+				'permission_callback' => array( __CLASS__, 'permission_editor' ),
 				'callback'            => array( __CLASS__, 'providers' ),
 			)
 		);
@@ -57,7 +68,7 @@ class Filter_AI_REST_Controller {
 			'/is-supported',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'permission_callback' => array( __CLASS__, 'permission' ),
+				'permission_callback' => array( __CLASS__, 'permission_editor' ),
 				'callback'            => array( __CLASS__, 'is_supported' ),
 				'args'                => array(
 					'capability' => array(
@@ -72,7 +83,7 @@ class Filter_AI_REST_Controller {
 			'/generate-text',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
-				'permission_callback' => array( __CLASS__, 'permission' ),
+				'permission_callback' => array( __CLASS__, 'permission_editor' ),
 				'callback'            => array( __CLASS__, 'generate_text' ),
 			)
 		);
@@ -81,7 +92,7 @@ class Filter_AI_REST_Controller {
 			'/stream-generate-text',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
-				'permission_callback' => array( __CLASS__, 'permission' ),
+				'permission_callback' => array( __CLASS__, 'permission_editor' ),
 				'callback'            => array( __CLASS__, 'stream_generate_text' ),
 			)
 		);
@@ -90,7 +101,7 @@ class Filter_AI_REST_Controller {
 			'/generate-image',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
-				'permission_callback' => array( __CLASS__, 'permission' ),
+				'permission_callback' => array( __CLASS__, 'permission_editor' ),
 				'callback'            => array( __CLASS__, 'generate_image' ),
 			)
 		);
@@ -99,7 +110,7 @@ class Filter_AI_REST_Controller {
 			'/brand-voice/status',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'permission_callback' => array( __CLASS__, 'permission' ),
+				'permission_callback' => array( __CLASS__, 'permission_admin' ),
 				'callback'            => array( __CLASS__, 'brand_voice_status' ),
 			)
 		);
