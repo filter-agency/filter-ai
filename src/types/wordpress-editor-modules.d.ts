@@ -12,6 +12,14 @@ declare module '@wordpress/blocks' {
   export function createBlock(name: string, attributes?: Record<string, unknown>, innerBlocks?: unknown[]): unknown;
 
   export function registerBlockType(name: string, settings: Record<string, unknown>): unknown;
+
+  export function pasteHandler(options: {
+    HTML?: string;
+    plainText?: string;
+    mode?: 'AUTO' | 'INLINE' | 'BLOCKS';
+    tagName?: string;
+    preserveWhiteSpace?: boolean;
+  }): unknown;
 }
 
 declare module '@wordpress/block-editor' {
