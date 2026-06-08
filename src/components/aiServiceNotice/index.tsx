@@ -57,7 +57,7 @@ export default function AIServiceNotice() {
       <Notice status="error" isDismissible={false}>
         {createInterpolateElement(
           __('No AI provider is configured. Add an API key under <a>Settings → Connectors</a>.', 'filter-ai'),
-          { a: <a href="/wp-admin/options-connectors.php" /> }
+          { a: <a href="options-connectors.php" /> }
         )}
       </Notice>
     );
@@ -70,7 +70,7 @@ export default function AIServiceNotice() {
           __(`No AI service is configured. Please add an API key in the %s plugin settings.`, 'filter-ai'),
           `<a>Filter AI</a>`
         ),
-        { a: <a href="/wp-admin/admin.php?page=filter_ai#api_keys" /> }
+        { a: <a href="admin.php?page=filter_ai#api_keys" /> }
       )}
     </Notice>
   );
