@@ -23,12 +23,13 @@ interface ContainerInterface {
 	/**
 	 * Finds an entry of the container by its identifier and returns it.
 	 *
-	 * @template T
+	 * @template T of object
 	 *
-	 * @param string|class-string<T> $id Identifier of the entry to look for.
+	 * @param string $id Identifier of the entry to look for.
 	 *
-	 * @return T|mixed
-	 * @phpstan-return ($id is class-string ? T : mixed)
+	 * @return mixed
+	 *
+	 * @phpstan-return ($id is class-string<T> ? T : mixed)
 	 */
 	public function get( string $id );
 
