@@ -14,3 +14,17 @@
 define( 'ABSPATH', __DIR__ . '/' );
 
 require_once __DIR__ . '/../../vendor/autoload.php';
+
+if ( ! function_exists( '__' ) ) {
+	/**
+	 * Minimal translation shim for pure-logic tests outside WordPress.
+	 *
+	 * @param string $text Text to translate.
+	 * @return string
+	 */
+	function __( $text ) {
+		return $text;
+	}
+}
+
+require_once __DIR__ . '/wp-error-shim.php';
