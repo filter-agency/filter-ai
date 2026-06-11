@@ -6,7 +6,7 @@ import { getSettings } from '@/settings';
 
 const maxNumber = 10;
 
-const formatTags = (rawTags: string) => {
+const formatTags = (rawTags: string | null) => {
   if (!rawTags) {
     return null;
   }
