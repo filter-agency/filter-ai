@@ -3,7 +3,7 @@
  * Plugin Name: Filter AI
  * Plugin URI: https://filteraiplugin.com
  * Description: Meet your digital sidekick: Filter AI, a plugin that tackles your to-do list faster than you can say 'procrastination'!
- * Version: 1.7.1
+ * Version: 1.7.2
  * Author: Filter
  * Author URI: https://filter.agency
  * Requires at least: 6.3
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'FILTER_AI_VERSION', '1.7.1' );
+define( 'FILTER_AI_VERSION', '1.7.2' );
 define( 'FILTER_AI_PATH', plugin_dir_path( __FILE__ ) );
 define( 'FILTER_AI_FILE', __FILE__ );
 
