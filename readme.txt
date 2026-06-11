@@ -3,7 +3,7 @@ Contributors: filterdigital, paulhalfpenny, robertmeacher, guyhillary, davecpage
 Tags: ai, seo, content, alt-text, image-generation
 Requires at least: 6.3 
 Tested up to: 7.0
-Stable tag: 1.7.0
+Stable tag: 1.7.1
 Requires PHP: 7.4 
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -83,10 +83,19 @@ It depends on your WordPress version. On WordPress 7.0 and later, Filter AI uses
 
 == Upgrade Notice ==
 
+= 1.7.1 =
+Fixes prompt-based text generation on WordPress 6.9.
+
 = 1.7.0 =
 Adds WordPress 7 native AI support, brand voice generation, inline regeneration controls, and batch SEO improvements.
 
 == Changelog ==
+
+= 1.7.1 =
+
+**Bug fixes:**
+
+* Fix prompt-based text generation on WordPress 6.9 by routing legacy text requests through Filter AI's REST adapter.
 
 = 1.7.0 =
 
@@ -215,4 +224,3 @@ Adds WordPress 7 native AI support, brand voice generation, inline regeneration 
 Our approach to AI focuses on practical, implementable solutions that solve real business challenges – and Filter AI embodies this philosophy perfectly. By making AI accessible within the familiar WordPress environment, we're helping content teams work more efficiently without sacrificing quality or control.
 
 Check out our other WordPress plugin, [PersonalizeWP](https://personalizewp.com/), which allows you to display personalised content on your WordPress website using the Block Editor.
-
