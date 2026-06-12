@@ -12,6 +12,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@main
+    - name: Validate public 1.x assets/readme source
+      run: |
+        plugin_version="$(sed -n 's/^[[:space:]]*\* Version:[[:space:]]*//p' filter-ai.php | head -n 1)"
+        stable_tag="$(sed -n 's/^Stable tag:[[:space:]]*//p' readme.txt | head -n 1)"
+
+        case "$plugin_version" in
+          1.*) ;;
+          *)
+            echo "::error::filter-ai.php is version $plugin_version. Public WordPress.org asset updates are limited to 1.x."
+            exit 1
+            ;;
+        esac
+
+        case "$stable_tag" in
+          1.*) ;;
+          *)
+            echo "::error::readme.txt stable tag is $stable_tag. Public WordPress.org asset updates are limited to 1.x."
+            exit 1
+            ;;
+        esac
     - name: WordPress.org plugin asset/readme update
       uses: 10up/action-wordpress-plugin-asset-update@stable
       env:

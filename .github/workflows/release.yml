@@ -3,12 +3,37 @@ on:
   release:
     types: [released]
   workflow_dispatch:
+    inputs:
+      version:
+        description: '1.x.x or v1.x.x tag to deploy'
+        required: true
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Validate public 1.x release
+        id: release
+        env:
+          RELEASE_REF: ${{ github.event.release.tag_name || inputs.version }}
+        run: |
+          case "$RELEASE_REF" in
+            v1.*)
+              echo "ref=$RELEASE_REF" >> "$GITHUB_OUTPUT"
+              echo "version=${RELEASE_REF#v}" >> "$GITHUB_OUTPUT"
+              ;;
+            1.*)
+              echo "ref=v$RELEASE_REF" >> "$GITHUB_OUTPUT"
+              echo "version=$RELEASE_REF" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "::error::This public workflow only deploys Filter AI 1.x releases. Use filter-agency/filter-ai-pro for 2.x."
+              exit 1
+              ;;
+          esac
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.release.outputs.ref }}
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -30,10 +55,11 @@ jobs:
         env:
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          VERSION: ${{ steps.release.outputs.version }}
       - name: Upload release asset
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.event.release.tag_name }}
+          tag_name: ${{ steps.release.outputs.ref }}
           files: ${{ github.workspace }}/${{ github.event.repository.name }}.zip

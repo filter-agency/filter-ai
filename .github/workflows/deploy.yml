@@ -3,15 +3,36 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to run deploy with'
+        description: '1.x.x or v1.x.x version to deploy'
         required: true
 jobs:
   asset_deploy:
     name: Deploy
     runs-on: ubuntu-latest
     steps:
+    - name: Validate public 1.x deploy
+      id: release
+      env:
+        RELEASE_VERSION: ${{ github.event.inputs.version }}
+      run: |
+        case "$RELEASE_VERSION" in
+          v1.*)
+            echo "ref=$RELEASE_VERSION" >> "$GITHUB_OUTPUT"
+            echo "version=${RELEASE_VERSION#v}" >> "$GITHUB_OUTPUT"
+            ;;
+          1.*)
+            echo "ref=v$RELEASE_VERSION" >> "$GITHUB_OUTPUT"
+            echo "version=$RELEASE_VERSION" >> "$GITHUB_OUTPUT"
+            ;;
+          *)
+            echo "::error::This public workflow only deploys Filter AI 1.x releases. Use filter-agency/filter-ai-pro for 2.x."
+            exit 1
+            ;;
+        esac
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        ref: ${{ steps.release.outputs.ref }}
     - name: Setup Node
       uses: actions/setup-node@v4
       with:
@@ -32,4 +53,4 @@ jobs:
       env:
         SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
         SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
-        VERSION: ${{ github.event.inputs.version }}
+        VERSION: ${{ steps.release.outputs.version }}
