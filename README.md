@@ -1,6 +1,23 @@
 # Filter AI
 
-**Filter AI** brings the power of leading AI platforms directly into the WordPress content workflow. Built on the foundation of Felix Arntz's excellent [AI Services](https://github.com/felixarntz/ai-services) plugin, Filter AI makes it simple for content teams to harness AI for everyday content tasks.
+**Filter AI** brings the power of leading AI platforms directly into the WordPress content workflow. It uses the native WordPress AI Client on WordPress 7.0 and later, and falls back to Felix Arntz's excellent [AI Services](https://github.com/felixarntz/ai-services) plugin on earlier WordPress versions, making it simple for content teams to harness AI for everyday content tasks.
+
+## Release Notes
+
+### 1.8.0
+
+#### Added
+
+- Choose a specific AI model for each provider directly from the feature settings. Provider selections now include model-aware options such as `Anthropic (Claude) - Auto`, `Anthropic (Claude) - Claude Opus`, and `Anthropic (Claude) - Claude Haiku`.
+- Keep using automatic model selection from the same `AI Provider / Model` dropdown by choosing a provider's `Auto` option, such as `Anthropic (Claude) - Auto`.
+- Refresh available provider models daily and cache the last successful model catalogue, keeping stale model options visible if a refresh fails.
+
+#### Fixed
+
+- Prevent unsupported AI features from being enabled when no configured provider can handle the required capability, such as image generation with text-only providers.
+- Move AI error logs into the Settings screen and improve admin links so failed requests are easier to review.
+- Avoid queueing a brand voice scan when a brand voice prompt has already been filled.
+- Improve compatibility with Anthropic responses from AI Services when tool or thinking response parts are present.
 
 ## Development
 
@@ -53,7 +70,7 @@ npm run plugin-zip
 
 ## Usage
 
-Filter AI requires the plugin [AI Services](https://wordpress.org/plugins/ai-services/) which should be automatically installed if not already present.
+Filter AI uses the native WordPress AI Client when running on WordPress 7.0 or later with configured AI provider connectors. On earlier WordPress versions, Filter AI uses the [AI Services](https://wordpress.org/plugins/ai-services/) plugin, which should be automatically installed if not already present.
 
 Once Filter AI is active you should see a menu item in the admin menu which gives you access to the settings and batch capabilities.
 

@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 require_once __DIR__ . '/settings.php';
 require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/providers/detection.php';
+require_once __DIR__ . '/error-log.php';
 
 /**
  * Get posts for a specific post_type that is missing _yoast_wpseo_title meta
@@ -109,8 +110,46 @@ function filter_ai_process_batch_seo_title( $args ) {
 			$service_slug
 		);
 
-		if ( is_wp_error( $text ) || empty( $text ) ) {
-			throw new Exception( esc_html__( 'Issue generating SEO title', 'filter-ai' ) );
+		if ( is_wp_error( $text ) ) {
+			$logged = filter_ai_log_wp_error(
+				'batch_seo_title',
+				$text,
+				filter_ai_error_generation_context(
+					'filter-ai-seo-title',
+					array( 'text_generation' ),
+					$service_slug,
+					array(),
+					array(
+						'post_id'        => (int) $post_id,
+						'user_id'        => (int) $user_id,
+						'post_type'      => (string) $post_type,
+						'prompt_length'  => strlen( $prompt ),
+						'content_length' => strlen( $post_content ),
+					)
+				)
+			);
+			throw new Exception( $logged->get_error_message() );
+		}
+
+		if ( empty( $text ) ) {
+			$logged = filter_ai_log_wp_error(
+				'batch_seo_title',
+				new WP_Error( 'filter_ai_empty_response', __( 'Issue generating SEO title', 'filter-ai' ) ),
+				filter_ai_error_generation_context(
+					'filter-ai-seo-title',
+					array( 'text_generation' ),
+					$service_slug,
+					array(),
+					array(
+						'post_id'        => (int) $post_id,
+						'user_id'        => (int) $user_id,
+						'post_type'      => (string) $post_type,
+						'prompt_length'  => strlen( $prompt ),
+						'content_length' => strlen( $post_content ),
+					)
+				)
+			);
+			throw new Exception( $logged->get_error_message() );
 		}
 
 		update_option( 'filter_ai_last_seo_title_service', $provider->last_provider_slug() );

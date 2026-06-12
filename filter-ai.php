@@ -3,7 +3,7 @@
  * Plugin Name: Filter AI
  * Plugin URI: https://filteraiplugin.com
  * Description: Meet your digital sidekick: Filter AI, a plugin that tackles your to-do list faster than you can say 'procrastination'!
- * Version: 1.7.2
+ * Version: 1.8.0
  * Author: Filter
  * Author URI: https://filter.agency
  * Requires at least: 6.3
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'FILTER_AI_VERSION', '1.7.2' );
+define( 'FILTER_AI_VERSION', '1.8.0' );
 define( 'FILTER_AI_PATH', plugin_dir_path( __FILE__ ) );
 define( 'FILTER_AI_FILE', __FILE__ );
 
@@ -39,6 +39,7 @@ if ( ! class_exists( 'ActionScheduler' ) ) {
 }
 
 require_once plugin_dir_path( __FILE__ ) . 'includes/settings.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/error-log.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/post-content.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/batch.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/batchImageAltText.php';
@@ -46,6 +47,7 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/batchSEOTitle.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/batchSEOMetaDescription.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/dynamicReplaceAltText.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/providers/detection.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/providers/model-catalog.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/rest/class-rest-controller.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/brand-voice.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/enqueue-scope.php';
@@ -155,6 +157,15 @@ function filter_ai_add_admin_menu() {
 		'filter_ai_submenu_page_batch',
 		'filter_ai_batch_page',
 	);
+
+	add_submenu_page(
+		'filter_ai',
+		__( 'Filter AI Error Logs', 'filter-ai' ),
+		__( 'Error Logs', 'filter-ai' ),
+		'manage_options',
+		'filter_ai_error_logs',
+		'filter_ai_error_logs_page',
+	);
 }
 
 add_action( 'admin_menu', 'filter_ai_add_admin_menu' );
@@ -180,6 +191,7 @@ function filter_ai_admin_menu_icon_style() {
 	echo '<style id="filter-ai-admin-menu-icon">'
 		. '#adminmenu #toplevel_page_filter_ai .wp-menu-image { background-size: 24px auto; }'
 		. '#adminmenu #toplevel_page_filter_ai .wp-menu-image::before { content: none; display: none; }'
+		. '#adminmenu #toplevel_page_filter_ai .wp-submenu li:has(a[href="admin.php?page=filter_ai_error_logs"]) { display: none; }'
 		. '</style>' . "\n";
 }
 
@@ -251,7 +263,11 @@ function filter_ai_uninstall() {
 	delete_option( 'filter_ai_last_ai_image_alt_text_service' );
 	delete_option( 'filter_ai_last_seo_meta_description_service' );
 	delete_option( 'filter_ai_last_seo_title_service' );
+	delete_option( 'filter_ai_provider_model_catalog' );
 	delete_option( 'filter_ai_brand_voice_scan' );
+	if ( function_exists( 'filter_ai_delete_error_logs' ) ) {
+		filter_ai_delete_error_logs();
+	}
 }
 
 register_uninstall_hook( __FILE__, 'filter_ai_uninstall' );

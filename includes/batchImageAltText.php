@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 require_once __DIR__ . '/settings.php';
 require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/providers/detection.php';
+require_once __DIR__ . '/error-log.php';
 
 /**
  * Get list of all image mime types
@@ -238,23 +239,60 @@ function filter_ai_process_batch_image_alt_text( $args ) {
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		$image_data = file_get_contents( $image_path );
+		$files      = array(
+			array(
+				'mime_type' => $image_mime_type,
+				// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+				'data'      => base64_encode( $image_data ),
+			),
+		);
 
 		$text = $provider->generate_text(
 			$prompt,
-			array(
-				array(
-					'mime_type' => $image_mime_type,
-					// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-					'data'      => base64_encode( $image_data ),
-				),
-			),
+			$files,
 			'filter-ai-image-alt-text',
 			array( 'multimodal_input', 'text_generation' ),
 			$service_slug
 		);
 
-		if ( is_wp_error( $text ) || empty( $text ) ) {
-			throw new Exception( esc_html__( 'Issue generating alt text', 'filter-ai' ) );
+		if ( is_wp_error( $text ) ) {
+			$logged = filter_ai_log_wp_error(
+				'batch_image_alt_text',
+				$text,
+				filter_ai_error_generation_context(
+					'filter-ai-image-alt-text',
+					array( 'multimodal_input', 'text_generation' ),
+					$service_slug,
+					$files,
+					array(
+						'image_id'      => (int) $image_id,
+						'user_id'       => (int) $user_id,
+						'image_path'    => (string) $image_path,
+						'prompt_length' => strlen( $prompt ),
+					)
+				)
+			);
+			throw new Exception( $logged->get_error_message() );
+		}
+
+		if ( empty( $text ) ) {
+			$logged = filter_ai_log_wp_error(
+				'batch_image_alt_text',
+				new WP_Error( 'filter_ai_empty_response', __( 'Issue generating alt text', 'filter-ai' ) ),
+				filter_ai_error_generation_context(
+					'filter-ai-image-alt-text',
+					array( 'multimodal_input', 'text_generation' ),
+					$service_slug,
+					$files,
+					array(
+						'image_id'      => (int) $image_id,
+						'user_id'       => (int) $user_id,
+						'image_path'    => (string) $image_path,
+						'prompt_length' => strlen( $prompt ),
+					)
+				)
+			);
+			throw new Exception( $logged->get_error_message() );
 		}
 
 		update_option( 'filter_ai_last_ai_image_alt_text_service', $provider->last_provider_slug() );

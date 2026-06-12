@@ -9,6 +9,7 @@ import BrandVoiceNotice from '@/components/brandVoiceNotice';
 import Features from './features';
 import APIKeys from './apiKeys';
 import { getMode } from '@/utils/ai/services/mode';
+import ErrorLogs from './errorLogs';
 
 type Tab = {
   label: string;
@@ -34,6 +35,10 @@ const tabs: Tabs = {
         },
       }
     : {}),
+  error_logs: {
+    label: __('Error Logs', 'filter-ai'),
+    Component: ErrorLogs,
+  },
 };
 
 const getKey = () => {
@@ -111,7 +116,7 @@ const Settings = () => {
       </header>
       <div className="filter-ai-settings-content">
         <BrandVoiceNotice />
-        {currentTabKey !== 'api_keys' && <AIServiceNotice />}
+        {currentTabKey !== 'api_keys' && currentTabKey !== 'error_logs' && <AIServiceNotice />}
         <Content />
       </div>
     </div>

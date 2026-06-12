@@ -1,6 +1,6 @@
 {
   "name": "filter-ai",
-  "version": "1.7.2",
+  "version": "1.8.0",
   "author": "Filter",
   "license": "GPL-3.0",
   "main": "build/scripts.js",
@@ -38,7 +38,11 @@
     "includes",
     "composer.json",
     "packages",
-    "src"
+    "src",
+    "!tests",
+    "!src/**/*.test.*",
+    "!docker",
+    "!compose.wp*.yml"
   ],
   "dependencies": {
     "@lottiefiles/dotlottie-react": "^0.14.1",

@@ -1,0 +1,63 @@
+name: filter-ai-wp69
+
+services:
+  db:
+    image: mariadb:11.4
+    environment:
+      MARIADB_DATABASE: wordpress
+      MARIADB_USER: wordpress
+      MARIADB_PASSWORD: wordpress
+      MARIADB_ROOT_PASSWORD: wordpress
+    volumes:
+      - wp69-db:/var/lib/mysql
+
+  wordpress:
+    build:
+      context: ./docker/wordpress
+      dockerfile: 6.9/Dockerfile
+    depends_on:
+      - db
+    ports:
+      - '8069:80'
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DEBUG: '1'
+      WORDPRESS_CONFIG_EXTRA: |
+        define( 'WP_DEBUG_LOG', true );
+        define( 'SCRIPT_DEBUG', true );
+        define( 'FS_METHOD', 'direct' );
+        define( 'WP_ENVIRONMENT_TYPE', 'local' );
+    volumes:
+      - wp69-html:/var/www/html
+
+  seed:
+    build:
+      context: ./docker/wordpress
+      dockerfile: 6.9/Dockerfile
+    depends_on:
+      - db
+      - wordpress
+    entrypoint: ['/bin/bash', '/docker/seed/seed.sh']
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WP_URL: http://localhost:8069
+      WP_TITLE: Filter AI WP 6.9
+      WP_ADMIN_USER: admin
+      WP_ADMIN_PASSWORD: password
+      WP_ADMIN_EMAIL: admin@example.test
+      WP_VERSION_LABEL: '6.9'
+      INSTALL_AI_SERVICES: '1'
+    volumes:
+      - wp69-html:/var/www/html
+      - ./docker/seed:/docker/seed:ro
+    restart: 'no'
+
+volumes:
+  wp69-db:
+  wp69-html:

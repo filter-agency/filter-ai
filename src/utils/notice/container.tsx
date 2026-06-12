@@ -1,4 +1,5 @@
 import { useNotice, hideNotice } from './store';
+import { linkifyNoticeMessage } from './linkify';
 import { Animate, Snackbar } from '@wordpress/components';
 import { useMemo, createRoot } from '@wordpress/element';
 
@@ -8,6 +9,8 @@ const NoticeContainer = () => {
   const typeClass = useMemo(() => {
     return notice?.type === 'error' ? 'filter-ai-notice-snackbar-error' : '';
   }, [notice?.type]);
+
+  const message = useMemo(() => linkifyNoticeMessage(notice?.message ?? ''), [notice?.message]);
 
   if (!notice?.message) {
     return null;
@@ -19,7 +22,7 @@ const NoticeContainer = () => {
         {({ className }) => (
           <Snackbar className={`filter-ai-notice-snackbar ${typeClass} ${className}`} onDismiss={() => hideNotice()}>
             {notice?.title && <h2>{notice.title}</h2>}
-            <div>{notice?.message}</div>
+            <div>{message}</div>
           </Snackbar>
         )}
       </Animate>

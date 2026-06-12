@@ -70,4 +70,10 @@
     font-weight: 500;
     margin: 0;
   }
+
+  & a {
+    color: #1e1e1e;
+    font-weight: 600;
+    text-decoration: underline;
+  }
 }

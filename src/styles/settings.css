@@ -224,6 +224,12 @@
   }
 }
 
+.filter-ai-settings-field-warning {
+  color: #b32d2e;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
 .filter-ai-settings-field-reset.filter-ai-settings-field-reset {
   margin-top: 8px;
 }
@@ -312,4 +318,68 @@
     font-weight: 500;
     padding: 2px 8px;
   }
+}
+
+.filter-ai-settings-panel .components-panel__body .filter-ai-error-log-table {
+  margin-top: 16px;
+
+  & th,
+  & td {
+    padding: 12px 18px;
+    vertical-align: top;
+  }
+
+  & th:first-child,
+  & td:first-child {
+    padding-left: 18px;
+    width: 170px;
+  }
+
+  & th:last-child,
+  & td:last-child {
+    width: 150px;
+  }
+}
+
+.filter-ai-error-log-detail {
+  padding-top: 2px;
+}
+
+.filter-ai-error-log-back {
+  margin-bottom: 14px;
+
+  & .components-button.is-link {
+    height: auto;
+    padding: 0;
+  }
+}
+
+.filter-ai-error-log-detail h3 {
+  margin: 0 0 16px;
+  font-size: 20px;
+  line-height: 1.35;
+}
+
+.filter-ai-error-log-meta {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 8px 24px;
+  margin: 16px 0 20px;
+
+  & dt {
+    font-weight: 600;
+  }
+
+  & dd {
+    margin: 0;
+  }
+}
+
+.filter-ai-error-log-content {
+  white-space: pre-wrap;
+  max-width: 1200px;
+  background: #fff;
+  border: 1px solid #ccd0d4;
+  padding: 16px;
+  overflow: auto;
 }

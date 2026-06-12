@@ -3,7 +3,7 @@ Contributors: filterdigital, paulhalfpenny, robertmeacher, guyhillary, davecpage
 Tags: ai, seo, content, alt-text, image-generation
 Requires at least: 6.3 
 Tested up to: 7.0
-Stable tag: 1.7.2
+Stable tag: 1.8.0
 Requires PHP: 7.4 
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -50,8 +50,8 @@ Filter AI is designed to integrate with the WordPress editor and common workflow
 == Installation ==
 1. Upload the `filter-ai` folder to the `/wp-content/plugins/` directory, or install via the WordPress plugin installer.
 2. Activate the plugin through the 'Plugins' menu in WordPress.
-3. Navigate to **Settings → Filter AI** and add your AI provider API key(s).
-4. Configure brand voice, stop words, prompt templates and defaults.
+3. On WordPress 7.0 and later, add your AI provider API key(s) in **Settings → Connectors**. On earlier WordPress versions, add your provider key(s) in **Settings → Filter AI**.
+4. Navigate to **Settings → Filter AI** to configure brand voice, stop words, prompt templates and defaults.
 5. Use the new Filter AI controls on posts, pages, products and media to generate and apply content.
 
 == Frequently Asked Questions ==
@@ -83,6 +83,9 @@ It depends on your WordPress version. On WordPress 7.0 and later, Filter AI uses
 
 == Upgrade Notice ==
 
+= 1.8.0 =
+Adds per-feature AI model selection for configured providers and improves provider capability handling.
+
 = 1.7.2 =
 Fixes Generate from Prompt on WordPress 6.9 by using the one-shot fallback for the legacy AI Services backend.
 
@@ -93,6 +96,21 @@ Fixes prompt-based text generation on WordPress 6.9.
 Adds WordPress 7 native AI support, brand voice generation, inline regeneration controls, and batch SEO improvements.
 
 == Changelog ==
+
+= 1.8.0 =
+
+**Enhancements:**
+
+* Add per-feature provider/model selection, with model-aware options such as `Anthropic (Claude) - Auto`, `Anthropic (Claude) - Claude Opus`, and `Anthropic (Claude) - Claude Haiku`.
+* Keep automatic model selection available from the same AI Provider / Model dropdown by choosing a provider's Auto option.
+* Refresh available provider models daily and cache the last successful model catalogue, keeping stale model options visible if a refresh fails.
+
+**Bug fixes:**
+
+* Prevent unsupported AI features from being enabled when no configured provider can handle the required capability, such as image generation with text-only providers.
+* Move AI error logs into the Settings screen and improve admin links so failed requests are easier to review.
+* Avoid queueing a brand voice scan when a brand voice prompt has already been filled.
+* Improve compatibility with Anthropic responses from AI Services when tool or thinking response parts are present.
 
 = 1.7.2 =
 

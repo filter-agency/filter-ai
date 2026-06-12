@@ -73,6 +73,13 @@ interface Filter_AI_Provider {
 	public function list_providers();
 
 	/**
+	 * List flattened provider/model options for settings dropdowns.
+	 *
+	 * @return array[] List of selectable provider/model options.
+	 */
+	public function list_provider_models();
+
+	/**
 	 * Slug of the provider used by the most recent generate_text() call.
 	 *
 	 * @return string Provider slug, or '' if unknown / none used yet.

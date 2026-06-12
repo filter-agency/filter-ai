@@ -3,26 +3,18 @@ import { AIService } from './types';
 import { useSelect } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
 import { getMode } from './mode';
-import { nativeListProviders } from './nativeClient';
+import { nativeListProviderModels } from './nativeClient';
 
 type UseServices = () => Record<string, AIService>;
 
 export const useServices: UseServices = () => {
   const aiPlugin = useAIPlugin();
-  const [nativeServices, setNativeServices] = useState<Record<string, AIService>>({});
+  const [providerModelServices, setProviderModelServices] = useState<Record<string, AIService>>({});
 
   useEffect(() => {
-    if (getMode() === 'native') {
-      nativeListProviders()
-        .then((providers) => {
-          const mapped: Record<string, AIService> = {};
-          Object.entries(providers).forEach(([slug, p]) => {
-            mapped[slug] = { slug, metadata: { name: p.label }, is_available: p.is_available } as AIService;
-          });
-          setNativeServices(mapped);
-        })
-        .catch(() => setNativeServices({}));
-    }
+    nativeListProviderModels()
+      .then((services) => setProviderModelServices(services as Record<string, AIService>))
+      .catch(() => setProviderModelServices({}));
   }, []);
 
   const legacyServices = useSelect(
@@ -35,5 +27,9 @@ export const useServices: UseServices = () => {
     [aiPlugin]
   );
 
-  return getMode() === 'native' ? nativeServices : legacyServices;
+  if (Object.keys(providerModelServices).length) {
+    return providerModelServices;
+  }
+
+  return getMode() === 'native' ? {} : legacyServices;
 };

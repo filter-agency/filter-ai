@@ -19,6 +19,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+require_once __DIR__ . '/error-log.php';
+
 /**
  * Option key for the scan state.
  */
@@ -121,6 +123,23 @@ function filter_ai_brand_voice_maybe_queue_scan() {
 
 	$state = filter_ai_brand_voice_get_state();
 	if ( 'pending_key' !== $state['status'] ) {
+		return;
+	}
+
+	$settings = get_option( 'filter_ai_settings', array() );
+	$existing = is_array( $settings ) && isset( $settings['brand_voice_prompt'] )
+		? trim( (string) $settings['brand_voice_prompt'] )
+		: '';
+	if ( '' !== $existing ) {
+		filter_ai_brand_voice_set_state(
+			array(
+				'status'           => 'skipped',
+				'error_code'       => 'overwritten_by_user',
+				'error_message'    => __( 'Brand voice was already set; auto-generation skipped.', 'filter-ai' ),
+				'completed_at'     => time(),
+				'notice_dismissed' => true,
+			)
+		);
 		return;
 	}
 
@@ -321,9 +340,23 @@ function filter_ai_brand_voice_process_scan() {
 function filter_ai_brand_voice_handle_failure( array $state, $result ) {
 	$attempts      = (int) $state['attempts'] + 1;
 	$error_code    = is_wp_error( $result ) ? (string) $result->get_error_code() : 'empty_response';
-	$error_message = is_wp_error( $result )
-		? (string) $result->get_error_message()
-		: __( 'The AI provider returned an empty response.', 'filter-ai' );
+	$error_message = __( 'The AI provider returned an empty response.', 'filter-ai' );
+	if ( is_wp_error( $result ) ) {
+		$logged        = filter_ai_log_wp_error(
+			'brand_voice_auto_scan',
+			$result,
+			filter_ai_error_generation_context(
+				'filter-ai-brand-voice-auto',
+				array( 'text_generation' ),
+				null,
+				array(),
+				array(
+					'attempt' => $attempts,
+				)
+			)
+		);
+		$error_message = (string) $logged->get_error_message();
+	}
 
 	if ( $attempts >= FILTER_AI_BRAND_VOICE_MAX_RETRIES ) {
 		filter_ai_brand_voice_set_state(

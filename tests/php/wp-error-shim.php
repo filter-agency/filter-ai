@@ -29,14 +29,23 @@ class WP_Error {
 	private $message;
 
 	/**
+	 * Error data.
+	 *
+	 * @var mixed
+	 */
+	private $data;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param string $code    Error code.
 	 * @param string $message Error message.
+	 * @param mixed  $data    Error data.
 	 */
-	public function __construct( $code = '', $message = '' ) {
+	public function __construct( $code = '', $message = '', $data = '' ) {
 		$this->code    = (string) $code;
 		$this->message = (string) $message;
+		$this->data    = $data;
 	}
 
 	/**
@@ -55,5 +64,24 @@ class WP_Error {
 	 */
 	public function get_error_message() {
 		return $this->message;
+	}
+
+	/**
+	 * Get the error data.
+	 *
+	 * @return mixed
+	 */
+	public function get_error_data() {
+		return $this->data;
+	}
+
+	/**
+	 * Set the error data.
+	 *
+	 * @param mixed $data Error data.
+	 * @return void
+	 */
+	public function add_data( $data ) {
+		$this->data = $data;
 	}
 }

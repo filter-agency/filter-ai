@@ -9,6 +9,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+require_once __DIR__ . '/../error-log.php';
+require_once __DIR__ . '/model-selection.php';
+
 /**
  * WordPress-7.0-native AI provider.
  */
@@ -59,6 +62,9 @@ class Filter_AI_Provider_Native implements Filter_AI_Provider {
 	 * @return string|null Model ID to prefer, or null for automatic selection.
 	 */
 	private function preferred_model( $provider_slug, array $capabilities ) {
+		$selection     = filter_ai_parse_provider_model_selection( $provider_slug );
+		$provider_slug = $selection['provider_slug'];
+		$model_slug    = $selection['model_slug'];
 		if ( empty( $provider_slug ) || ! class_exists( 'WordPress\\AiClient\\AiClient' ) ) {
 			return null;
 		}
@@ -74,24 +80,16 @@ class Filter_AI_Provider_Native implements Filter_AI_Provider {
 				return null;
 			}
 
-			// Build capability enum instances from string slugs.
-			$capability_class   = 'WordPress\\AiClient\\Providers\\Models\\Enums\\CapabilityEnum';
-			$requirements_class = 'WordPress\\AiClient\\Providers\\Models\\DTO\\ModelRequirements';
-			if ( ! class_exists( $capability_class ) || ! class_exists( $requirements_class ) ) {
+			if ( ! empty( $model_slug ) ) {
+				return $model_slug;
+			}
+
+			$requirements = $this->model_requirements( $capabilities );
+			if ( null === $requirements ) {
 				return null;
 			}
-			$capability_enums = array();
-			foreach ( $capabilities as $cap ) {
-				$enum = $capability_class::tryFrom( (string) $cap );
-				if ( null !== $enum ) {
-					$capability_enums[] = $enum;
-				}
-			}
-			// Use an empty requirements object if no valid capabilities were supplied —
-			// the registry will return all models for the provider.
-			$requirements = new $requirements_class( $capability_enums, array() );
-			$models       = $registry->findProviderModelsMetadataForSupport( $slug, $requirements );
-			$first        = is_array( $models ) ? reset( $models ) : $models;
+			$models = $registry->findProviderModelsMetadataForSupport( $slug, $requirements );
+			$first  = is_array( $models ) ? reset( $models ) : $models;
 			return ( is_object( $first ) && method_exists( $first, 'getId' ) ) ? $first->getId() : null;
 		} catch ( \Throwable $e ) {
 			return null; // any failure → automatic selection
@@ -139,7 +137,8 @@ class Filter_AI_Provider_Native implements Filter_AI_Provider {
 	 */
 	public function generate_text( $prompt, array $files, $feature, array $capabilities, $provider_slug = null ) {
 		try {
-			$this->last_provider_slug = $provider_slug ? (string) $provider_slug : '';
+			$selection                = filter_ai_parse_provider_model_selection( $provider_slug );
+			$this->last_provider_slug = $selection['provider_slug'] ? (string) $selection['provider_slug'] : '';
 
 			$builder = $this->builder( $prompt, $files, $provider_slug, $capabilities );
 			if ( ! $builder->is_supported_for_text_generation() ) {
@@ -147,7 +146,20 @@ class Filter_AI_Provider_Native implements Filter_AI_Provider {
 			}
 			return $builder->generate_text();
 		} catch ( \Throwable $e ) {
-			return new WP_Error( 'filter_ai_generation_failed', $e->getMessage() );
+			return filter_ai_wp_error_from_throwable(
+				'filter_ai_generation_failed',
+				$e,
+				filter_ai_error_generation_context(
+					$feature,
+					$capabilities,
+					$provider_slug,
+					$files,
+					array(
+						'backend'       => 'native',
+						'prompt_length' => strlen( (string) $prompt ),
+					)
+				)
+			);
 		}
 	}
 
@@ -235,7 +247,21 @@ class Filter_AI_Provider_Native implements Filter_AI_Provider {
 			}
 			return $images;
 		} catch ( \Throwable $e ) {
-			return new WP_Error( 'filter_ai_generation_failed', $e->getMessage() );
+			return filter_ai_wp_error_from_throwable(
+				'filter_ai_generation_failed',
+				$e,
+				filter_ai_error_generation_context(
+					$feature,
+					array( 'image_generation' ),
+					$provider_slug,
+					array(),
+					array(
+						'backend'       => 'native',
+						'prompt_length' => strlen( (string) $prompt ),
+						'image_config'  => $config,
+					)
+				)
+			);
 		}
 	}
 
@@ -246,6 +272,29 @@ class Filter_AI_Provider_Native implements Filter_AI_Provider {
 	 */
 	public function last_provider_slug() {
 		return $this->last_provider_slug;
+	}
+
+	/**
+	 * Build model requirements from capability strings.
+	 *
+	 * @param string[] $capabilities Required capability slugs.
+	 * @return object|null ModelRequirements instance.
+	 */
+	private function model_requirements( array $capabilities ) {
+		$capability_class   = 'WordPress\\AiClient\\Providers\\Models\\Enums\\CapabilityEnum';
+		$requirements_class = 'WordPress\\AiClient\\Providers\\Models\\DTO\\ModelRequirements';
+		if ( ! class_exists( $capability_class ) || ! class_exists( $requirements_class ) ) {
+			return null;
+		}
+
+		$capability_enums = array();
+		foreach ( $capabilities as $cap ) {
+			$enum = $capability_class::tryFrom( (string) $cap );
+			if ( null !== $enum ) {
+				$capability_enums[] = $enum;
+			}
+		}
+		return new $requirements_class( $capability_enums, array() );
 	}
 
 	/**
@@ -270,5 +319,65 @@ class Filter_AI_Provider_Native implements Filter_AI_Provider {
 			);
 		}
 		return $out;
+	}
+
+	/**
+	 * List selectable provider/model options.
+	 *
+	 * @return array[]
+	 */
+	public function list_provider_models() {
+		$options = array();
+		if ( ! class_exists( 'WordPress\\AiClient\\AiClient' ) ) {
+			return $options;
+		}
+
+		$registry     = WordPress\AiClient\AiClient::defaultRegistry();
+		$requirements = $this->model_requirements( array() );
+		if ( null === $requirements ) {
+			return $options;
+		}
+
+		foreach ( $this->list_providers() as $provider_slug => $provider ) {
+			if ( empty( $provider['is_available'] ) ) {
+				continue;
+			}
+			$provider_label = isset( $provider['label'] ) ? $provider['label'] : $provider_slug;
+
+			try {
+				$models = $registry->findProviderModelsMetadataForSupport( $provider_slug, $requirements );
+				if ( empty( $models ) ) {
+					continue;
+				}
+
+				$provider_capabilities = array();
+				foreach ( $models as $model_metadata ) {
+					if ( is_object( $model_metadata ) && method_exists( $model_metadata, 'getSupportedCapabilities' ) ) {
+						foreach ( $model_metadata->getSupportedCapabilities() as $capability ) {
+							$provider_capabilities[] = is_object( $capability ) && isset( $capability->value ) ? $capability->value : (string) $capability;
+						}
+					}
+				}
+				$provider_capabilities = array_values( array_unique( $provider_capabilities ) );
+				$options[]             = filter_ai_provider_model_option( $provider_slug, $provider_label, '', __( 'Auto', 'filter-ai' ), $provider_capabilities );
+
+				foreach ( $models as $model_metadata ) {
+					if ( ! is_object( $model_metadata ) || ! method_exists( $model_metadata, 'getId' ) ) {
+						continue;
+					}
+					$model_capabilities = array();
+					if ( method_exists( $model_metadata, 'getSupportedCapabilities' ) ) {
+						foreach ( $model_metadata->getSupportedCapabilities() as $capability ) {
+							$model_capabilities[] = is_object( $capability ) && isset( $capability->value ) ? $capability->value : (string) $capability;
+						}
+					}
+					$model_label = method_exists( $model_metadata, 'getName' ) ? $model_metadata->getName() : $model_metadata->getId();
+					$options[]   = filter_ai_provider_model_option( $provider_slug, $provider_label, $model_metadata->getId(), $model_label, $model_capabilities );
+				}
+			} catch ( \Throwable $e ) {
+				continue;
+			}
+		}
+		return $options;
 	}
 }

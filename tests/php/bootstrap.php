@@ -27,4 +27,43 @@ if ( ! function_exists( '__' ) ) {
 	}
 }
 
+if ( ! defined( 'WEEK_IN_SECONDS' ) ) {
+	define( 'WEEK_IN_SECONDS', 604800 );
+}
+
+if ( ! function_exists( 'admin_url' ) ) {
+	/**
+	 * Minimal admin URL shim for pure-logic tests outside WordPress.
+	 *
+	 * @param string $path Admin path.
+	 * @return string
+	 */
+	function admin_url( $path = '' ) {
+		return 'https://example.test/wp-admin/' . ltrim( (string) $path, '/' );
+	}
+}
+
+if ( ! function_exists( 'add_action' ) ) {
+	/**
+	 * Minimal add_action shim for loading hook-registering files outside WordPress.
+	 *
+	 * @return bool
+	 */
+	function add_action() {
+		return true;
+	}
+}
+
 require_once __DIR__ . '/wp-error-shim.php';
+
+if ( ! function_exists( 'is_wp_error' ) ) {
+	/**
+	 * Minimal is_wp_error shim for pure-logic tests outside WordPress.
+	 *
+	 * @param mixed $thing Value to test.
+	 * @return bool
+	 */
+	function is_wp_error( $thing ) {
+		return $thing instanceof WP_Error;
+	}
+}

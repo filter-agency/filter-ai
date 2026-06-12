@@ -48,6 +48,43 @@ export const nativeListProviders = async (): Promise<
   Record<string, { label: string; capabilities: string[]; is_available: boolean }>
 > => apiFetch({ path: '/filter-ai/v1/providers' });
 
+export const nativeListProviderModels = async (): Promise<
+  Record<
+    string,
+    {
+      slug: string;
+      provider_slug: string;
+      model_slug: string;
+      label: string;
+      metadata: { name: string };
+      provider_label: string;
+      model_label: string;
+      capabilities: string[];
+      is_available: boolean;
+    }
+  >
+> => apiFetch({ path: '/filter-ai/v1/provider-models' });
+
+export type ErrorLogSummary = {
+  id: number;
+  date: string;
+  source: string;
+  message: string;
+  title: string;
+  url: string;
+};
+
+export type ErrorLogDetail = ErrorLogSummary & {
+  content: string;
+  payload: Record<string, unknown> | null;
+};
+
+export const nativeListErrorLogs = async (): Promise<ErrorLogSummary[]> =>
+  apiFetch({ path: '/filter-ai/v1/error-logs' });
+
+export const nativeGetErrorLog = async (id: number): Promise<ErrorLogDetail> =>
+  apiFetch({ path: `/filter-ai/v1/error-logs/${id}` });
+
 type StreamTextArgs = {
   prompt: string;
   keywords: string[];
